@@ -3,12 +3,17 @@ import { GameConfig } from "./GameConfig";
 import { IGameConfigProvider } from "./providers/IGameConfigProvider";
 import { DefaultGameConfigProvider } from "./providers/DefaultGameConfigProvider";
 import { JsonGameConfigProvider } from "./providers/JsonGameConfigProvider";
+import { assertNotNull } from "../../core/utils/assert";
 
 export class GameConfigService {
     async load(mode: GameConfigMode): Promise<GameConfig> {
         const provider = this.createProvider(mode);
         await provider.load();
-        return provider.getConfig();
+
+        const config = provider.getConfig();
+        assertNotNull(config, this, "GameConfig");
+
+        return config;
     }
 
     private createProvider(mode: GameConfigMode): IGameConfigProvider {

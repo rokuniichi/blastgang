@@ -13,7 +13,7 @@ export class DefaultGameConfigProvider extends BaseGameConfigProvider {
                 TileType.PURPLE,
                 TileType.YELLOW
             ],
-            minClusterSize: 2,
+            minClusterSize: 3,
             targetScore: 500,
             maxMoves: 20
         };
