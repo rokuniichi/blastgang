@@ -1,3 +1,4 @@
+import { GameConfig } from "../../config/GameConfig";
 import { GameConfigLoader } from "../../config/GameConfigLoader";
 import { GameConfigSource } from "../../config/GameConfigSource";
 import { BoardView } from "../../presentation/views/BoardView";
@@ -14,10 +15,16 @@ export class GameEntry extends cc.Component {
     @property(BoardView)
     boardView: BoardView | null = null;
 
-    protected async start() {
-        const config = await new GameConfigLoader().load(this.configMode);
-        const context = new GameContext(config);
+    private _config: GameConfig;
+    private _context: GameContext;
 
-        this.boardView.init(context.boardModel, context.gameEventBus);
+    protected async start() {
+        this._config = await new GameConfigLoader().load(this.configMode);
+        this._context = new GameContext(this._config);
+        this.boardView.init(this._context.boardModel, this._context.eventBus);
+    }
+
+    protected onDestroy(): void {
+        this._context?.dispose();
     }
 }

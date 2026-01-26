@@ -1,29 +1,38 @@
-import { GameEventBus } from "../../../core/event-system/EventBus";
-import { GameConfig } from "../../config/GameConfig";
+import { EventBus } from "../../../core/event-system/EventBus";
 import { BoardModel } from "../../domain/models/BoardModel";
-import { GameStateModel } from "../../domain/models/GameStateModel";
 import { BoardFillService } from "../../domain/services/BoardFillService";
 import { BoardController } from "../controllers/BoardController";
-import { GameStateController } from "../controllers/GameStateController";
+import { GameConfig } from "../../config/GameConfig";
 
 export class GameContext {
 
-    public readonly gameConfig: GameConfig;
-    public readonly gameEventBus: GameEventBus;
+    public readonly eventBus: EventBus;
     public readonly boardModel: BoardModel;
-    public readonly gameState: GameStateModel;
 
-    constructor(gameConfig: GameConfig) {
-        this.gameConfig = gameConfig;
+    public readonly boardFillService: BoardFillService;
 
-        this.gameEventBus = new GameEventBus();
+    public readonly boardController: BoardController;
+    
+    
+    private readonly _config: GameConfig;
 
-        this.boardModel = new BoardModel(this.gameConfig.boardWidth, this.gameConfig.boardHeight);
-        this.gameState  = new GameStateModel(this.gameConfig.maxMoves, this.gameConfig.targetScore);
+    constructor(config: GameConfig) {
+        this._config = config;
+        this.eventBus = new EventBus();
 
-        const boardFillService = new BoardFillService(this.gameConfig);
+        this.boardModel = new BoardModel(this._config.boardWidth, this._config.boardHeight);
 
-        const boardController     = new BoardController(this.boardModel, boardFillService);
-        const gameStateController = new GameStateController(this.gameState);
+        this.boardFillService = new BoardFillService(this._config);
+
+        this.boardController = new BoardController(
+            this.boardModel,
+            this.boardFillService,
+            this.eventBus
+        );
+    }
+
+    public dispose(): void {
+        this.boardController.unsubscribe();
+        this.eventBus.clear();
     }
 }

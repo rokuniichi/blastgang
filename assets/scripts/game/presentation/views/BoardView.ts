@@ -1,4 +1,4 @@
-import { GameEventBus } from "../../../core/event-system/EventBus";
+import { EventBus } from "../../../core/event-system/EventBus";
 import { assertNotNull } from "../../../core/utils/assert";
 import { BoardModel } from "../../domain/models/BoardModel";
 import { TileAssets } from "../assets/TileAssets";
@@ -23,7 +23,7 @@ export class BoardView extends cc.Component {
         assertNotNull(this.tileAssets, this, "TileAssets");
     }
 
-    public init(model: BoardModel, eventBus: GameEventBus) {
+    public init(model: BoardModel, eventBus: EventBus) {
         model.forEach((tile) => {
             const sprite = this.tileAssets!.getSprite(tile.type);
             const node = cc.instantiate(this.tilePrefab);
