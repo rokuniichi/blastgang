@@ -3,21 +3,21 @@ import { BoardFillService } from "../../domain/services/BoardFillService";
 import { EventBus } from "../../../core/event-system/EventBus";
 import { BaseController } from "./BaseController";
 import { TileClickedEvent } from "../../presentation/events/TileClickedEvent";
-import { TileClusterService } from "../../domain/services/TileClusterService";
+import { TileClusterSearchService } from "../../domain/services/TileClusterSearchService";
 
 export class BoardController extends BaseController {
 
     private readonly _board: BoardModel;
 
     private readonly _boardFillService: BoardFillService;
-    private readonly _tileClusterService: TileClusterService;
+    private readonly _tileClusterService: TileClusterSearchService;
     
     private readonly _eventBus: EventBus;
 
     constructor(
         board: BoardModel,
         boardFillService: BoardFillService,
-        tileClusterService: TileClusterService,
+        tileClusterService: TileClusterSearchService,
         eventBus: EventBus
     ) {
         super();
