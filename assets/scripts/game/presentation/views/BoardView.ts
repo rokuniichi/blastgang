@@ -1,5 +1,6 @@
 import { EventBus } from "../../../core/event-system/EventBus";
 import { assertNotNull } from "../../../core/utils/assert";
+import { ensureNotNull } from "../../../core/utils/ensure";
 import { BoardModel } from "../../domain/models/BoardModel";
 import { TileAssets } from "../assets/TileAssets";
 import { TileView } from "./TileView";
@@ -17,21 +18,20 @@ export class BoardView extends cc.Component {
     @property(TileAssets)
     tileAssets: TileAssets | null = null;
 
-    protected start() {
-        assertNotNull(this.tilePrefab, this, "TilePrefab");
-        assertNotNull(this.tileRoot, this, "TileRoot");
-        assertNotNull(this.tileAssets, this, "TileAssets");
-    }
-
     public init(model: BoardModel, eventBus: EventBus) {
+        const prefab = ensureNotNull(this.tilePrefab, this, "TilePrefab");
+        const root = ensureNotNull(this.tileRoot, this, "TileRoot");
+        const assets = ensureNotNull(this.tileAssets, this, "TileAssets");
+
         model.forEach((tile) => {
-            const sprite = this.tileAssets!.getSprite(tile.type);
-            const node = cc.instantiate(this.tilePrefab);
-            const view = node.getComponent(TileView)!;
-            view.setSprite(sprite);
-            node.setParent(this.tileRoot!);
+            const node = cc.instantiate(prefab);
+            const view = ensureNotNull(node.getComponent(TileView), this, "TileView");
+            const sprite = assets.getSprite(tile.type);
+
+            view.init(tile.x, tile.y, sprite, eventBus);
+
+            node.setParent(root);
             node.setPosition(tile.x * node.width, -tile.y * node.height);
-            node.getComponent(TileView)!.init(tile.x, tile.y, eventBus);
         });
     }
 }
