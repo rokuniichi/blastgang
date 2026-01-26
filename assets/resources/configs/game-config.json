@@ -1,0 +1,14 @@
+{
+  "boardWidth": 9,
+  "boardHeight": 9,
+  "allowedTileTypes": [
+    "RED",
+    "GREEN",
+    "BLUE",
+    "PURPLE",
+    "YELLOW"
+  ],
+  "minClusterSize": 2,
+  "targetScore": 500,
+  "maxMoves": 20
+}
