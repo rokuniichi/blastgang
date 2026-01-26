@@ -1,0 +1,19 @@
+# Node / npm
+node_modules/
+npm-debug.log*
+
+# Cocos Creator
+temp/
+library/
+local/
+build/
+dist/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
