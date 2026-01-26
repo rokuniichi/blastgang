@@ -21,7 +21,7 @@ export class BoardFillService {
     public fillRandom(board: BoardModel): void {
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
-                board.setTile(x, y, this.randomTileType());
+                board.set(x, y, this.randomTileType());
             }
         }
     }
@@ -29,7 +29,7 @@ export class BoardFillService {
     private fillAll(board: BoardModel, type: TileType): void {
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
-                board.setTile(x, y, type);
+                board.set(x, y, type);
             }
         }
     }

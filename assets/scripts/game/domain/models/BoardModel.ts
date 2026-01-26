@@ -9,21 +9,21 @@ export class BoardModel {
     public constructor(width: number, height: number) {
         this._width = width;
         this._height = height;
-        this.initBoard();
+        this._tiles = this.create();
     }
 
-    public get width(): TileType { return this._width; }
+    public get width(): number { return this._width; }
     public get height(): number { return this._height; }
 
-    public getTile(x: number, y: number): TileModel | null {
+    public get(x: number, y: number): TileModel | null {
         if (x < 0 || y < 0 || x >= this._width || y >= this._height) {
             return null;
         }
         return this._tiles[y][x];
     }
 
-    public setTile(x: number, y: number, type: TileType): void {
-        const tile = this.getTile(x, y);
+    public set(x: number, y: number, type: TileType): void {
+        const tile = this.get(x, y);
         if (tile) {
             tile.type = type;
         }
@@ -37,14 +37,16 @@ export class BoardModel {
         }
     }
 
-    private initBoard() {
-        this._tiles = [];
+    private create(): TileModel[][] {
+        const tiles: TileModel[][] = [];
         for (let y = 0; y < this._height; y++) {
             const row: TileModel[] = [];
             for (let x = 0; x < this._width; x++) {
                 row.push(new TileModel(x, y, TileType.NONE));
             }
-            this._tiles.push(row);
+            tiles.push(row);
         }
+
+        return tiles;
     }
 }

@@ -1,3 +1,4 @@
+import { assertNotNull } from "../../../core/utils/assert";
 import { GameConfig } from "../../config/GameConfig";
 import { GameConfigLoader } from "../../config/GameConfigLoader";
 import { GameConfigSource } from "../../config/GameConfigSource";
@@ -15,12 +16,15 @@ export class GameEntry extends cc.Component {
     @property(BoardView)
     boardView: BoardView | null = null;
 
-    private _config: GameConfig;
-    private _context: GameContext;
+    private _config: GameConfig | null = null;
+    private _context: GameContext | null = null;
 
     protected async start() {
         this._config = await new GameConfigLoader().load(this.configMode);
         this._context = new GameContext(this._config);
+
+        assertNotNull(this.boardView, this, "BoardView");
+        
         this.boardView.init(this._context.boardModel, this._context.eventBus);
     }
 

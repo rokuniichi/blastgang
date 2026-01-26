@@ -9,10 +9,7 @@ export class GameConfigLoader {
     async load(mode: GameConfigSource): Promise<GameConfig> {
         const provider = this.createProvider(mode);
         await provider.load();
-
         const config = provider.getConfig();
-        assertNotNull(config, this, "GameConfig");
-
         return config;
     }
 

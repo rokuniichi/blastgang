@@ -3,26 +3,33 @@ import { BoardFillService } from "../../domain/services/BoardFillService";
 import { EventBus } from "../../../core/event-system/EventBus";
 import { BaseController } from "./BaseController";
 import { TileClickedEvent } from "../../presentation/events/TileClickedEvent";
+import { TileClusterService } from "../../domain/services/TileClusterService";
 
 export class BoardController extends BaseController {
 
     private readonly _board: BoardModel;
+
     private readonly _boardFillService: BoardFillService;
+    private readonly _tileClusterService: TileClusterService;
+    
     private readonly _eventBus: EventBus;
 
     constructor(
         board: BoardModel,
         boardFillService: BoardFillService,
+        tileClusterService: TileClusterService,
         eventBus: EventBus
     ) {
         super();
 
         this._board = board;
+
         this._boardFillService = boardFillService;
+        this._tileClusterService = tileClusterService;
+
         this._eventBus = eventBus;
 
         this._boardFillService.fillRandom(this._board);
-
         this.subscribe();
     }
 
@@ -33,6 +40,13 @@ export class BoardController extends BaseController {
     }
 
     private onTileClicked(event: TileClickedEvent): void {
-        console.log(`[${this.constructor.name}]] Tile clicked: x=${event.x}, y=${event.y}`);
+        const cluster = this._tileClusterService.findCluster(this._board, event.x, event.y);
+
+        if (!cluster) {
+            console.log("No cluster");
+            return;
+        }
+
+        console.log(`Cluster found: size=${cluster.size}, type=${cluster.type}`);
     }
 }
