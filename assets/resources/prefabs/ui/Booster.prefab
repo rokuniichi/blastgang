@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Booster",
+    "_name": "Bomb",
     "_objFlags": 0,
     "_parent": null,
     "_children": [
@@ -58,7 +58,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        0,
+        153.665,
         0,
         0,
         0,
@@ -85,7 +85,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "BoosterIcon",
+    "_name": "Icon",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -165,7 +165,9 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_spriteFrame": null,
+    "_spriteFrame": {
+      "__uuid__": "011bca16-da28-4c7a-bc4e-2f45899dc3d5"
+    },
     "_type": 0,
     "_sizeMode": 2,
     "_fillType": 0,
@@ -220,7 +222,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "CounterBackground",
+    "_name": "Plate",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -291,7 +293,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "CounterText",
+    "_name": "Counter",
     "_objFlags": 0,
     "_parent": {
       "__id__": 6
