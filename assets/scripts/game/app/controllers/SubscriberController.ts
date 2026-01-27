@@ -3,7 +3,7 @@ import { IEvent } from "../../../core/event-system/IEvent";
 import { SubscriptionGroup } from "../../../core/event-system/SubscriptionGroup";
 import { ensureNotNull } from "../../../core/utils/ensure";
 
-export abstract class BaseController {
+export abstract class SubscriberController {
     protected readonly subscriptions = new SubscriptionGroup();
         private _eventBus!: EventBus;
         private _initialized = false;
@@ -23,7 +23,7 @@ export abstract class BaseController {
     
         protected on<T extends IEvent>(eventType: new (...args: any[]) => T, handler: (event: T) => void): void {
             this.subscriptions.add(
-                this._eventBus.on(eventType, handler.bind(this))
+                this._eventBus.on(eventType, handler)
             );
         }
     

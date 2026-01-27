@@ -1,10 +1,17 @@
+import { assertNotNull } from "../../../core/utils/assert";
+import { BaseView } from "./BaseView";
+
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class TileView extends cc.Component {
+export class TileView extends BaseView {
 
     @property(cc.Sprite)
-    sprite: cc.Sprite | null = null;
+    sprite!: cc.Sprite;
+
+    protected validate(): void {
+        assertNotNull(this.sprite, this, "Sprite");
+    }
 
     public show(): void {
         this.node.active = true;
@@ -15,7 +22,7 @@ export class TileView extends cc.Component {
     }
 
     public setSprite(spriteFrame: cc.SpriteFrame): void {
-        this.sprite!.spriteFrame = spriteFrame;
+        this.sprite.spriteFrame = spriteFrame;
     }
 
     public setPosition(x: number, y: number): void {

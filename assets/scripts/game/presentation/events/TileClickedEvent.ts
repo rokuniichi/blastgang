@@ -1,10 +1,8 @@
 import { IEvent } from "../../../core/event-system/IEvent";
+import { TilePosition } from "../../domain/models/TilePosition";
 
 export class TileClickedEvent implements IEvent {
     readonly type = "TileClickedEvent";
 
-    constructor(
-        public readonly x: number,
-        public readonly y: number
-    ) {}
+    constructor(public readonly position: TilePosition) {}
 }

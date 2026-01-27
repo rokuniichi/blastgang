@@ -24,15 +24,15 @@ export class GameContext {
         this.eventBus = new EventBus();
 
         this.boardModel = new BoardModel(this.config.boardWidth, this.config.boardHeight);
-
         this.boardFillService = new BoardFillService(this.config);
+        this.boardFillService.fillRandom(this.boardModel);
+
         this.clusterSearchService = new ClusterSearchService();
         this.clusterDestructionService = new ClusterDestructionService();
 
         this.boardController = new BoardController(
             this.config,
             this.boardModel,
-            this.boardFillService,
             this.clusterSearchService,
             this.clusterDestructionService
         );

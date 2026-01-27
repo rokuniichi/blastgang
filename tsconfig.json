@@ -10,6 +10,7 @@
 
     "strict": true,
     "strictNullChecks": true,
+	"strictPropertyInitialization": false,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "alwaysStrict": true,

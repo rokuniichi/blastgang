@@ -3,12 +3,17 @@ export class Matrix<T> {
     private readonly _height: number;
     private readonly _data: T[][];
 
-    public constructor(width: number, height: number, factory: () => T) {
+    public constructor(width: number, height: number, factory: (x: number, y: number) => T) {
         this._width = width;
         this._height = height;
-        this._data = Array.from({ length: height }, () =>
-            Array.from({ length: width }, factory)
-        );
+        this._data = new Array(height);
+
+        for (let y = 0; y < height; y++) {
+            this._data[y] = new Array(width);
+            for (let x = 0; x < width; x++) {
+                this._data[y][x] = factory(x, y);
+            }
+        }
     }
 
     public get width(): number {

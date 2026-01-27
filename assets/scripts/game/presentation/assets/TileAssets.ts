@@ -2,30 +2,30 @@
 import { assertNotNull } from "../../../core/utils/assert";
 import { ensureNotNull } from "../../../core/utils/ensure";
 import { TileType } from "../../domain/models/TileType";
+import { BaseView } from "../views/BaseView";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class TileAssets extends cc.Component {
+export class TileAssets extends BaseView {
+    @property(cc.SpriteFrame)
+    red!: cc.SpriteFrame;
 
     @property(cc.SpriteFrame)
-    red: cc.SpriteFrame | null = null;
+    green!: cc.SpriteFrame;
 
     @property(cc.SpriteFrame)
-    green: cc.SpriteFrame | null = null;
+    blue!: cc.SpriteFrame;
 
     @property(cc.SpriteFrame)
-    blue: cc.SpriteFrame | null = null;
+    purple!: cc.SpriteFrame;
 
     @property(cc.SpriteFrame)
-    purple: cc.SpriteFrame | null = null;
-
-    @property(cc.SpriteFrame)
-    yellow: cc.SpriteFrame | null = null;
+    yellow!: cc.SpriteFrame;
 
     private _map!: Map<TileType, cc.SpriteFrame>;
 
-    protected onLoad(): void {
+    protected validate(): void {
         this._map = new Map<TileType, cc.SpriteFrame>([
             [TileType.RED, ensureNotNull(this.red, this, "RED")],
             [TileType.GREEN, ensureNotNull(this.green, this, "GREEN")],

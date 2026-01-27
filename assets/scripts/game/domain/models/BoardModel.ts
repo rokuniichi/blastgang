@@ -1,4 +1,5 @@
 import { Matrix } from "../../../core/collections/Matrix";
+import { TilePosition } from "./TilePosition";
 import { TileType } from "./TileType";
 
 export class BoardModel {
@@ -17,35 +18,35 @@ export class BoardModel {
         return this._matrix.height;
     }
 
-    public get(x: number, y: number): TileType {
-        return this._matrix.get(x, y);
+    public get(position: TilePosition): TileType {
+        return this._matrix.get(position.x, position.y);
     }
 
-    public set(x: number, y: number, type: TileType): void {
-        this._matrix.set(x, y, type);
+    public set(position: TilePosition, type: TileType): void {
+        this._matrix.set(position.x, position.y, type);
     }
 
-    public swap(x1: number, y1: number, x2: number, y2: number): void {
-        this._matrix.swap(x1, y1, x2, y2);
+    public swap(first: TilePosition, second: TilePosition): void {
+        this._matrix.swap(first.x, first.y, second.x, second.y);
     }
 
-    public isEmpty(x: number, y: number): boolean {
-        return this.get(x, y) === TileType.NONE;
+    public isEmpty(position: TilePosition): boolean {
+        return this.get(position) === TileType.NONE;
     }
 
-    public forEach(cb: (type: TileType, x: number, y: number) => void): void {
-        this._matrix.forEach(cb);
+    public forEach(cb: (type: TileType, position: TilePosition) => void): void {
+        this._matrix.forEach((type, x, y) => { cb(type, { x, y }) });
     }
 
     public fillWithType(type: TileType): void {
-        this.forEach((_, x, y) => this.set(x, y, type));
+        this.forEach((_, p) => this.set(p, type));
     }
 
     public fillWithGenerator(generator: () => TileType) {
-        this.forEach((_, x, y) => this.set(x, y, generator()));
+        this.forEach((_, p) => this.set(p, generator()));
     }
 
-    public clear(x: number, y: number): void {
-        this.set(x, y, TileType.NONE);
+    public clear(position: TilePosition): void {
+        this.set(position, TileType.NONE);
     }
 }
