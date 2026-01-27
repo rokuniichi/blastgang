@@ -8,56 +8,51 @@ export class SearchService {
     public constructor() { }
 
     public findCluster(board: BoardModel, start: TilePosition): Cluster | null {
-        const startType: TileType = board.get(start);
+        const targetType: TileType = board.get(start);
 
-        if (startType === TileType.NONE) {
+        if (targetType === TileType.NONE) {
             return null;
         }
 
-        const visited: Set<string> = new Set<string>();
+        const visited: boolean[][] = [];
         const result: TilePosition[] = [];
         const stack: TilePosition[] = [start];
 
-        const key = (p: TilePosition): string => `${p.x}:${p.y}`;
-
         while (stack.length > 0) {
-            const pos: TilePosition = stack.pop() as TilePosition;
-            const k: string = key(pos);
+            const position = stack.pop();
+            if (!position) continue;
 
-            if (visited.has(k)) {
+            if (visited[position.x][position.y]) continue;
+
+            visited[position.x][position.y] = true;
+
+            if (board.get(position) !== targetType) {
                 continue;
             }
 
-            visited.add(k);
+            result.push(position);
 
-            if (board.get(pos) !== startType) {
-                continue;
-            }
-
-            result.push(pos);
-
-            stack.push(...this.findNeighbors(board, pos));
+            stack.push(...this.findNeighbors(board, position));
         }
 
         return result.length > 0 ? new Cluster(result) : null;
     }
 
     private findNeighbors(board: BoardModel, position: TilePosition): TilePosition[] {
-        const neighbors =
-            [
-                { x: position.x + 1, y: position.y },
-                { x: position.x - 1, y: position.y },
-                { x: position.x, y: position.y + 1 },
-                { x: position.x, y: position.y - 1 },
-            ];
+        const neighbors: TilePosition[] = [
+            { x: position.x + 1, y: position.y },
+            { x: position.x - 1, y: position.y },
+            { x: position.x, y: position.y + 1 },
+            { x: position.x, y: position.y - 1 },
+        ];
 
         const result: TilePosition[] = [];
 
-        for (const n of neighbors) {
-            if (n.x < 0 || n.y < 0 || n.x >= board.width || n.y >= board.height) {
+        for (const position of neighbors) {
+            if (position.x < 0 || position.y < 0 || position.x >= board.width || position.y >= board.height) {
                 continue;
             }
-            result.push(n);
+            result.push(position);
         }
 
         return result;

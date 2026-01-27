@@ -7,8 +7,8 @@ export class DestructionService {
     public constructor() {}
 
     public destroy(board: BoardModel, cluster: Cluster): void {
-        for (const pos of cluster.tiles) {
-            board.set(pos, TileType.NONE);
+        for (const position of cluster.tiles) {
+            board.clear(position);
         }
     }
 }
