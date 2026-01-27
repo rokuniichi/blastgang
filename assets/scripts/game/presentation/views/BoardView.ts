@@ -8,6 +8,8 @@ import { TileType } from "../../domain/models/TileType";
 import { assertNotNull } from "../../../core/utils/assert";
 import { TilesDestroyedEvent } from "../../domain/events/TilesDestroyedEvent";
 import { TileAssets } from "../assets/TileAssets";
+import { AnimationSystem } from "../animation-system/AnimationSystem";
+import { AnimationType } from "../animation-system/AnimationType";
 
 const { ccclass, property } = cc._decorator;
 
@@ -23,6 +25,8 @@ export class BoardView extends EventView<BoardViewContext> {
     private tileAssets: TileAssets = null!;
 
     private board!: BoardModel;
+    private animationSystem!: AnimationSystem;
+
     private views!: Matrix<TileView>;
 
     public override validate(): void {
@@ -33,6 +37,7 @@ export class BoardView extends EventView<BoardViewContext> {
 
     protected override onInit(): void {
         this.board = this.context.board;
+        this.animationSystem = this.context.animationSystem;
 
         this.views = new Matrix<TileView>(
             this.board.width,
@@ -73,7 +78,7 @@ export class BoardView extends EventView<BoardViewContext> {
         for (const position of event.tiles) {
             const view = this.views.get(position.x, position.y);
             if (view === null) continue;
-            view.destroyWithAnimation();
+            this.animationSystem.play(AnimationType.DESTRUCTION, view.getTarget());
         }
     };
 
