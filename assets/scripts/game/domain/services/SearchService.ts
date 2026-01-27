@@ -5,7 +5,7 @@ import { TileType } from "../models/TileType";
 
 export class SearchService {
 
-    public constructor() {}
+    public constructor() { }
 
     public findCluster(board: BoardModel, start: TilePosition): Cluster | null {
         const startType: TileType = board.get(start);
@@ -36,21 +36,31 @@ export class SearchService {
 
             result.push(pos);
 
-            const neighbors: TilePosition[] = [
-                { x: pos.x + 1, y: pos.y },
-                { x: pos.x - 1, y: pos.y },
-                { x: pos.x, y: pos.y + 1 },
-                { x: pos.x, y: pos.y - 1 },
-            ];
-
-            for (const n of neighbors) {
-                if (n.x < 0 || n.y < 0 || n.x >= board.width || n.y >= board.height) {
-                    continue;
-                }
-                stack.push(n);
-            }
+            stack.push(...this.findNeighbors(board, pos));
         }
 
         return result.length > 0 ? new Cluster(result) : null;
     }
+
+    private findNeighbors(board: BoardModel, position: TilePosition): TilePosition[] {
+        const neighbors =
+            [
+                { x: position.x + 1, y: position.y },
+                { x: position.x - 1, y: position.y },
+                { x: position.x, y: position.y + 1 },
+                { x: position.x, y: position.y - 1 },
+            ];
+
+        const result: TilePosition[] = [];
+
+        for (const n of neighbors) {
+            if (n.x < 0 || n.y < 0 || n.x >= board.width || n.y >= board.height) {
+                continue;
+            }
+            result.push(n);
+        }
+
+        return result;
+    }
+
 }
