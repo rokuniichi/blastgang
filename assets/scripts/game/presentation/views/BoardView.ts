@@ -1,15 +1,15 @@
-import { EventView } from "./EventView";
-import { BoardViewContext } from "../context/BoardViewContext";
-import { BoardModel } from "../../domain/models/BoardModel";
 import { Matrix } from "../../../core/collections/Matrix";
-import { TileView } from "./TileView";
-import { TilePosition } from "../../domain/models/TilePosition";
-import { TileType } from "../../domain/models/TileType";
 import { assertNotNull } from "../../../core/utils/assert";
 import { TilesDestroyedEvent } from "../../domain/events/TilesDestroyedEvent";
-import { TileAssets } from "../assets/TileAssets";
+import { BoardModel } from "../../domain/models/BoardModel";
+import { TilePosition } from "../../domain/models/TilePosition";
+import { TileType } from "../../domain/models/TileType";
 import { AnimationSystem } from "../animation-system/AnimationSystem";
 import { AnimationType } from "../animation-system/AnimationType";
+import { TileAssets } from "../assets/TileAssets";
+import { BoardViewContext } from "../context/BoardViewContext";
+import { EventView } from "./EventView";
+import { TileView } from "./TileView";
 
 const { ccclass, property } = cc._decorator;
 
@@ -19,7 +19,10 @@ export class BoardView extends EventView<BoardViewContext> {
     private tilePrefab: cc.Prefab = null!;
 
     @property(cc.Node)
-    private tileRoot: cc.Node = null!;
+    private tileLayer: cc.Node = null!;
+
+    @property(cc.Node)
+    private fxLayer: cc.Node = null!;
 
     @property(TileAssets)
     private tileAssets: TileAssets = null!;
@@ -31,7 +34,8 @@ export class BoardView extends EventView<BoardViewContext> {
 
     public override validate(): void {
         assertNotNull(this.tilePrefab, this, "tilePrefab");
-        assertNotNull(this.tileRoot, this, "tileRoot");
+        assertNotNull(this.tileLayer, this, "tileLayer");
+        assertNotNull(this.fxLayer, this, "fxLayer");
         assertNotNull(this.tileAssets, this, "tileAssets");
     }
 
@@ -54,7 +58,7 @@ export class BoardView extends EventView<BoardViewContext> {
 
     private createTile(pos: TilePosition): TileView {
         const node: cc.Node = cc.instantiate(this.tilePrefab);
-        node.setParent(this.tileRoot);
+        node.setParent(this.tileLayer);
         node.setPosition(pos.x * node.width, -pos.y * node.height);
 
         const view: TileView | null = node.getComponent(TileView);
@@ -78,7 +82,8 @@ export class BoardView extends EventView<BoardViewContext> {
         for (const position of event.tiles) {
             const view = this.views.get(position.x, position.y);
             if (view === null) continue;
-            this.animationSystem.play(AnimationType.DESTRUCTION, view.getTarget());
+            view.node.setParent(this.fxLayer);
+            this.animationSystem.play(AnimationType.DESTRUCTION, view.getTarget()).then(() => view.node.setParent(this.tileLayer));
         }
     };
 

@@ -5,14 +5,30 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class DestructionAnimation extends cc.Component implements IAnimation {
-    @property
-    public duration: number = 0.25;
 
     @property
-    public scaleMultiplier: number = 1.4;
+    public squashDuration = 0.12;
 
     @property
-    public fadeOut: boolean = true;
+    public popDuration = 0.18;
+
+    @property
+    public fadeDuration = 0.2;
+
+    @property
+    public squashX = 0.92;
+
+    @property
+    public squashY = 1.05;
+
+    @property
+    public popScale = 1.15;
+
+    @property
+    public finalScale = 0.6;
+
+    @property
+    public finalOpacity = 80;
 
     public readonly type: AnimationType = AnimationType.DESTRUCTION;
 
@@ -23,16 +39,39 @@ export class DestructionAnimation extends cc.Component implements IAnimation {
                 return;
             }
 
-            const tween = cc.tween(target)
-                .to(this.duration, {
-                    scale: target.scale * this.scaleMultiplier
-                });
+            const originalPos = target.position.clone();
+            const originalScale = target.scale;
+            const originalOpacity = target.opacity;
 
-            if (this.fadeOut) {
-                tween.to(this.duration, { opacity: 0 });
-            }
+            cc.tween(target)
+                .to(this.squashDuration, {
+                    scaleX: originalScale * this.squashX,
+                    scaleY: originalScale * this.squashY
+                }, { easing: "sineOut" })
 
-            tween.call(resolve).start();
+                .to(this.popDuration, {
+                    scale: originalScale * this.popScale
+                }, { easing: "quadOut" })
+
+                .parallel(
+                    cc.tween().to(this.fadeDuration, {
+                        opacity: this.finalOpacity
+                    }, { easing: "sineIn" }),
+
+                    cc.tween().to(this.fadeDuration, {
+                        scale: originalScale * this.finalScale
+                    }, { easing: "quadIn" })
+                )
+
+                .call(() => {
+                    target.removeFromParent(false);
+                    target.position = originalPos;
+                    target.scale = originalScale;
+                    target.opacity = originalOpacity;
+
+                    resolve();
+                })
+                .start();
         });
     }
 }
