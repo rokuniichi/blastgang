@@ -5,6 +5,7 @@ import { FillService } from "../../domain/services/FillService";
 import { DestructionService } from "../../domain/services/DestructionService";
 import { SearchService } from "../../domain/services/SearchService";
 import { BoardController } from "../controllers/BoardController";
+import { GravityService } from "../../domain/services/GravityService";
 
 export class GameContext {
 
@@ -15,6 +16,7 @@ export class GameContext {
     public readonly fillService: FillService;
     public readonly searchService: SearchService;
     public readonly destructionService: DestructionService;
+    public readonly gravityService: GravityService;
 
     public readonly boardController: BoardController;
 
@@ -26,6 +28,7 @@ export class GameContext {
         this.fillService = new FillService(config.allowedTileTypes);
         this.searchService = new SearchService();
         this.destructionService = new DestructionService();
+        this.gravityService = new GravityService();
 
         this.boardController = new BoardController(this);
     }

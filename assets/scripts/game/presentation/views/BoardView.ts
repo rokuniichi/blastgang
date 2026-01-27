@@ -1,5 +1,6 @@
 import { Matrix } from "../../../core/collections/Matrix";
 import { assertNotNull } from "../../../core/utils/assert";
+import { GravityAppliedEvent } from "../../domain/events/GravityAppliedEvent";
 import { TilesDestroyedEvent } from "../../domain/events/TilesDestroyedEvent";
 import { BoardModel } from "../../domain/models/BoardModel";
 import { TilePosition } from "../../domain/models/TilePosition";
@@ -8,6 +9,7 @@ import { AnimationSystem } from "../animation-system/AnimationSystem";
 import { AnimationType } from "../animation-system/AnimationType";
 import { TileAssets } from "../assets/TileAssets";
 import { BoardViewContext } from "../context/BoardViewContext";
+import { TilesFinishedDestroying } from "../events/TilesFinishedDestroying";
 import { EventView } from "./EventView";
 import { TileView } from "./TileView";
 
@@ -54,6 +56,7 @@ export class BoardView extends EventView<BoardViewContext> {
 
     protected override subscribe(): void {
         this.on(TilesDestroyedEvent, this.onTilesDestroyed);
+        this.on(GravityAppliedEvent, this.onGravityApplied);
     }
 
     private createTile(pos: TilePosition): TileView {
@@ -61,7 +64,7 @@ export class BoardView extends EventView<BoardViewContext> {
         node.setParent(this.tileLayer);
         node.setPosition(pos.x * node.width, -pos.y * node.height);
 
-        const view: TileView | null = node.getComponent(TileView);
+        const view = node.getComponent(TileView);
         assertNotNull(view, this, "TileView");
 
         view.init({
@@ -73,8 +76,8 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     private syncBoard(): void {
-        this.board.forEach((_type: TileType, pos: TilePosition): void => {
-            this.updateTile(pos);
+        this.board.forEach((_, position: TilePosition): void => {
+            this.updateTile(position);
         });
     }
 
@@ -83,9 +86,13 @@ export class BoardView extends EventView<BoardViewContext> {
             const view = this.views.get(position.x, position.y);
             if (view === null) continue;
             view.node.setParent(this.fxLayer);
-            this.animationSystem.play(AnimationType.DESTRUCTION, view.getTarget()).then(() => view.node.setParent(this.tileLayer));
+            this.animationSystem.play(AnimationType.DESTRUCTION, view.getTarget()).then(() => view.node.setParent(this.tileLayer)).then(() => this.emit(new TilesFinishedDestroying));   
         }
     };
+
+    private onGravityApplied = (event: GravityAppliedEvent): void => {
+        this.syncBoard();
+    }
 
     private updateTile(position: TilePosition): void {
         const type: TileType = this.board.get(position);

@@ -1,6 +1,6 @@
-import { TilePosition } from "../models/TilePosition";
+import { TilePosition } from "./TilePosition";
 
-export class Cluster {
+export class TileCluster {
 
     public readonly tiles: readonly TilePosition[];
 

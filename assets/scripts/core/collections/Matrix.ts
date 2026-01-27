@@ -44,10 +44,10 @@ export class Matrix<T> {
         this._data[y2][x2] = tmp;
     }
 
-    public forEach(cb: (value: T, x: number, y: number) => void): void {
+    public forEach(callback: (value: T, x: number, y: number) => void): void {
         for (let y: number = 0; y < this._height; y++) {
             for (let x: number = 0; x < this._width; x++) {
-                cb(this._data[y][x], x, y);
+                callback(this._data[y][x], x, y);
             }
         }
     }

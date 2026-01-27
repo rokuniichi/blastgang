@@ -39,7 +39,6 @@ export class DestructionAnimation extends cc.Component implements IAnimation {
                 return;
             }
 
-            const originalPos = target.position.clone();
             const originalScale = target.scale;
             const originalOpacity = target.opacity;
 
@@ -64,8 +63,6 @@ export class DestructionAnimation extends cc.Component implements IAnimation {
                 )
 
                 .call(() => {
-                    target.removeFromParent(false);
-                    target.position = originalPos;
                     target.scale = originalScale;
                     target.opacity = originalOpacity;
 

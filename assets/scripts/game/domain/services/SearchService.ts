@@ -1,5 +1,7 @@
+import { Matrix } from "../../../core/collections/Matrix";
 import { BoardModel } from "../models/BoardModel";
-import { Cluster } from "../models/Cluster";
+import { TileCluster } from "../models/TileCluster";
+import { TileMove } from "../models/TileMove";
 import { TilePosition } from "../models/TilePosition";
 import { TileType } from "../models/TileType";
 
@@ -7,14 +9,14 @@ export class SearchService {
 
     public constructor() { }
 
-    public findCluster(board: BoardModel, start: TilePosition): Cluster | null {
+    public findCluster(board: BoardModel, start: TilePosition): TileCluster | null {
         const targetType: TileType = board.get(start);
 
         if (targetType === TileType.NONE) {
             return null;
         }
 
-        const visited: boolean[][] = [];
+        const visited: Matrix<boolean> = new Matrix<boolean>(board.width, board.height, () => false);
         const result: TilePosition[] = [];
         const stack: TilePosition[] = [start];
 
@@ -22,9 +24,9 @@ export class SearchService {
             const position = stack.pop();
             if (!position) continue;
 
-            if (visited[position.x][position.y]) continue;
+            if (visited.get(position.x, position.y)) continue;
 
-            visited[position.x][position.y] = true;
+            visited.set(position.x,position.y, true);
 
             if (board.get(position) !== targetType) {
                 continue;
@@ -35,10 +37,10 @@ export class SearchService {
             stack.push(...this.findNeighbors(board, position));
         }
 
-        return result.length > 0 ? new Cluster(result) : null;
+        return result.length > 0 ? new TileCluster(result) : null;
     }
 
-    private findNeighbors(board: BoardModel, position: TilePosition): TilePosition[] {
+    public findNeighbors(board: BoardModel, position: TilePosition): TilePosition[] {
         const neighbors: TilePosition[] = [
             { x: position.x + 1, y: position.y },
             { x: position.x - 1, y: position.y },
@@ -53,6 +55,19 @@ export class SearchService {
                 continue;
             }
             result.push(position);
+        }
+
+        return result;
+    }
+
+    public findDrops(board: BoardModel): TileMove[] {
+        const result: TileMove[] = [];
+        for (let x = board.width - 1; x >= 0; x--) {
+            let drop = 0;
+            for (let y = board.height - 1; y >= 0; y--) {
+                if (board.isEmpty({ x, y })) drop++;
+                else if (drop > 0) result.push({ from: { x, y }, to: { x, y: y + drop} });
+            }
         }
 
         return result;
