@@ -1,78 +1,91 @@
-
-import { Matrix } from "../../../core/collections/Matrix";
-import { assertNotNull } from "../../../core/utils/assert";
-import { ensureNotNull } from "../../../core/utils/ensure";
+import { EventView } from "./EventView";
+import { BoardViewContext } from "../context/BoardViewContext";
 import { BoardModel } from "../../domain/models/BoardModel";
+import { Matrix } from "../../../core/collections/Matrix";
+import { TileView } from "./TileView";
 import { TilePosition } from "../../domain/models/TilePosition";
 import { TileType } from "../../domain/models/TileType";
+import { assertNotNull } from "../../../core/utils/assert";
+import { TilesDestroyedEvent } from "../../domain/events/TilesDestroyedEvent";
 import { TileAssets } from "../assets/TileAssets";
-import { TilesUpdatedEvent } from "../events/TilesUpdatedEvent";
-import { SubscriberView } from "./SubscriberView";
-import { TileView } from "./TileView";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class BoardView extends SubscriberView {
+export class BoardView extends EventView<BoardViewContext> {
     @property(cc.Prefab)
-    tilePrefab!: cc.Prefab;
+    private tilePrefab: cc.Prefab = null!;
 
     @property(cc.Node)
-    tileRoot!: cc.Node;
+    private tileRoot: cc.Node = null!;
 
     @property(TileAssets)
-    tileAssets!: TileAssets;
+    private tileAssets: TileAssets = null!;
 
-    private _board!: BoardModel;
-    private _views!: Matrix<TileView>;
+    private board!: BoardModel;
+    private views!: Matrix<TileView>;
 
-    protected validate(): void {
+    public override validate(): void {
         assertNotNull(this.tilePrefab, this, "tilePrefab");
-        assertNotNull(this.tileRoot, this, "TileRoot");
-        assertNotNull(this.tileAssets, this, "TileAssets");
+        assertNotNull(this.tileRoot, this, "tileRoot");
+        assertNotNull(this.tileAssets, this, "tileAssets");
     }
 
-    protected onInit(board: BoardModel): void {
-        this._board = board;
-        this._views = new Matrix<TileView>(board.width, board.height, (x, y) => {
-            const node = cc.instantiate(this.tilePrefab);
-            node.setParent(this.tileRoot);
-            node.setPosition(x * node.width, -y * node.height);
+    protected override onInit(): void {
+        this.board = this.context.board;
 
-            return ensureNotNull(node.getComponent(TileView), this, "TileView")
+        this.views = new Matrix<TileView>(
+            this.board.width,
+            this.board.height,
+            (x: number, y: number): TileView => this.createTile({ x, y })
+        );
+
+        this.syncBoard();
+    }
+
+    protected override subscribe(): void {
+        this.on(TilesDestroyedEvent, this.onTilesDestroyed);
+    }
+
+    private createTile(pos: TilePosition): TileView {
+        const node: cc.Node = cc.instantiate(this.tilePrefab);
+        node.setParent(this.tileRoot);
+        node.setPosition(pos.x * node.width, -pos.y * node.height);
+
+        const view: TileView | null = node.getComponent(TileView);
+        assertNotNull(view, this, "TileView");
+
+        view.init({
+            eventBus: this.eventBus,
+            position: pos
         });
 
-        this.syncViews();
+        return view;
     }
 
-    protected subscribe(): void {
-        this.on(TilesUpdatedEvent, this.onTilesUpdated)
+    private syncBoard(): void {
+        this.board.forEach((_type: TileType, pos: TilePosition): void => {
+            this.updateTile(pos);
+        });
     }
 
-    private onTilesUpdated = (event: TilesUpdatedEvent): void => {
+    private onTilesDestroyed = (event: TilesDestroyedEvent): void => {
         for (const position of event.tiles) {
-            this.updateView(position)
+            const view = this.views.get(position.x, position.y);
+            if (view === null) continue;
+            view.destroyWithAnimation();
         }
-    }
+    };
 
-    private syncViews(): void {
-        this._board.forEach((_, position) => this.updateView(position));
-    }
+    private updateTile(position: TilePosition): void {
+        const type: TileType = this.board.get(position);
+        const view: TileView = this.views.get(position.x, position.y);
 
-    private updateView(position: TilePosition): void {
-        const type = this._board.get(position);
-        const view = this.getView(position);
-        
         if (type === TileType.NONE) {
             view.hide();
-            return;
+        } else {
+            view.show();
+            view.set(this.tileAssets.get(type));
         }
-
-        view.show();
-        view.setSprite(this.tileAssets.getSprite(type));
-    }
-
-    private getView(position: TilePosition): TileView {
-        return this._views.get(position.x, position.y);
     }
 }

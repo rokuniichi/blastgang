@@ -1,6 +1,4 @@
-export class TilePosition {
-    constructor(
-        public readonly x: number,
-        public readonly y: number
-    ) {}
+export interface TilePosition {
+    readonly x: number;
+    readonly y: number;
 }

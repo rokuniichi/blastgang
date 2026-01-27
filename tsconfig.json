@@ -9,8 +9,8 @@
     "emitDecoratorMetadata": false,
 
     "strict": true,
-    "strictNullChecks": true,
 	"strictPropertyInitialization": false,
+    "strictNullChecks": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "alwaysStrict": true,

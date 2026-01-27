@@ -8,7 +8,7 @@
     "PURPLE",
     "YELLOW"
   ],
-  "minClusterSize": 3,
+  "minClusterSize": 2,
   "targetScore": 500,
   "maxMoves": 20
 }

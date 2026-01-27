@@ -1,38 +1,54 @@
 import { IEvent } from "./IEvent";
 import { Subscription } from "./Subscription";
 
-type EventConstructor<T extends IEvent> = new (...args: any[]) => T;
-type Handler<T extends IEvent> = (event: T) => void;
+export type EventConstructor<T extends IEvent> = new (...args: any[]) => T;
+export type EventHandler<T extends IEvent> = (event: T) => void;
 
 export class EventBus {
 
-    private _listeners = new Map<EventConstructor<any>, Handler<any>[]>();
+    private readonly listeners: Map<EventConstructor<IEvent>, EventHandler<IEvent>[]> = new Map();
 
-    public on<T extends IEvent>(eventType: EventConstructor<T>, handler: Handler<T>): Subscription {
-        const handlers = this._listeners.get(eventType) ?? [];
-        handlers.push(handler);
-        this._listeners.set(eventType, handlers);
+    public on<T extends IEvent>(
+        eventType: EventConstructor<T>,
+        handler: EventHandler<T>
+    ): Subscription {
+        const handlers: EventHandler<IEvent>[] =
+            this.listeners.get(eventType) ?? [];
 
-        return { unsubscribe: () => this.off(eventType, handler) };
+        handlers.push(handler as EventHandler<IEvent>);
+        this.listeners.set(eventType, handlers);
+
+        return {
+            unsubscribe: (): void => this.off(eventType, handler)
+        };
     }
 
-    public off<T extends IEvent>(eventType: EventConstructor<T>, handler: Handler<T>): void {
-        const handlers = this._listeners.get(eventType);
+    public off<T extends IEvent>(
+        eventType: EventConstructor<T>,
+        handler: EventHandler<T>
+    ): void {
+        const handlers = this.listeners.get(eventType);
         if (!handlers) return;
 
-        const index = handlers.indexOf(handler);
+        const index: number = handlers.indexOf(handler as EventHandler<IEvent>);
         if (index !== -1) {
             handlers.splice(index, 1);
         }
     }
 
-    public emit<T extends IEvent>(event: T): void {const handlers = this._listeners.get(event.constructor as EventConstructor<T>);
+    public emit<T extends IEvent>(event: T): void {
+        const handlers = this.listeners.get(
+            event.constructor as EventConstructor<IEvent>
+        );
+
         if (!handlers) return;
 
-        [...handlers].forEach(h => h(event));
+        for (const handler of handlers) {
+            handler(event);
+        }
     }
 
     public clear(): void {
-        this._listeners.clear();
+        this.listeners.clear();
     }
 }
