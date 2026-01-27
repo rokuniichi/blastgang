@@ -1,9 +1,8 @@
-import { GameConfigSource } from "./GameConfigSource";
 import { GameConfig } from "./GameConfig";
-import { IGameConfigProvider } from "./providers/IGameConfigProvider";
+import { GameConfigSource } from "./GameConfigSource";
 import { DefaultGameConfigProvider } from "./providers/DefaultGameConfigProvider";
+import { IGameConfigProvider } from "./providers/IGameConfigProvider";
 import { JsonGameConfigProvider } from "./providers/JsonGameConfigProvider";
-import { assertNotNull } from "../../core/utils/assert";
 
 export class GameConfigLoader {
     async load(mode: GameConfigSource): Promise<GameConfig> {

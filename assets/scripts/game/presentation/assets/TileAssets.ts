@@ -1,7 +1,7 @@
 import { IValidatable } from "../../../core/lifecycle/IValidatable";
 import { assertNotNull } from "../../../core/utils/assert";
 import { ensureNotNull } from "../../../core/utils/ensure";
-import { TileType } from "../../domain/models/TileType";
+import { TileType } from "../../domain/board/models/TileType";
 
 const { ccclass, property } = cc._decorator;
 

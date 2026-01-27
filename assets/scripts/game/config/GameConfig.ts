@@ -1,13 +1,11 @@
-import { TileType } from "../domain/models/TileType";
+import { TileType } from "../domain/board/models/TileType";
 
 export interface GameConfig {
     boardWidth: number;
     boardHeight: number;
-
-    allowedTileTypes: TileType[];
-
-    minClusterSize: number;
-
+    allowedTypes: TileType[];
+    clusterSize: number;
     targetScore: number;
     maxMoves: number;
+    scoreMultiplier: number;
 }

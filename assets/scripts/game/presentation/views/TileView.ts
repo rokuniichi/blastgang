@@ -1,8 +1,9 @@
-import { EventView } from "./EventView";
+import { assertNotNull } from "../../../core/utils/assert";
+import { TilePosition } from "../../domain/board/models/TilePosition";
 import { TileViewContext } from "../context/TileViewContext";
 import { TileClickedEvent } from "../events/TileClickedEvent";
-import { assertNotNull } from "../../../core/utils/assert";
-import { TilePosition } from "../../domain/models/TilePosition";
+import { EventView } from "./EventView";
+
 
 const { ccclass, property } = cc._decorator;
 

@@ -1,17 +1,18 @@
 import { Matrix } from "../../../core/collections/Matrix";
 import { assertNotNull } from "../../../core/utils/assert";
-import { GravityAppliedEvent } from "../../domain/events/GravityAppliedEvent";
-import { TilesDestroyedEvent } from "../../domain/events/TilesDestroyedEvent";
-import { BoardModel } from "../../domain/models/BoardModel";
-import { TilePosition } from "../../domain/models/TilePosition";
-import { TileType } from "../../domain/models/TileType";
-import { AnimationSystem } from "../animation-system/AnimationSystem";
-import { AnimationType } from "../animation-system/AnimationType";
+import { BoardProcessedEvent } from "../../domain/board/events/BoardProcessedEvent";
+import { BoardModel } from "../../domain/board/models/BoardModel";
+import { TileDrop } from "../../domain/board/models/TileDrop";
+import { TilePosition } from "../../domain/board/models/TilePosition";
+import { TileType } from "../../domain/board/models/TileType";
+import { AnimationSystem } from "../animations/AnimationSystem";
+import { AnimationType } from "../animations/AnimationType";
 import { TileAssets } from "../assets/TileAssets";
 import { BoardViewContext } from "../context/BoardViewContext";
-import { TilesFinishedDestroying } from "../events/TilesFinishedDestroying";
+import { BoardSyncedEvent } from "../events/BoardSyncedEvent";
 import { EventView } from "./EventView";
 import { TileView } from "./TileView";
+
 
 const { ccclass, property } = cc._decorator;
 
@@ -29,7 +30,7 @@ export class BoardView extends EventView<BoardViewContext> {
     @property(TileAssets)
     private tileAssets: TileAssets = null!;
 
-    private board!: BoardModel;
+    private boardModel!: BoardModel;
     private animationSystem!: AnimationSystem;
 
     private views!: Matrix<TileView>;
@@ -42,12 +43,12 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     protected override onInit(): void {
-        this.board = this.context.board;
+        this.boardModel = this.context.boardModel;
         this.animationSystem = this.context.animationSystem;
 
         this.views = new Matrix<TileView>(
-            this.board.width,
-            this.board.height,
+            this.boardModel.width,
+            this.boardModel.height,
             (x: number, y: number): TileView => this.createTile({ x, y })
         );
 
@@ -55,8 +56,7 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     protected override subscribe(): void {
-        this.on(TilesDestroyedEvent, this.onTilesDestroyed);
-        this.on(GravityAppliedEvent, this.onGravityApplied);
+        this.on(BoardProcessedEvent, this.onBoardProcessed);
     }
 
     private createTile(pos: TilePosition): TileView {
@@ -76,26 +76,55 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     private syncBoard(): void {
-        this.board.forEach((_, position: TilePosition): void => {
+        this.boardModel.forEach((_, position: TilePosition): void => {
             this.updateTile(position);
         });
+
+        this.emit(new BoardSyncedEvent());
     }
 
-    private onTilesDestroyed = (event: TilesDestroyedEvent): void => {
-        for (const position of event.tiles) {
-            const view = this.views.get(position.x, position.y);
-            if (view === null) continue;
-            view.node.setParent(this.fxLayer);
-            this.animationSystem.play(AnimationType.DESTRUCTION, view.getTarget()).then(() => view.node.setParent(this.tileLayer)).then(() => this.emit(new TilesFinishedDestroying));   
-        }
-    };
+    private onBoardProcessed = async (event: BoardProcessedEvent): Promise<void> => {
+        await Promise.all([
+            this.animateDestruction(event.destroyed),
+            this.animateGravity(event.dropped),
+            this.animateSpawn(event.spawned)
+        ])
 
-    private onGravityApplied = (event: GravityAppliedEvent): void => {
         this.syncBoard();
     }
 
+    private async animateDestruction(destroyed: TilePosition[]): Promise<void> {
+        const tasks: Promise<void>[] = [];
+
+        for (const position of destroyed) {
+            const view = this.views.get(position.x, position.y);
+            view.node.setParent(this.fxLayer);
+            const task = this.animationSystem
+                .play(AnimationType.DESTRUCTION, view.getTarget())
+                .then(() => view.node.setParent(this.tileLayer));
+            tasks.push(task);
+        }
+
+        await Promise.all(tasks);
+    }
+
+    private async animateGravity(dropped: TileDrop[]): Promise<void> {
+        // const tasks: Promise<void>[] = [];
+
+        // for (const move of dropped) {
+        //     const from = this.views.get(move.from.x, move.from.y);
+        //     const to = this.views.get(move.to.x, move.to.y);
+        // }
+
+        // await Promise.all(tasks);
+    }
+
+    private async animateSpawn(spawned: TilePosition[]): Promise<void> {
+        //
+    }
+
     private updateTile(position: TilePosition): void {
-        const type: TileType = this.board.get(position);
+        const type: TileType = this.boardModel.get(position);
         const view: TileView = this.views.get(position.x, position.y);
 
         if (type === TileType.NONE) {

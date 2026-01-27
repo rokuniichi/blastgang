@@ -1,14 +1,17 @@
 {
   "boardWidth": 9,
   "boardHeight": 9,
-  "allowedTileTypes": [
+  "allowedTypes": [
     "RED",
     "GREEN",
     "BLUE",
     "PURPLE",
     "YELLOW"
   ],
-  "minClusterSize": 2,
+  "clusterSize": 2,
   "targetScore": 500,
-  "maxMoves": 20
+  "maxMoves": 20,
+  "scoreMultiplier": 5,
+  "maxTeleport": 3,
+  "maxBomb": 3
 }

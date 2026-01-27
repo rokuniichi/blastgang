@@ -1,4 +1,4 @@
-import { TileType } from "../../domain/models/TileType";
+import { TileType } from "../../domain/board/models/TileType";
 import { BaseGameConfigProvider } from "./BaseGameConfigProvider";
 
 export class DefaultGameConfigProvider extends BaseGameConfigProvider {
@@ -6,16 +6,17 @@ export class DefaultGameConfigProvider extends BaseGameConfigProvider {
         this.config = {
             boardWidth: 9,
             boardHeight: 9,
-            allowedTileTypes: [
+            allowedTypes: [
                 TileType.RED,
                 TileType.GREEN,
                 TileType.BLUE,
                 TileType.PURPLE,
                 TileType.YELLOW
             ],
-            minClusterSize: 3,
+            clusterSize: 3,
             targetScore: 500,
-            maxMoves: 20
+            maxMoves: 20,
+            scoreMultiplier: 5
         };
     }
 }

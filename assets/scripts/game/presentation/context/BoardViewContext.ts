@@ -1,9 +1,9 @@
 import { EventBus } from "../../../core/event-system/EventBus";
-import { BoardModel } from "../../domain/models/BoardModel";
-import { AnimationSystem } from "../animation-system/AnimationSystem";
+import { BoardModel } from "../../domain/board/models/BoardModel";
+import { AnimationSystem } from "../animations/AnimationSystem";
 
 export interface BoardViewContext {
     readonly eventBus: EventBus;
-    readonly board: BoardModel;
+    readonly boardModel: BoardModel;
     readonly animationSystem: AnimationSystem;
 }

@@ -1,6 +1,6 @@
 import { assertEnumValue, assertNonEmptyArray, assertObject } from "../../core/utils/assert";
 import { ensureNumber } from "../../core/utils/ensure";
-import { TileType } from "../domain/models/TileType";
+import { TileType } from "../domain/board/models/TileType";
 import { GameConfig } from "./GameConfig";
 
 export class GameConfigValidator {
@@ -8,20 +8,22 @@ export class GameConfigValidator {
         assertObject(raw, this, "raw");
         const boardWidth = ensureNumber(raw.boardWidth, this, "boardWidth");
         const boardHeight = ensureNumber(raw.boardHeight, this, "boardHeight");
-        const minClusterSize = ensureNumber(raw.minClusterSize, this, "minClusterSize");
+        const clusterSize = ensureNumber(raw.clusterSize, this, "clusterSize");
         const targetScore = ensureNumber(raw.targetScore, this, "targetScore");
         const maxMoves = ensureNumber(raw.maxMoves, this, "maxMoves");
+        const scoreMultiplier = ensureNumber(raw.scoreMultiplier, this, "scoreMultiplier");
 
-        assertNonEmptyArray<string>(raw.allowedTileTypes, this, "allowedTileTypes");
-        const allowedTileTypes = raw.allowedTileTypes.map((v, i) => assertEnumValue(TileType, v, this, `${"allowedTileTypes"}[${i}]`));
+        assertNonEmptyArray<string>(raw.allowedTypes, this, "allowedTypes");
+        const allowedTypes = raw.allowedTypes.map((v, i) => assertEnumValue(TileType, v, this, `${"allowedTypes"}[${i}]`));
 
         return {
             boardWidth,
             boardHeight,
-            allowedTileTypes,
-            minClusterSize,
+            allowedTypes,
+            clusterSize,
             targetScore,
-            maxMoves
+            maxMoves,
+            scoreMultiplier
         };
     }
 }
