@@ -1,41 +1,44 @@
+import { Matrix } from "../../../core/collections/Matrix";
 import { TilePosition } from "./TilePosition";
 import { TileType } from "./TileType";
 
 export class BoardModel {
 
-    private readonly tiles: TileType[][];
-
-    public readonly width: number;
-    public readonly height: number;
+    private readonly _matrix: Matrix<TileType>;
 
     public constructor(width: number, height: number) {
-        this.width = width;
-        this.height = height;
-
-        this.tiles = new Array<TileType[]>(height);
-
-        for (let y: number = 0; y < height; y++) {
-            const row: TileType[] = new Array<TileType>(width);
-            for (let x: number = 0; x < width; x++) {
-                row[x] = TileType.NONE;
-            }
-            this.tiles[y] = row;
-        }
+        this._matrix = new Matrix<TileType>(width, height, () => TileType.NONE);
     }
 
-    public get(pos: TilePosition): TileType {
-        return this.tiles[pos.y][pos.x];
+    public get width(): number {
+        return this._matrix.width;
     }
 
-    public set(pos: TilePosition, type: TileType): void {
-        this.tiles[pos.y][pos.x] = type;
+    public get height(): number {
+        return this._matrix.height;
     }
 
-    public forEach(cb: (type: TileType, pos: TilePosition) => void): void {
-        for (let y: number = 0; y < this.height; y++) {
-            for (let x: number = 0; x < this.width; x++) {
-                cb(this.tiles[y][x], { x, y });
-            }
-        }
+    public get(position: TilePosition): TileType {
+        return this._matrix.get(position.x, position.y);
+    }
+
+    public set(position: TilePosition, type: TileType): void {
+        this._matrix.set(position.x, position.y, type);
+    }
+
+    public swap(first: TilePosition, second: TilePosition): void {
+        this._matrix.swap(first.x, first.y, second.x, second.y);
+    }
+
+    public isEmpty(position: TilePosition): boolean {
+        return this.get(position) === TileType.NONE;
+    }
+
+    public forEach(callback: (type: TileType, position: TilePosition) => void): void {
+        this._matrix.forEach((type, x, y) => { callback(type, { x, y }) });
+    }
+
+    public clear(position: TilePosition): void {
+        this.set(position, TileType.NONE);
     }
 }

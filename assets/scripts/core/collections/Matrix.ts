@@ -38,6 +38,12 @@ export class Matrix<T> {
         this._data[y][x] = value;
     }
 
+    public swap(x1: number, y1: number, x2: number, y2: number): void {
+        const tmp = this._data[y1][x1];
+        this._data[y1][x1] = this._data[y2][x2];
+        this._data[y2][x2] = tmp;
+    }
+
     public forEach(cb: (value: T, x: number, y: number) => void): void {
         for (let y: number = 0; y < this._height; y++) {
             for (let x: number = 0; x < this._width; x++) {
