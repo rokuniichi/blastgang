@@ -1,52 +1,51 @@
-import { TileModel } from "./TileModel";
+import { Matrix } from "../../../core/collections/Matrix";
 import { TileType } from "./TileType";
 
 export class BoardModel {
-    private readonly _width: number;
-    private readonly _height: number;
-    private _tiles: TileModel[][];
+
+    private readonly _matrix: Matrix<TileType>;
 
     public constructor(width: number, height: number) {
-        this._width = width;
-        this._height = height;
-        this._tiles = this.create();
+        this._matrix = new Matrix<TileType>(width, height, () => TileType.NONE);
     }
 
-    public get width(): number { return this._width; }
-    public get height(): number { return this._height; }
+    public get width(): number {
+        return this._matrix.width;
+    }
 
-    public get(x: number, y: number): TileModel | null {
-        if (x < 0 || y < 0 || x >= this._width || y >= this._height) {
-            return null;
-        }
-        return this._tiles[y][x];
+    public get height(): number {
+        return this._matrix.height;
+    }
+
+    public get(x: number, y: number): TileType {
+        return this._matrix.get(x, y);
     }
 
     public set(x: number, y: number, type: TileType): void {
-        const tile = this.get(x, y);
-        if (tile) {
-            tile.type = type;
-        }
+        this._matrix.set(x, y, type);
     }
 
-    public forEach(callback: (tile: TileModel) => void): void {
-        for (const row of this._tiles) {
-            for (const tile of row) {
-                callback(tile);
-            }
-        }
+    public swap(x1: number, y1: number, x2: number, y2: number): void {
+        this._matrix.swap(x1, y1, x2, y2);
     }
 
-    private create(): TileModel[][] {
-        const tiles: TileModel[][] = [];
-        for (let y = 0; y < this._height; y++) {
-            const row: TileModel[] = [];
-            for (let x = 0; x < this._width; x++) {
-                row.push(new TileModel(x, y, TileType.NONE));
-            }
-            tiles.push(row);
-        }
+    public isEmpty(x: number, y: number): boolean {
+        return this.get(x, y) === TileType.NONE;
+    }
 
-        return tiles;
+    public forEach(cb: (type: TileType, x: number, y: number) => void): void {
+        this._matrix.forEach(cb);
+    }
+
+    public fillWithType(type: TileType): void {
+        this.forEach((_, x, y) => this.set(x, y, type));
+    }
+
+    public fillWithGenerator(generator: () => TileType) {
+        this.forEach((_, x, y) => this.set(x, y, generator()));
+    }
+
+    public clear(x: number, y: number): void {
+        this.set(x, y, TileType.NONE);
     }
 }

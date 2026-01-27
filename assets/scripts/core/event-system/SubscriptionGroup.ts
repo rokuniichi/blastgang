@@ -1,10 +1,10 @@
-import { ISubscription } from "./ISubscription";
+import { Subscription } from "./Subscription";
 
 export class SubscriptionGroup {
 
-    private _subscriptions: ISubscription[] = [];
+    private _subscriptions: Subscription[] = [];
 
-    public add(subscription: ISubscription): void {
+    public add(subscription: Subscription): void {
         this._subscriptions.push(subscription);
     }
 

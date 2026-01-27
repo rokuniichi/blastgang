@@ -1,5 +1,5 @@
 import { IEvent } from "./IEvent";
-import { ISubscription } from "./ISubscription";
+import { Subscription } from "./Subscription";
 
 type EventConstructor<T extends IEvent> = new (...args: any[]) => T;
 type Handler<T extends IEvent> = (event: T) => void;
@@ -8,7 +8,7 @@ export class EventBus {
 
     private _listeners = new Map<EventConstructor<any>, Handler<any>[]>();
 
-    public on<T extends IEvent>(eventType: EventConstructor<T>, handler: Handler<T>): ISubscription {
+    public on<T extends IEvent>(eventType: EventConstructor<T>, handler: Handler<T>): Subscription {
         const handlers = this._listeners.get(eventType) ?? [];
         handlers.push(handler);
         this._listeners.set(eventType, handlers);

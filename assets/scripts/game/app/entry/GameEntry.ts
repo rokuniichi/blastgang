@@ -20,12 +20,13 @@ export class GameEntry extends cc.Component {
     private _context: GameContext | null = null;
 
     protected async start() {
-        this._config = await new GameConfigLoader().load(this.configMode);
-        this._context = new GameContext(this._config);
-
         assertNotNull(this.boardView, this, "BoardView");
         
-        this.boardView.init(this._context.boardModel, this._context.eventBus);
+        this._config = await new GameConfigLoader().load(this.configMode);
+        this._context = new GameContext(this._config);
+        this._context.init();
+
+        this.boardView.init(this._context.eventBus, this._context.boardModel);
     }
 
     protected onDestroy(): void {

@@ -1,52 +1,38 @@
+import { GameConfig } from "../../config/GameConfig";
 import { BoardModel } from "../../domain/models/BoardModel";
 import { BoardFillService } from "../../domain/services/BoardFillService";
-import { EventBus } from "../../../core/event-system/EventBus";
-import { BaseController } from "./BaseController";
+import { ClusterDestructionService } from "../../domain/services/ClusterDestructionService";
+import { ClusterSearchService } from "../../domain/services/ClusterSearchService";
 import { TileClickedEvent } from "../../presentation/events/TileClickedEvent";
-import { TileClusterSearchService } from "../../domain/services/TileClusterSearchService";
+import { TilesUpdatedEvent } from "../../presentation/events/TilesUpdatedEvent";
+import { BaseController } from "./BaseController";
 
 export class BoardController extends BaseController {
-
-    private readonly _board: BoardModel;
-
-    private readonly _boardFillService: BoardFillService;
-    private readonly _tileClusterService: TileClusterSearchService;
-    
-    private readonly _eventBus: EventBus;
-
     constructor(
-        board: BoardModel,
-        boardFillService: BoardFillService,
-        tileClusterService: TileClusterSearchService,
-        eventBus: EventBus
+        private readonly config: GameConfig,
+        private readonly board: BoardModel,
+        private readonly boardFillService: BoardFillService,
+        private readonly clusterSearchService: ClusterSearchService,
+        private readonly clusterDestructionService: ClusterDestructionService
     ) {
         super();
-
-        this._board = board;
-
-        this._boardFillService = boardFillService;
-        this._tileClusterService = tileClusterService;
-
-        this._eventBus = eventBus;
-
-        this._boardFillService.fillRandom(this._board);
-        this.subscribe();
     }
 
-    private subscribe(): void {
-        this.subscriptions.add(
-            this._eventBus.on(TileClickedEvent, this.onTileClicked.bind(this))
-        );
+    protected onInit(): void {
+        this.boardFillService.fillRandom(this.board);        
+    }
+
+    protected subscribe(): void {
+        this.on(TileClickedEvent, this.onTileClicked)
     }
 
     private onTileClicked(event: TileClickedEvent): void {
-        const cluster = this._tileClusterService.findCluster(this._board, event.x, event.y);
+        const cluster = this.clusterSearchService.findCluster(this.board, event.x, event.y);
 
-        if (!cluster) {
-            console.log("No cluster");
-            return;
-        }
+        if (!cluster || cluster.size < this.config.minClusterSize) return;
 
-        console.log(`Cluster found: size=${cluster.size}, type=${cluster.type}`);
+        this.clusterDestructionService.destroy(this.board, cluster);
+
+        this.emit(new TilesUpdatedEvent(cluster.tiles));
     }
 }

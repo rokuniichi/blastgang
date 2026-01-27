@@ -1,14 +1,17 @@
-import { EventBus } from "../../../core/event-system/EventBus";
-import { assertNotNull } from "../../../core/utils/assert";
+
+import { Matrix } from "../../../core/collections/Matrix";
 import { ensureNotNull } from "../../../core/utils/ensure";
 import { BoardModel } from "../../domain/models/BoardModel";
+import { TileType } from "../../domain/models/TileType";
 import { TileAssets } from "../assets/TileAssets";
+import { TilesUpdatedEvent } from "../events/TilesUpdatedEvent";
+import { BaseView } from "./BaseView";
 import { TileView } from "./TileView";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class BoardView extends cc.Component {
+export class BoardView extends BaseView {
     @property(cc.Prefab)
     tilePrefab: cc.Prefab | null = null;
 
@@ -18,20 +21,39 @@ export class BoardView extends cc.Component {
     @property(TileAssets)
     tileAssets: TileAssets | null = null;
 
-    public init(model: BoardModel, eventBus: EventBus) {
-        const prefab = ensureNotNull(this.tilePrefab, this, "TilePrefab");
-        const root = ensureNotNull(this.tileRoot, this, "TileRoot");
-        const assets = ensureNotNull(this.tileAssets, this, "TileAssets");
+    private _board!: BoardModel;
+    private _views!: Matrix<TileView>;
 
-        model.forEach((tile) => {
+    protected onInit(board: BoardModel): void {
+        this._board = board;
+
+        const prefab = ensureNotNull(this.tilePrefab, this, "tilePrefab");
+        const root = ensureNotNull(this.tileRoot, this, "tileRoot");
+
+        this._views = new Matrix<TileView>(board.width, board.height, () => {
             const node = cc.instantiate(prefab);
-            const view = ensureNotNull(node.getComponent(TileView), this, "TileView");
-            const sprite = assets.getSprite(tile.type);
-
-            view.init(tile.x, tile.y, sprite, eventBus);
-
             node.setParent(root);
-            node.setPosition(tile.x * node.width, -tile.y * node.height);
+            return ensureNotNull(node.getComponent(TileView), this, "TileView");
         });
+    }
+
+    protected subscribe(): void {
+        this.on(TilesUpdatedEvent, this.onTilesUpdated)
+    }
+
+    private onTilesUpdated(event: TilesUpdatedEvent): void {
+        const assets = ensureNotNull(this.tileAssets, this, "tileAssets");
+
+        for (const pos of event.tiles) {
+            const type = this._board.get(pos.x, pos.y);
+            const view = this._views.get(pos.x, pos.y);
+
+            if (type === TileType.NONE) {
+                view.hide();
+            } else {
+                view.show();
+                view.setSprite(assets.getSprite(type));
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ import { TileModel } from "../models/TileModel";
 import { TileType } from "../models/TileType";
 import { TileCluster } from "../models/TileCluster";
 
-export class TileClusterSearchService {
+export class ClusterSearchService {
 
     private _visited: boolean[] = [];
 
