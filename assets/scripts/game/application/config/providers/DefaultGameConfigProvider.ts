@@ -1,7 +1,8 @@
-import { TileType } from "../../domain/board/models/TileType";
-import { BaseGameConfigProvider } from "./BaseGameConfigProvider";
+import { TileType } from "../../../domain/board/models/TileType";
+import { BaseConfigProvider } from "../../../../core/config/BaseConfigProvider";
+import { GameConfig } from "../GameConfig";
 
-export class DefaultGameConfigProvider extends BaseGameConfigProvider {
+export class DefaultGameConfigProvider extends BaseConfigProvider<GameConfig> {
     async load(): Promise<void> {
         this.config = {
             boardWidth: 9,

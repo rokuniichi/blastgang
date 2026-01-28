@@ -1,7 +1,8 @@
-import { BaseGameConfigProvider } from "./BaseGameConfigProvider";
+import { BaseConfigProvider } from "../../../../core/config/BaseConfigProvider";
+import { GameConfig } from "../GameConfig";
 import { GameConfigValidator } from "../GameConfigValidator";
 
-export class JsonGameConfigProvider extends BaseGameConfigProvider {
+export class JsonGameConfigProvider extends BaseConfigProvider<GameConfig> {
     private readonly _path;
 
     constructor(path: string) {

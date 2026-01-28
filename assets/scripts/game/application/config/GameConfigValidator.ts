@@ -1,6 +1,6 @@
-import { assertEnumValue, assertNonEmptyArray, assertObject } from "../../core/utils/assert";
-import { ensureNumber } from "../../core/utils/ensure";
-import { TileType } from "../domain/board/models/TileType";
+import { assertEnumValue, assertNonEmptyArray, assertObject } from "../../../core/utils/assert";
+import { ensureNumber } from "../../../core/utils/ensure";
+import { TileType } from "../../domain/board/models/TileType";
 import { GameConfig } from "./GameConfig";
 
 export class GameConfigValidator {

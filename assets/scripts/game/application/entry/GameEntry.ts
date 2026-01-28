@@ -1,6 +1,6 @@
 import { assertNotNull } from "../../../core/utils/assert";
-import { GameConfigLoader } from "../../config/GameConfigLoader";
-import { GameConfigSource } from "../../config/GameConfigSource";
+import { GameConfigLoader } from "../config/GameConfigLoader";
+import { GameConfigMode } from "../config/GameConfigMode";
 import { AnimationSystem } from "../../presentation/animations/AnimationSystem";
 import { BoardView } from "../../presentation/board/view/BoardView";
 import { MovesTextView } from "../../presentation/state/view/MovesTextView";
@@ -12,8 +12,8 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class GameEntry extends cc.Component {
 
-    @property({ type: cc.Enum(GameConfigSource) })
-    private configMode: GameConfigSource = GameConfigSource.DEFAULT;
+    @property({ type: cc.Enum(GameConfigMode) })
+    private configMode: GameConfigMode = GameConfigMode.DEFAULT;
 
     @property(AnimationSystem)
     private animationSystem: AnimationSystem = null!;

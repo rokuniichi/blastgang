@@ -1,6 +1,6 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { GameConfig } from "../../../config/GameConfig";
+import { GameConfig } from "../../config/GameConfig";
 import { BoardProcessedEvent } from "../../../domain/board/events/BoardProcessedEvent";
 import { BoardProcessingEvent } from "../../../domain/board/events/BoardProcessingEvent";
 import { MovesUpdatedEvent } from "../../../domain/state/events/MovesUpdatedEvent";

@@ -1,22 +1,21 @@
 import { GameConfig } from "./GameConfig";
-import { GameConfigSource } from "./GameConfigSource";
+import { GameConfigMode } from "./GameConfigMode";
 import { DefaultGameConfigProvider } from "./providers/DefaultGameConfigProvider";
-import { IGameConfigProvider } from "./providers/IGameConfigProvider";
 import { JsonGameConfigProvider } from "./providers/JsonGameConfigProvider";
+import { IConfigProvider } from "../../../core/config/IConfigProvider";
 
 export class GameConfigLoader {
-    async load(mode: GameConfigSource): Promise<GameConfig> {
+    async load(mode: GameConfigMode): Promise<GameConfig> {
         const provider = this.createProvider(mode);
         await provider.load();
-        const config = provider.getConfig();
-        return config;
+        return provider.get();
     }
 
-    private createProvider(mode: GameConfigSource): IGameConfigProvider {
+    private createProvider(mode: GameConfigMode): IConfigProvider<GameConfig> {
         switch (mode) {
-            case GameConfigSource.JSON:
+            case GameConfigMode.JSON:
                 return new JsonGameConfigProvider("configs/game-config");
-            case GameConfigSource.DEFAULT:
+            case GameConfigMode.DEFAULT:
             default:
                 return new DefaultGameConfigProvider();
         }
