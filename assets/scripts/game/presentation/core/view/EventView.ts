@@ -12,22 +12,22 @@ export abstract class EventView<TContext extends EventViewContext> extends Conte
     private readonly subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
     protected override preInit(): void {
+        assertNotNull(this.context.eventBus, this, "eventBus");
         this.eventBus = this.context.eventBus;
-        assertNotNull(this.eventBus, this, "eventBus");
     }
 
     protected override postInit(): void {
         this.subscribe();
     }
 
-    protected subscribe(): void {}
+    protected subscribe(): void { }
 
     protected override onDispose(): void {
         this.unsubscribe();
         this.subscriptions.clear();
     }
 
-    protected unsubscribe(): void {}
+    protected unsubscribe(): void { }
 
     protected on<T extends IEvent>(type: EventConstructor<T>, handler: EventHandler<T>): void {
         const sub: Subscription = this.eventBus.on(type, handler);

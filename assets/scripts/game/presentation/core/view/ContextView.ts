@@ -29,7 +29,7 @@ export abstract class ContextView<TContext> extends cc.Component implements IIni
     }
 
     protected preInit(): void { }
-    protected onInit(): void { }
+    protected abstract onInit(): void;
     protected postInit(): void { }
 
     public dispose(): void {

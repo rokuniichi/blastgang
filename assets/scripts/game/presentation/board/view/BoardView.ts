@@ -30,9 +30,6 @@ export class BoardView extends EventView<BoardViewContext> {
     @property(TileAssets)
     private tileAssets: TileAssets = null!;
 
-    private boardModel!: BoardModel;
-    private animationSystem!: AnimationSystem;
-
     private views!: Matrix<TileView>;
 
     public override validate(): void {
@@ -43,12 +40,9 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     protected override onInit(): void {
-        this.boardModel = this.context.boardModel;
-        this.animationSystem = this.context.animationSystem;
-
         this.views = new Matrix<TileView>(
-            this.boardModel.width,
-            this.boardModel.height,
+            this.context.boardModel.width,
+            this.context.boardModel.height,
             (x: number, y: number): TileView => this.createTile({ x, y })
         );
 
@@ -59,24 +53,24 @@ export class BoardView extends EventView<BoardViewContext> {
         this.on(BoardProcessedEvent, this.onBoardProcessed);
     }
 
-    private createTile(pos: TilePosition): TileView {
+    private createTile(position: TilePosition): TileView {
         const node: cc.Node = cc.instantiate(this.tilePrefab);
         node.setParent(this.tileLayer);
-        node.setPosition(pos.x * node.width, -pos.y * node.height);
+        node.setPosition(position.x * node.width, -position.y * node.height);
 
         const view = node.getComponent(TileView);
         assertNotNull(view, this, "TileView");
 
         view.init({
             eventBus: this.eventBus,
-            position: pos
+            position: position
         });
 
         return view;
     }
 
     private render(): void {
-        this.boardModel.forEach((_, position: TilePosition): void => {
+        this.context.boardModel.forEach((_, position: TilePosition): void => {
             this.updateTile(position);
         });
 
@@ -99,7 +93,7 @@ export class BoardView extends EventView<BoardViewContext> {
         for (const position of destroyed) {
             const view = this.views.get(position.x, position.y);
             view.node.setParent(this.fxLayer);
-            const task = this.animationSystem
+            const task = this.context.animationSystem
                 .play(AnimationType.DESTRUCTION, view.getTarget())
                 .then(() => view.node.setParent(this.tileLayer));
             tasks.push(task);
@@ -124,7 +118,7 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     private updateTile(position: TilePosition): void {
-        const type: TileType = this.boardModel.get(position);
+        const type: TileType = this.context.boardModel.get(position);
         const view: TileView = this.views.get(position.x, position.y);
 
         if (type === TileType.NONE) {

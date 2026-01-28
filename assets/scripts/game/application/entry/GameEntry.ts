@@ -1,10 +1,5 @@
-import { assertNotNull } from "../../../core/utils/assert";
+import { ViewInstaller } from "../../presentation/installer/ViewInstaller";
 import { GameConfigLoader } from "../config/GameConfigLoader";
-import { GameConfigMode } from "../config/GameConfigMode";
-import { AnimationSystem } from "../../presentation/animations/AnimationSystem";
-import { BoardView } from "../../presentation/board/view/BoardView";
-import { MovesTextView } from "../../presentation/state/view/MovesTextView";
-import { ScoreTextView } from "../../presentation/state/view/ScoreTextView";
 import { GameContext } from "../context/GameContext";
 import { GameSettings } from "../GameSettings";
 
@@ -13,58 +8,30 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class GameEntry extends cc.Component {
 
-    @property(AnimationSystem)
-    private animationSystem: AnimationSystem = null!;
+    @property(ViewInstaller)
+    private viewInstaller: ViewInstaller = null!;
 
-    @property(BoardView)
-    private boardView: BoardView = null!;
-
-    @property(MovesTextView)
-    private movesTextView: MovesTextView = null!;
-
-    @property(ScoreTextView)
-    private scoreTextView: ScoreTextView = null!;
-
-    private context: GameContext | null = null;
-
-    protected onLoad(): void {
-        assertNotNull(this.animationSystem, this, "AnimationSystem");
-        assertNotNull(this.boardView, this, "BoardView");
-        assertNotNull(this.movesTextView, this, "MovesTextView");
-        assertNotNull(this.scoreTextView, this, "ScoreTextView");
-    }
+    private gameContext: GameContext | null = null;
 
     protected async start(): Promise<void> {
         const configMode = GameSettings.configMode;
 
         const gameConfig = await new GameConfigLoader().load(configMode);
 
-        this.context = new GameContext(gameConfig);
-        this.context.init();
+        this.gameContext = new GameContext(gameConfig);
+        this.gameContext.init();
 
-        this.boardView.init({
-            eventBus: this.context.eventBus,
-            boardModel: this.context.boardModel,
-            animationSystem: this.animationSystem
+        this.viewInstaller.init({
+            eventBus: this.gameContext.eventBus,
+            gameStateModel: this.gameContext.gameStateModel,
+            boardModel: this.gameContext.boardModel
         });
-
-        this.scoreTextView.init({
-            eventBus: this.context.eventBus,
-            initialValue: 0,
-            targetScore: this.context.gameStateModel.targetScore
-        });
-
-        this.movesTextView.init({
-            eventBus: this.context.eventBus,
-            initialValue: this.context.gameStateModel.movesLeft
-        });
-
     }
 
     protected onDestroy(): void {
-        if (this.context !== null) {
-            this.context.dispose();
-            this.context = null;
+        if (this.gameContext !== null) {
+            this.gameContext.dispose();
+            this.gameContext = null;
         }
     }
 }
