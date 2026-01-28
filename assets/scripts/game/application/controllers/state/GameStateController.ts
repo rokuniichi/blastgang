@@ -1,16 +1,17 @@
-import { EventBus } from "../../../../core/event-system/EventBus";
-import { SubscriptionGroup } from "../../../../core/event-system/SubscriptionGroup";
+import { EventBus } from "../../../../core/events/EventBus";
+import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { GameConfig } from "../../../config/GameConfig";
 import { BoardProcessedEvent } from "../../../domain/board/events/BoardProcessedEvent";
-import { BoardStartedProcessingEvent as BoardProcessingEvent } from "../../../domain/board/events/BoardStartedProcessingEvent";
-import { GameStateChangedEvent } from "../../../domain/state/events/GameStateChangedEvent";
-import { GameStateModel } from "../../../domain/state/models/GameStateModel";
-import { GameStateType } from "../../../domain/state/models/GameStateType";
+import { ValueChangedEvent } from "../../../../core/events/ValueChangedEvent";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
 import { BoardSyncedEvent } from "../../../presentation/events/BoardSyncedEvent";
 import { TileClickedEvent } from "../../../presentation/events/TileClickedEvent";
 import { GameContext } from "../../context/GameContext";
 import { BaseController } from "../BaseController";
+import { GameStateModel } from "../../../domain/state/models/GameStateModel";
+import { BoardProcessingEvent } from "../../../domain/board/events/BoardProcessingEvent";
+import { MovesUpdatedEvent } from "../../../domain/state/events/MovesUpdatedEvent";
+import { ScoreUpdatedEvent } from "../../../domain/state/events/ScoreUpdatedEvent";
 
 export class GameStateController extends BaseController {
 
@@ -45,23 +46,24 @@ export class GameStateController extends BaseController {
     }
 
     private onBoardProcessing = (event: BoardProcessingEvent): void => {
-        this.gameStateModel.setState(GameStateType.PROCESSING);
+        this.gameStateModel.setState("PROCESSING");
     }
 
     private onBoardProcessed = (event: BoardProcessedEvent): void => {
         if (event.destroyed.length < 1) {
-            this.gameStateModel.setState(GameStateType.IDLE);
+            this.gameStateModel.setState("IDLE");
             return;
         }
 
         this.gameStateModel.addScore(this.scoreService.calculate(event.destroyed.length));
         this.gameStateModel.useMove();
-        this.eventBus.emit(new GameStateChangedEvent());
-        this.gameStateModel.setState(GameStateType.ANIMATING);
+        this.eventBus.emit(new ScoreUpdatedEvent(this.gameStateModel.currentScore));
+        this.eventBus.emit(new MovesUpdatedEvent(this.gameStateModel.movesLeft));
+        this.gameStateModel.setState("ANIMATING");
     };
 
     private onBoardSynced = (event: BoardSyncedEvent): void => {
-        this.gameStateModel.setState(GameStateType.IDLE);
+        this.gameStateModel.setState("IDLE");
     }
 
     public dispose(): void {

@@ -2,8 +2,9 @@ import { assertNotNull } from "../../../core/utils/assert";
 import { GameConfigLoader } from "../../config/GameConfigLoader";
 import { GameConfigSource } from "../../config/GameConfigSource";
 import { AnimationSystem } from "../../presentation/animations/AnimationSystem";
-import { BoardView } from "../../presentation/views/BoardView";
-import { GameView } from "../../presentation/views/GameView";
+import { BoardView } from "../../presentation/board/view/BoardView";
+import { MovesTextView } from "../../presentation/state/view/MovesTextView";
+import { ScoreTextView } from "../../presentation/state/view/ScoreTextView";
 import { GameContext } from "../context/GameContext";
 
 const { ccclass, property } = cc._decorator;
@@ -20,14 +21,19 @@ export class GameEntry extends cc.Component {
     @property(BoardView)
     private boardView: BoardView = null!;
 
-    @property(GameView)
-    private gameView: GameView = null!;
+    @property(MovesTextView)
+    private movesTextView: MovesTextView = null!;
+
+    @property(ScoreTextView)
+    private scoreTextView: ScoreTextView = null!;
 
     private context: GameContext | null = null;
 
     protected onLoad(): void {
         assertNotNull(this.animationSystem, this, "AnimationSystem");
         assertNotNull(this.boardView, this, "BoardView");
+        assertNotNull(this.movesTextView, this, "MovesTextView");
+        assertNotNull(this.scoreTextView, this, "ScoreTextView");
     }
 
     protected async start(): Promise<void> {
@@ -42,10 +48,17 @@ export class GameEntry extends cc.Component {
             animationSystem: this.animationSystem
         });
 
-        this.gameView.init({
+        this.scoreTextView.init({ 
             eventBus: this.context.eventBus,
-            gameStateModel: this.context.gameStateModel
-        })
+            initialValue: 0,
+            targetScore: this.context.gameStateModel.targetScore
+         });
+         
+        this.movesTextView.init({ 
+            eventBus: this.context.eventBus, 
+            initialValue: this.context.gameStateModel.movesLeft
+        });
+
     }
 
     protected onDestroy(): void {

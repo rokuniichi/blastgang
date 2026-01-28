@@ -1,15 +1,14 @@
-import { EventBus } from "../../../../core/event-system/EventBus";
-import { SubscriptionGroup } from "../../../../core/event-system/SubscriptionGroup";
+import { EventBus } from "../../../../core/events/EventBus";
+import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { GameConfig } from "../../../config/GameConfig";
 import { BoardProcessedEvent } from "../../../domain/board/events/BoardProcessedEvent";
-import { BoardStartedProcessingEvent as BoardProcessingEvent } from "../../../domain/board/events/BoardStartedProcessingEvent";
+import { BoardProcessingEvent } from "../../../domain/board/events/BoardProcessingEvent";
 import { BoardModel } from "../../../domain/board/models/BoardModel";
 import { DestructionService } from "../../../domain/board/services/DestructionService";
 import { FillService } from "../../../domain/board/services/FillService";
 import { GravityService } from "../../../domain/board/services/GravityService";
 import { SearchService } from "../../../domain/board/services/SearchService";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
-import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { TileClickedEvent } from "../../../presentation/events/TileClickedEvent";
 import { GameContext } from "../../context/GameContext";
 import { BaseController } from "../BaseController";
@@ -49,7 +48,7 @@ export class BoardController extends BaseController {
     }
 
     private onTileClicked = (event: TileClickedEvent): void => {
-        if (this.gameStateModel.currentState !== GameStateType.IDLE) return;
+        if (this.gameStateModel.state !== "IDLE") return;
 
         const cluster = this.searchService.findCluster(this.boardModel, event.position);
 

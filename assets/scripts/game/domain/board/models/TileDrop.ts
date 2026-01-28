@@ -1,4 +1,4 @@
-import { TilePosition } from "../../models/board/TilePosition";
+import { TilePosition } from "./TilePosition";
 
 export interface TileDrop {
     readonly from: TilePosition;

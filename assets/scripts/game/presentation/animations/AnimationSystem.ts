@@ -17,9 +17,9 @@ export class AnimationSystem extends cc.Component {
     }
 
     private register(): void {
-        for (const comp of this.animationComponents) {
-            const anim = comp as unknown as IAnimation;
-            this.animations.set(anim.type, anim);
+        for (const component of this.animationComponents) {
+            const animation = component as unknown as IAnimation;
+            this.animations.set(animation.type, animation);
         }
     }
 

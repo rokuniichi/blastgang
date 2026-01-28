@@ -1,4 +1,4 @@
-import { EventBus } from "../../../core/event-system/EventBus";
+import { EventBus } from "../../../core/events/EventBus";
 import { GameConfig } from "../../config/GameConfig";
 import { BoardModel } from "../../domain/board/models/BoardModel";
 import { DestructionService } from "../../domain/board/services/DestructionService";
