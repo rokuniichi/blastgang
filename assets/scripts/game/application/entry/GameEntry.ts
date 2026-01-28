@@ -6,14 +6,12 @@ import { BoardView } from "../../presentation/board/view/BoardView";
 import { MovesTextView } from "../../presentation/state/view/MovesTextView";
 import { ScoreTextView } from "../../presentation/state/view/ScoreTextView";
 import { GameContext } from "../context/GameContext";
+import { GameSettings } from "../GameSettings";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class GameEntry extends cc.Component {
-
-    @property({ type: cc.Enum(GameConfigMode) })
-    private configMode: GameConfigMode = GameConfigMode.DEFAULT;
 
     @property(AnimationSystem)
     private animationSystem: AnimationSystem = null!;
@@ -37,9 +35,11 @@ export class GameEntry extends cc.Component {
     }
 
     protected async start(): Promise<void> {
-        const config = await new GameConfigLoader().load(this.configMode);
+        const configMode = GameSettings.configMode;
 
-        this.context = new GameContext(config);
+        const gameConfig = await new GameConfigLoader().load(configMode);
+
+        this.context = new GameContext(gameConfig);
         this.context.init();
 
         this.boardView.init({
@@ -48,14 +48,14 @@ export class GameEntry extends cc.Component {
             animationSystem: this.animationSystem
         });
 
-        this.scoreTextView.init({ 
+        this.scoreTextView.init({
             eventBus: this.context.eventBus,
             initialValue: 0,
             targetScore: this.context.gameStateModel.targetScore
-         });
-         
-        this.movesTextView.init({ 
-            eventBus: this.context.eventBus, 
+        });
+
+        this.movesTextView.init({
+            eventBus: this.context.eventBus,
             initialValue: this.context.gameStateModel.movesLeft
         });
 

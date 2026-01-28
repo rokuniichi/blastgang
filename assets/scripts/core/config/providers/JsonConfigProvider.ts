@@ -1,18 +1,15 @@
-import { BaseConfigProvider } from "../../../../core/config/BaseConfigProvider";
-import { GameConfig } from "../GameConfig";
-import { GameConfigValidator } from "../GameConfigValidator";
+import { BaseConfigProvider } from "../BaseConfigProvider";
+import { IConfig } from "../IConfig";
+import { IConfigValidator } from "../IConfigValidator";
 
-export class JsonGameConfigProvider extends BaseConfigProvider<GameConfig> {
-    private readonly _path;
-
-    constructor(path: string) {
+export class JsonConfigProvider<TConfig extends IConfig> extends BaseConfigProvider<TConfig> {
+    constructor(private readonly _path: string, private readonly _validator: IConfigValidator<TConfig>) {
         super();
-        this._path = path;
     }
 
     async load(): Promise<void> {
         const asset = await this.loadJsonAsset(this._path);
-        this.config = GameConfigValidator.validate(asset.json);
+        this.config = this._validator.validate(asset.json);
     }
 
     private loadJsonAsset(path: string): Promise<cc.JsonAsset> {
