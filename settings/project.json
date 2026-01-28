@@ -4,7 +4,23 @@
       true
     ]
   ],
-  "excluded-modules": [],
+  "excluded-modules": [
+    "Audio",
+    "AudioSource",
+    "Collider",
+    "Dynamic Atlas",
+    "DragonBones",
+    "Geom Utils",
+    "Physics",
+    "Spine Skeleton",
+    "TiledMap",
+    "VideoPlayer",
+    "3D",
+    "3D Primitive",
+    "3D Physics/cannon.js",
+    "3D Physics/Builtin",
+    "3D Particle"
+  ],
   "group-list": [
     "default"
   ],

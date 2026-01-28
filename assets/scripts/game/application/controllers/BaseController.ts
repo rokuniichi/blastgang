@@ -21,5 +21,5 @@ export abstract class BaseController
         this.onDispose();
     }
 
-    protected onDispose(): void {}
+    protected onDispose(): void { }
 }
