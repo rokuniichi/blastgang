@@ -7,8 +7,8 @@ import { ScoreUpdatedEvent } from "../../../domain/state/events/ScoreUpdatedEven
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
 import { BoardSyncedEvent } from "../../../presentation/core/events/BoardSyncedEvent";
-import { DomainContext } from "../../context/DomainContext";
 import { GameConfig } from "../../core/config/GameConfig";
+import { DomainContext } from "../../core/context/DomainContext";
 import { BaseController } from "../../core/controllers/BaseController";
 
 
