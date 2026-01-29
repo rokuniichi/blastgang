@@ -47,7 +47,7 @@ export class BoardFxLayer {
 
     async destroy(tile: TileView): Promise<void> {
         const fx = this.clone(tile);
-        fx.node.setParent(this.fxLayer);
+        fx.node.setParent(this.backgroundLayer);
 
         await this.animationSystem.play(
             AnimationSettings.tileDestroy(fx.node)
@@ -58,7 +58,7 @@ export class BoardFxLayer {
 
     async drop(tile: TileView, to: cc.Vec3): Promise<void> {
         const fx = this.clone(tile);
-        fx.node.setParent(this.backgroundLayer);
+        fx.node.setParent(this.fxLayer);
 
         await this.animationSystem.play(
             AnimationSettings.tileFall(fx.node, to.y)
@@ -76,6 +76,14 @@ export class BoardFxLayer {
         await this.animationSystem.play(
             AnimationSettings.tileFall(fx.node, to.y)
         );
+
+        this.release(fx.node);
+    }
+
+    async shake(tile: TileView): Promise<void> {
+        const fx = this.clone(tile);
+
+        await this.animationSystem.play(AnimationSettings.tileShake(fx.node));
 
         this.release(fx.node);
     }

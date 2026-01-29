@@ -2,6 +2,7 @@ import { AnimationType } from "./AnimationType";
 import { DestructionSettings } from "./settings/DestructionSettings";
 import { FadeSettings } from "./settings/FadeSettings";
 import { GravityFallSettings } from "./settings/GravityFallSettings";
+import { ShakeSettings } from "./settings/ShakeSettings";
 
 
 export class AnimationSettings {
@@ -43,5 +44,13 @@ export class AnimationSettings {
             shrinkOpacity: 0,
             shrinkScale: 0.2
         };
+    }
+
+    static tileShake(node: cc.Node): ShakeSettings {
+        return {
+            type: AnimationType.SHAKE,
+            node,
+            amplitude: 8
+        }
     }
 }

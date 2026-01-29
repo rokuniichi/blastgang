@@ -7,26 +7,16 @@ export class GravityFallAnimation implements IAnimation<GravityFallSettings> {
     public readonly type = AnimationType.GRAVITY_FALL;
 
     play(settings: GravityFallSettings): Promise<void> {
-        const {
-            node,
-            duration,
-            targetY,
-            bounce,
-            bounceDuration,
-            settleDuration,
-            easing
-        } = settings;
-
         return new Promise(resolve => {
-            if (!cc.isValid(node)) {
+            if (!cc.isValid(settings.node)) {
                 resolve();
                 return;
             }
 
-            cc.tween(node)
-                .to(duration, { y: targetY }, { easing })
-                .to(bounceDuration, { y: targetY + bounce }, { easing: "quadOut" })
-                .to(settleDuration, { y: targetY }, { easing: "quadIn" })
+            cc.tween(settings.node)
+                .to(settings.duration, { y: settings.targetY }, { easing: settings.easing })
+                .to(settings.bounceDuration, { y: settings.targetY + settings.bounce }, { easing: "quadOut" })
+                .to(settings.settleDuration, { y: settings.targetY }, { easing: "quadIn" })
                 .call(resolve)
                 .start();
         });

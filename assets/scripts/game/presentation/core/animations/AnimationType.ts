@@ -1,5 +1,6 @@
 export enum AnimationType {
     FADE,
     DESTRUCTION,
-    GRAVITY_FALL
-}
+    GRAVITY_FALL,
+    SHAKE
+}   

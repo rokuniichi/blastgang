@@ -1,4 +1,5 @@
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
+import { TileClickRejectedEvent } from "../../../domain/board/events/TileClickRejectedEvent";
 import { TileChange } from "../../../domain/board/models/TileChange";
 import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
@@ -6,6 +7,7 @@ import { TileSpawn } from "../../../domain/board/models/TileSpawn";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TileAssets } from "../../core/assets/TileAssets";
 import { BoardSyncedEvent } from "../../core/events/BoardSyncedEvent";
+import { TileClickedEvent } from "../../core/events/TileClickedEvent";
 import { EventView } from "../../core/view/EventView";
 import { BoardViewContext } from "../context/BoardViewContext";
 import { BoardFxLayer } from "../fx/BoardFxLayer";
@@ -43,12 +45,17 @@ export class BoardView extends EventView<BoardViewContext> {
 
         this.drawBoard(this.context.initialBoard);
         this.on(BoardChangedEvent, this.onBoardChanged);
+        this.on(TileClickRejectedEvent, this.onTileClickRejected)
     }
 
     private onBoardChanged = async (event: BoardChangedEvent) => {
         await this.animate(event);
         this.syncBoard(event.changes);
     };
+
+    private onTileClickRejected = async (event: TileClickedEvent) => {
+        await this.animateShake(event.position);
+    }
 
     private syncBoard(changes: TileChange[]) {
         this.drawBoard(changes);
@@ -131,6 +138,14 @@ export class BoardView extends EventView<BoardViewContext> {
         }
 
         await Promise.all(tasks);
+    }
+
+    private async animateShake(data: TilePosition) {
+        const view = this.boardMap.get(data);
+        if (!view) return;
+        view.hide();
+        await this.fx.shake(view);
+        view.show();
     }
 
     private getLocalPosition(pos: TilePosition, node: cc.Node): cc.Vec3 {

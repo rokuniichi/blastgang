@@ -2,6 +2,7 @@ import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
 import { BoardProcessingEvent } from "../../../domain/board/events/BoardProcessingEvent";
+import { TileClickRejectedEvent } from "../../../domain/board/events/TileClickRejectedEvent";
 import { BoardModel } from "../../../domain/board/models/BoardModel";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";
@@ -9,8 +10,8 @@ import { SearchService } from "../../../domain/board/services/SearchService";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { TileClickedEvent } from "../../../presentation/core/events/TileClickedEvent";
-import { DomainContext } from "../../context/DomainContext";
 import { GameConfig } from "../../core/config/GameConfig";
+import { DomainContext } from "../../core/context/DomainContext";
 import { BaseController } from "../../core/controllers/BaseController";
 
 export class BoardController extends BaseController {
@@ -49,7 +50,10 @@ export class BoardController extends BaseController {
         if (this._gameStateModel.state !== "IDLE") return;
         const cluster = this._searchService.findCluster(event.position);
 
-        if (cluster.length < this._gameConfig.clusterSize) return;
+        if (cluster.length < this._gameConfig.clusterSize) {
+            this._eventBus.emit(new TileClickRejectedEvent(event.position));
+            return;
+        }
         this._eventBus.emit(new BoardProcessingEvent());
 
         const destroyed = this._clearService.clear(cluster);

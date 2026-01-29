@@ -2,43 +2,31 @@ import { AnimationType } from "./AnimationType";
 import { DestructionSettings } from "./settings/DestructionSettings";
 import { IAnimation } from "./IAnimation";
 
-
 export class DestructionAnimation implements IAnimation<DestructionSettings> {
 
     public readonly type = AnimationType.DESTRUCTION;
 
     play(settings: DestructionSettings): Promise<void> {
-        const {
-            node,
-            squashDuration,
-            squashScale,
-            popDuration,
-            popScale,
-            shrinkDuration,
-            shrinkOpacity,
-            shrinkScale
-        } = settings;
-
         return new Promise(resolve => {
-            if (!cc.isValid(node)) {
+            if (!cc.isValid(settings.node)) {
                 resolve();
                 return;
             }
 
-            const originalScale = node.scale as number;
-            const originalOpacity = node.opacity;
+            const originalScale = settings.node.scale as number;
+            const originalOpacity = settings.node.opacity;
 
-            cc.tween(node)
-                .to(squashDuration, { scale: originalScale * squashScale }, { easing: "sineOut" })
-                .to(popDuration, { scale: originalScale * popScale }, { easing: "quadOut" })
+            cc.tween(settings.node)
+                .to(settings.squashDuration, { scale: originalScale * settings.squashScale }, { easing: "sineOut" })
+                .to(settings.popDuration, { scale: originalScale * settings.popScale }, { easing: "quadOut" })
                 .parallel(
-                    cc.tween().to(shrinkDuration, { opacity: shrinkOpacity }),
-                    cc.tween().to(shrinkDuration, { scale: originalScale * shrinkScale })
+                    cc.tween().to(settings.shrinkDuration, { opacity: settings.shrinkOpacity }),
+                    cc.tween().to(settings.shrinkDuration, { scale: originalScale * settings.shrinkScale })
                 )
                 .call(() => {
-                    node.scale = originalScale;
-                    node.opacity = originalOpacity;
-                    node.active = false;
+                    settings.node.scale = originalScale;
+                    settings.node.opacity = originalOpacity;
+                    settings.node.active = false;
                     resolve();
                 })
                 .start();

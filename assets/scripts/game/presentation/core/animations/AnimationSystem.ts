@@ -5,6 +5,7 @@ import { FadeAnimation } from "./FadeAnimation";
 import { GravityFallAnimation } from "./GravityFallAnimation";
 import { IAnimation } from "./IAnimation";
 import { IAnimationSettings } from "./IAnimationSettings";
+import { ShakeAnimation } from "./ShakeAnimation";
 
 
 export class AnimationSystem {
@@ -19,6 +20,7 @@ export class AnimationSystem {
         this.add(new DestructionAnimation());
         this.add(new FadeAnimation());
         this.add(new GravityFallAnimation());
+        this.add(new ShakeAnimation());
     }
 
     private add(animation: IAnimation<any>): void {
