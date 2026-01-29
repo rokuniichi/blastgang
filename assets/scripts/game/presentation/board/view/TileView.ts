@@ -13,9 +13,6 @@ export class TileView extends EventView<TileViewContext> {
     @property(cc.Sprite)
     private sprite: cc.Sprite = null!;
 
-    @property(cc.Node)
-    private target: cc.Node | null = null;
-
     private position!: TilePosition;
 
     public validate(): void {
@@ -45,18 +42,18 @@ export class TileView extends EventView<TileViewContext> {
     }
 
     public show(): void {
-        this.node.active = true;
+        this.sprite.node.active = true;
     }
 
     public hide(): void {
-        this.node.active = false;
+        this.sprite.node.active = false;
     }
 
     public set(spriteFrame: cc.SpriteFrame): void {
         this.sprite.spriteFrame = spriteFrame;
     }
 
-    public getTarget(): cc.Node {
-        return this.target ?? this.node;
+    public get(): cc.Node {
+        return this.sprite.node;
     }
 }

@@ -2,6 +2,7 @@ import { assertNotNull } from "../../../core/utils/assert";
 import { AnimationType } from "./AnimationType";
 import { DestructionAnimation } from "./DestructionAnimation";
 import { FadeAnimation } from "./FadeAnimation";
+import { GravityFallAnimation } from "./GravityFallAnimation";
 import { IAnimation } from "./IAnimation";
 import { IAnimationSettings } from "./IAnimationSettings";
 
@@ -17,6 +18,7 @@ export class AnimationSystem {
     private register(): void {
         this.add(new DestructionAnimation());
         this.add(new FadeAnimation());
+        this.add(new GravityFallAnimation());
     }
 
     private add(animation: IAnimation<any>): void {

@@ -38,6 +38,7 @@ export class DestructionAnimation implements IAnimation<DestructionSettings> {
                 .call(() => {
                     node.scale = originalScale;
                     node.opacity = originalOpacity;
+                    node.active = false;
                     resolve();
                 })
                 .start();

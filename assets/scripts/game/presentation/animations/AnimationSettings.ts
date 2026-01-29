@@ -16,27 +16,19 @@ export class AnimationSettings {
         };
     }
 
-    static popupFall(node: cc.Node): GravityFallSettings {
+    static tileFall(node: cc.Node, startY: number, delta: number): GravityFallSettings {
         return {
             type: AnimationType.GRAVITY_FALL,
             node,
 
-            duration: 0.45,
-            startOffsetY: 600,
-            bounce: 0.15,
-            easing: "quadOut"
-        };
-    }
-
-    static tileFall(node: cc.Node): GravityFallSettings {
-        return {
-            type: AnimationType.GRAVITY_FALL,
-            node,
-
-            duration: 0.25,
-            startOffsetY: 200,
-            bounce: 0.05,
-            easing: "quadOut"
+            delay: 0.05,
+            duration: 0.3,
+            startY,
+            delta,
+            bounce: 15,
+            bounceDuration: 0.12,
+            settleDuration: 0.12,
+            easing: "quadIn"
         };
     }
 

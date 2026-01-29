@@ -7,6 +7,10 @@ export class Random {
         return min + Math.random() * (max - min);
     }
 
+    public static float(): number {
+        return Math.random();
+    }
+
     public static pick<T>(array: readonly T[]): T {
         if (array.length === 0) {
             throw new Error("[Random] Cannot pick from empty array");
