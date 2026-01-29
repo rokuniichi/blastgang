@@ -3,8 +3,9 @@ import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
 import { BoardProcessingEvent } from "../../../domain/board/events/BoardProcessingEvent";
 import { BoardModel } from "../../../domain/board/models/BoardModel";
-import { DestructionService } from "../../../domain/board/services/DestructionService";
-import { GravityService } from "../../../domain/board/services/GravityService";
+import { TileChangeReason } from "../../../domain/board/models/TileChangeReason";
+import { ClearService } from "../../../domain/board/services/ClearService";
+import { MoveService } from "../../../domain/board/services/MoveService";
 import { SearchService } from "../../../domain/board/services/SearchService";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
@@ -23,8 +24,8 @@ export class BoardController extends BaseController {
     private readonly _boardModel: BoardModel;
     private readonly _spawnService: SpawnService;
     private readonly _searchService: SearchService;
-    private readonly _destructionService: DestructionService;
-    private readonly _gravityService: GravityService;
+    private readonly _clearService: ClearService;
+    private readonly _moveService: MoveService;
 
     public constructor(context: DomainContext) {
         super();
@@ -35,8 +36,8 @@ export class BoardController extends BaseController {
         this._boardModel = context.boardModel;
         this._spawnService = context.spawnService;
         this._searchService = context.searchService;
-        this._destructionService = context.destructionService;
-        this._gravityService = context.gravityService;
+        this._clearService = context.clearService;
+        this._moveService = context.moveService;
     }
 
     protected onInit(): void {
@@ -52,10 +53,10 @@ export class BoardController extends BaseController {
         if (cluster.length < this._gameConfig.clusterSize) return;
         this._eventBus.emit(new BoardProcessingEvent());
 
-        const destroyed = this._destructionService.destroy(this._boardModel, cluster);
+        const destroyed = this._clearService.clear(TileChangeReason.DESTROYED, this._boardModel, cluster);
         const dropped = this._searchService.findDrops(this._boardModel);
-        this._gravityService.apply(this._boardModel, dropped);
-        this._spawnService.fill(this._boardModel);
+        this._moveService.move(TileChangeReason.DROPPED, this._boardModel, dropped);
+        this._spawnService.spawn(TileChangeReason.SPAWNED, this._boardModel);
 
         const changes = this._boardModel.changes;
 

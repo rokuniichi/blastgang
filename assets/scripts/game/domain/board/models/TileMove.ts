@@ -1,6 +1,6 @@
 import { TilePosition } from "./TilePosition";
 
-export interface TileDrop {
+export interface TileMove {
     readonly from: TilePosition;
     readonly to: TilePosition;
 }

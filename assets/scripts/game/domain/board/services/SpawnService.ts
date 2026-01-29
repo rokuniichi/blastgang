@@ -1,4 +1,6 @@
 import { BoardModel } from "../models/BoardModel";
+import { TileChangeReason } from "../models/TileChangeReason";
+import { TilePosition } from "../models/TilePosition";
 import { TileType } from "../models/TileType";
 
 export class SpawnService {
@@ -9,17 +11,21 @@ export class SpawnService {
         this._allowedTypes = allowedTypes;
     }
 
-    public fill(board: BoardModel): void {
+    public spawn(reason: TileChangeReason, board: BoardModel): TilePosition[] {
+        const result = [];
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
                 const position = { x, y };
 
                 if (board.empty(position)) {
                     const type = this.randomTile();
-                    board.set(position, type);
+                    board.set(reason, position, type);
+                    result.push(position);
                 }
             }
         }
+
+        return result;
     }
 
     private randomTile(): TileType {

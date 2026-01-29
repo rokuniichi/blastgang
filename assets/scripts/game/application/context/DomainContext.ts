@@ -1,8 +1,9 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardModel } from "../../domain/board/models/BoardModel";
 import { TileChange } from "../../domain/board/models/TileChange";
-import { DestructionService } from "../../domain/board/services/DestructionService";
-import { GravityService } from "../../domain/board/services/GravityService";
+import { TileChangeReason } from "../../domain/board/models/TileChangeReason";
+import { ClearService } from "../../domain/board/services/ClearService";
+import { MoveService } from "../../domain/board/services/MoveService";
 import { SearchService } from "../../domain/board/services/SearchService";
 import { SpawnService } from "../../domain/board/services/SpawnService";
 import { GameStateModel } from "../../domain/state/models/GameStateModel";
@@ -22,8 +23,8 @@ export class DomainContext {
     public readonly boardModel: BoardModel;
     public readonly spawnService: SpawnService;
     public readonly searchService: SearchService;
-    public readonly destructionService: DestructionService;
-    public readonly gravityService: GravityService;
+    public readonly clearService: ClearService;
+    public readonly moveService: MoveService;
     public readonly boardController: BoardController;
 
     public readonly initialBoard: TileChange[];
@@ -39,11 +40,11 @@ export class DomainContext {
         this.boardModel = new BoardModel(config.boardWidth, config.boardHeight);
         this.spawnService = new SpawnService(config.allowedTypes);
         this.searchService = new SearchService();
-        this.destructionService = new DestructionService();
-        this.gravityService = new GravityService();
+        this.clearService = new ClearService();
+        this.moveService = new MoveService();
         this.boardController = new BoardController(this);
 
-        this.spawnService.fill(this.boardModel);
+        this.spawnService.spawn(TileChangeReason.SPAWNED, this.boardModel);
         this.initialBoard = this.boardModel.changes;
     }
 

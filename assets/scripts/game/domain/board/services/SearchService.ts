@@ -1,6 +1,6 @@
 import { Matrix } from "../../../../core/collections/Matrix";
 import { BoardModel } from "../models/BoardModel";
-import { TileDrop } from "../models/TileDrop";
+import { TileMove } from "../models/TileMove";
 import { TilePosition } from "../models/TilePosition";
 import { TileType } from "../models/TileType";
 
@@ -55,8 +55,8 @@ export class SearchService {
         return result;
     }
 
-    public findDrops(board: BoardModel): TileDrop[] {
-        const result: TileDrop[] = [];
+    public findDrops(board: BoardModel): TileMove[] {
+        const result: TileMove[] = [];
         for (let x = board.width - 1; x >= 0; x--) {
             let drop = 0;
             for (let y = board.height - 1; y >= 0; y--) {

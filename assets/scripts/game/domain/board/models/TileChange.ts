@@ -1,10 +1,10 @@
-import { TileChangeType } from "./TileChangeType";
+import { TileChangeReason } from "./TileChangeReason";
 import { TilePosition } from "./TilePosition";
 import { TileState } from "./TileState";
 import { TileType } from "./TileType";
 
 export interface TileChange {
-    changeType: TileChangeType;
+    changeType: TileChangeReason;
     position: TilePosition;
     typeBefore: TileType;
     typeAfter: TileType;

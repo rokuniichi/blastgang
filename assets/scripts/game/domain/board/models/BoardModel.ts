@@ -1,6 +1,6 @@
 import { Matrix } from "../../../../core/collections/Matrix";
 import { TileChange } from "./TileChange";
-import { TileChangeType } from "./TileChangeType";
+import { TileChangeReason } from "./TileChangeReason";
 import { TileModel } from "./TileModel";
 import { TilePosition } from "./TilePosition";
 import { TileState } from "./TileState";
@@ -38,13 +38,13 @@ export class BoardModel {
         return this._board.get(position.x, position.y).type;
     }
 
-    public set(position: TilePosition, type: TileType): void {
+    public set(reason: TileChangeReason, position: TilePosition, type: TileType): void {
         const tile = this._board.get(position.x, position.y);
 
         if (tile.type === type) return;
 
         this.pushChange(
-            TileChangeType.TYPE,
+            reason,
             position,
             tile.type,
             type,
@@ -55,39 +55,44 @@ export class BoardModel {
         tile.type = type;
     }
 
-    public lock(position: TilePosition): void {
-        this.setState(position, TileState.BUSY);
+    public move(reason: TileChangeReason, from: TilePosition, to: TilePosition): void {
+        this.set(reason, to, this.get(from));
+        this.clear(reason, from);
     }
 
-    public free(position: TilePosition): void {
-        this.setState(position, TileState.IDLE);
+    public lock(reason: TileChangeReason, position: TilePosition): void {
+        this.setState(reason, position, TileState.BUSY);
     }
 
-    public clear(position: TilePosition): void {
-        this.set(position, TileType.NONE);
+    public free(reason: TileChangeReason, position: TilePosition): void {
+        this.setState(reason, position, TileState.IDLE);
+    }
+
+    public clear(reason: TileChangeReason, position: TilePosition): void {
+        this.set(reason, position, TileType.NONE);
     }
 
     public empty(position: TilePosition): boolean {
         return this.get(position) === TileType.NONE;
     }
 
-    public swap(a: TilePosition, b: TilePosition): void {
-        const ta = this._board.get(a.x, a.y);
-        const tb = this._board.get(b.x, b.y);
+    public swap(reason: TileChangeReason, posA: TilePosition, posB: TilePosition): void {
+        const tileA = this._board.get(posA.x, posA.y);
+        const tileB = this._board.get(posB.x, posB.y);
 
-        this.pushChange(TileChangeType.TYPE, a, ta.type, tb.type, ta.state, ta.state);
-        this.pushChange(TileChangeType.TYPE, b, tb.type, ta.type, tb.state, tb.state);
+        this.pushChange(reason, posA, tileA.type, tileB.type, tileA.state, tileA.state);
+        this.pushChange(reason, posB, tileB.type, tileA.type, tileB.state, tileB.state);
 
-        this._board.swap(a.x, a.y, b.x, b.y);
+        this._board.swap(posA.x, posA.y, posB.x, posB.y);
     }
 
-    private setState(position: TilePosition, state: TileState): void {
+    private setState(reason: TileChangeReason, position: TilePosition, state: TileState): void {
         const tile = this._board.get(position.x, position.y);
 
         if (tile.state === state) return;
 
         this.pushChange(
-            TileChangeType.STATE,
+            reason,
             position,
             tile.type,
             tile.type,
@@ -99,7 +104,7 @@ export class BoardModel {
     }
 
     private pushChange(
-        changeType: TileChangeType,
+        changeType: TileChangeReason,
         position: TilePosition,
         typeBefore: TileType,
         typeAfter: TileType,

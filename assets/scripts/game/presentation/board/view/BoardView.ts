@@ -2,7 +2,7 @@ import { Matrix } from "../../../../core/collections/Matrix";
 import { assertNotNull, assertNumber } from "../../../../core/utils/assert";
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
 import { TileChange } from "../../../domain/board/models/TileChange";
-import { TileDrop } from "../../../domain/board/models/TileDrop";
+import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
 import { AnimationSettings } from "../../animations/AnimationSettings";
@@ -21,6 +21,9 @@ export class BoardView extends EventView<BoardViewContext> {
     private tilePrefab: cc.Prefab = null!;
 
     @property(cc.Node)
+    private backgroundLayer: cc.Node = null!;
+
+    @property(cc.Node)
     private tileLayer: cc.Node = null!;
 
     @property(cc.Node)
@@ -34,6 +37,7 @@ export class BoardView extends EventView<BoardViewContext> {
     public validate(): void {
         super.validate();
         assertNotNull(this.tilePrefab, this, "tilePrefab");
+        assertNotNull(this.backgroundLayer, this, "tileAssets");
         assertNotNull(this.tileLayer, this, "tileLayer");
         assertNotNull(this.fxLayer, this, "fxLayer");
         assertNotNull(this.tileAssets, this, "tileAssets");
@@ -105,7 +109,7 @@ export class BoardView extends EventView<BoardViewContext> {
         this.emit(new BoardSyncedEvent());
     }
 
-    private async animate(destroyed: TilePosition[], dropped: TileDrop[]): Promise<void> {
+    private async animate(destroyed: TilePosition[], dropped: TileMove[]): Promise<void> {
         await Promise.all([
             this.animateDestruction(destroyed),
             this.animateGravity(dropped)
@@ -117,7 +121,7 @@ export class BoardView extends EventView<BoardViewContext> {
 
         for (const position of destroyed) {
             const view = this.views.get(position.x, position.y);
-            view.node.setParent(this.fxLayer);
+            view.node.setParent(this.backgroundLayer);
             tasks.push(this.context.animationSystem
                 .play(AnimationSettings.tileDestroy(view.get()))
                 .then(() => {
@@ -130,7 +134,7 @@ export class BoardView extends EventView<BoardViewContext> {
         await Promise.all(tasks);
     }
 
-    private async animateGravity(dropped: TileDrop[]): Promise<void> {
+    private async animateGravity(dropped: TileMove[]): Promise<void> {
         const tasks: Promise<void>[] = [];
 
         for (const drop of dropped) {
