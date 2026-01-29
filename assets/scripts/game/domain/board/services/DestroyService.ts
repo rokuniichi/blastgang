@@ -1,5 +1,5 @@
 import { TilePosition } from "../models/TilePosition";
-import { BoardService } from "./BoardService";
+import { BoardService } from "./IBoardService";
 
 export class DestroyService extends BoardService {
     public clear(cluster: TilePosition[]): TilePosition[] {

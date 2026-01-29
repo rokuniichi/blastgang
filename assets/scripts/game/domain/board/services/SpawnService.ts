@@ -1,8 +1,7 @@
-import { GameConfig } from "../../../application/config/GameConfig";
 import { BoardModel } from "../models/BoardModel";
 import { TileSpawn } from "../models/TileSpawn";
 import { TileType } from "../models/TileType";
-import { BoardService } from "./BoardService";
+import { BoardService } from "./IBoardService";
 
 export class SpawnService extends BoardService {
 

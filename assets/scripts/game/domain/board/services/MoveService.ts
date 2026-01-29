@@ -1,5 +1,5 @@
 import { TileMove } from "../models/TileMove";
-import { BoardService } from "./BoardService";
+import { BoardService } from "./IBoardService";
 
 export class MoveService extends BoardService {
     public move(drops: readonly TileMove[]): void {

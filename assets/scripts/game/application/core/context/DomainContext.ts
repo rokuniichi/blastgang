@@ -1,17 +1,16 @@
-import { EventBus } from "../../../core/events/EventBus";
-import { BoardModel } from "../../domain/board/models/BoardModel";
-import { TileChange } from "../../domain/board/models/TileChange";
-import { DestroyService } from "../../domain/board/services/DestroyService";
-import { MoveService } from "../../domain/board/services/MoveService";
-import { SearchService } from "../../domain/board/services/SearchService";
-import { SpawnService } from "../../domain/board/services/SpawnService";
-import { GameStateModel } from "../../domain/state/models/GameStateModel";
-import { ScoreService } from "../../domain/state/services/ScoreService";
-import { BoardController } from "../board/controllers/BoardController";
-import { BoardRuntime } from "../board/runtime/BoardRuntime";
-import { GameConfig } from "../core/config/GameConfig";
-import { GameStateController } from "../state/controllers/GameStateController";
-
+import { EventBus } from "../../../../core/events/EventBus";
+import { BoardModel } from "../../../domain/board/models/BoardModel";
+import { TileChange } from "../../../domain/board/models/TileChange";
+import { DestroyService } from "../../../domain/board/services/DestroyService";
+import { MoveService } from "../../../domain/board/services/MoveService";
+import { SearchService } from "../../../domain/board/services/SearchService";
+import { SpawnService } from "../../../domain/board/services/SpawnService";
+import { GameStateModel } from "../../../domain/state/models/GameStateModel";
+import { ScoreService } from "../../../domain/state/services/ScoreService";
+import { BoardController } from "../../board/controllers/BoardController";
+import { BoardRuntime } from "../../board/runtime/BoardRuntime";
+import { GameStateController } from "../../state/controllers/GameStateController";
+import { GameConfig } from "../config/GameConfig";
 
 export class DomainContext {
     public readonly gameConfig: GameConfig;

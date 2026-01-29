@@ -1,7 +1,7 @@
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
+import { TileClickedEvent } from "../../core/events/TileClickedEvent";
 import { EventView } from "../../core/view/EventView";
-import { TileClickedEvent } from "../../events/TileClickedEvent";
 import { TileViewContext } from "../context/TileViewContext";
 
 
@@ -42,10 +42,12 @@ export class TileView extends EventView<TileViewContext> {
     }
 
     public show(): void {
+        this.node.active = true;
         this.sprite.node.active = true;
     }
 
     public hide(): void {
+        this.node.active = false;
         this.sprite.node.active = false;
     }
 

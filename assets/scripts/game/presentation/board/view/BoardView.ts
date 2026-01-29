@@ -1,12 +1,14 @@
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
+import { TileChange } from "../../../domain/board/models/TileChange";
 import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileSpawn } from "../../../domain/board/models/TileSpawn";
 import { TileType } from "../../../domain/board/models/TileType";
-import { AnimationSettings } from "../../animations/AnimationSettings";
-import { TileAssets } from "../../assets/TileAssets";
+import { AnimationSettings } from "../../core/animations/AnimationSettings";
+import { TileAssets } from "../../core/assets/TileAssets";
+import { BoardSyncedEvent } from "../../core/events/BoardSyncedEvent";
+import { getWorldPosition } from "../../core/utils/position";
 import { EventView } from "../../core/view/EventView";
-import { BoardSyncedEvent } from "../../events/BoardSyncedEvent";
 import { BoardViewContext } from "../context/BoardViewContext";
 import { BoardMap } from "./BoardMap";
 import { TileView } from "./TileView";
@@ -35,128 +37,114 @@ export class BoardView extends EventView<BoardViewContext> {
 
     protected onInit(): void {
         this.boardMap = new BoardMap(this.context.boardWidth, this.context.boardHeight);
-        this.initBoard();
+            (
+                this.boardMap,
+                this.context.animationSystem,
+                this.tileAssets,
+                this.context.boardWidth,
+                this.context.boardHeight
+            )
+        this.drawBoard(this.context.initialBoard);
         this.on(BoardChangedEvent, this.onBoardChanged);
-    }
-
-    private initBoard(): void {
-        this.context.initialBoard.forEach((spawn) => {
-            let view = this.boardMap.get(spawn.at);
-            if (!view) view = this.createTile(spawn.at);
-            view.set(this.tileAssets.get(spawn.type));
-            this.boardMap.set(spawn.at, view);
-        })
     }
 
     private onBoardChanged = async (event: BoardChangedEvent) => {
         await this.animate(event);
-        this.syncBoard(event);
+        this.syncBoard(event.changes);
     };
 
-    private syncBoard(event: BoardChangedEvent) {
-        event.changes.forEach((change) => {
-            const view = this.boardMap.get(change.position);
-            if (!view) return;
-            view.set(this.tileAssets.get(change.after));
-        })
+    private syncBoard(changes: TileChange[]) {
+        this.drawBoard(changes);
         this.emit(new BoardSyncedEvent());
-        
     }
 
-    private async animate(event: BoardChangedEvent) {
+    private drawBoard(changes: TileChange[]): void {
+        for (const change of changes) {
+            let view = this.boardMap.get(change.position);
+
+            if (change.after === TileType.NONE) {
+                if (view) {
+                    view.node.destroy();
+                    this.boardMap.delete(change.position);
+                }
+                continue;
+            }
+
+            if (!view) {
+                view = this.createTile(change.position);
+                this.boardMap.set(change.position, view);
+            }
+
+            view.set(this.tileAssets.get(change.after));
+            view.node.setPosition(getWorldPosition(change.position, view.node, this.context.boardWidth, this.context.boardHeight));
+            view.show();
+        }
+    }
+
+    private async animate(event: BoardChangedEvent): Promise<void> {
         await Promise.all([
-            //this.animateDestroy(event.destroyed),
-            //this.animateDrop(event.dropped),
+            this.animateDestroy(event.destroyed),
+            this.animateDrop(event.dropped),
             //this.animateSpawn(event.spawned)
         ]);
     }
 
-    private async animateDestroy(data: TilePosition[]) {
+    private async animateDestroy(data: TilePosition[]): Promise<void> {
         const tasks = [];
 
         for (const position of data) {
             const view = this.boardMap.get(position);
             if (!view) continue;
-
+            view.node.setParent(this.backgroundLayer);
             tasks.push(
-                this.context.animationSystem
-                    .play(AnimationSettings.tileDestroy(view.get()))
-                    .then(() => {
-                        view.node.destroy();
-                        this.boardMap.delete(position);
-                    })
+                this.context.animationSystem.play(AnimationSettings.tileDestroy(view.node))
+                    .then(() => view.node.setParent(this.tileLayer))
             );
         }
-
         await Promise.all(tasks);
     }
 
-    private async animateDrop(data: TileMove[]) {
-        const tasks = [];
+    private async animateDrop(data: TileMove[]): Promise<void> {
+        const tasks: Promise<void>[] = [];
 
         for (const move of data) {
             const view = this.boardMap.get(move.from);
             if (!view) continue;
-
-            this.boardMap.delete(move.from);
-            this.boardMap.set(move.to, view);
-
-            const startY = -move.from.y * view.node.height;
-            const finalY = -move.to.y * view.node.height;
-            const delta = finalY - startY;
-
-            tasks.push(this.animateFall(view.node, startY, delta));
+            view.node.setParent(this.fxLayer);
+            const targetY = getWorldPosition(move.to, view.node, this.context.boardWidth, this.context.boardHeight).y;
+            tasks.push(this.context.animationSystem.play(AnimationSettings.tileFall(view.node, targetY))
+                .then(() => view.node.setParent(this.tileLayer)));
         }
 
         await Promise.all(tasks);
     }
 
-    private async animateSpawn(data: TileSpawn[]) {
-        const tasks = [];
+    private async animateSpawn(data: TileSpawn[]): Promise<void> {
+        const tasks: Promise<void>[] = [];
 
         for (const spawn of data) {
-            const view = this.createTile(spawn.at);
-            this.boardMap.set(spawn.at, view);
-            const finalY = -spawn.at.y * view.node.height;
-            const startY = finalY + view.node.height * 6;
-            const delta = finalY - startY;
-
-            tasks.push(this.animateFall(view.node, startY, delta));
+            const view = this.boardMap.get(spawn.at);
+            if (!view) continue;
+            view.node.setParent(this.fxLayer);
+            view.node.setPosition(getWorldPosition({x: spawn.at.x, y: -1}, view.node, this.context.boardWidth, this.context.boardHeight));
+            const targetY = getWorldPosition(spawn.at, view.node, this.context.boardWidth, this.context.boardHeight).y;
+            tasks.push(this.context.animationSystem.play(AnimationSettings.tileFall(view.node, targetY))
+                .then(() => view.node.setParent(this.tileLayer)));
         }
 
         await Promise.all(tasks);
     }
 
-    private animateFall(node: cc.Node, startY: number, delta: number) {
-        return this.context.animationSystem.play(AnimationSettings.tileFall(node, startY, delta));
-    }
 
     private createTile(position: TilePosition): TileView {
         const node = cc.instantiate(this.tilePrefab);
         node.setParent(this.tileLayer);
-        node.setPosition(position.x * node.width, -position.y * node.height);
         const view = node.getComponent(TileView)!;
         view.init({
             eventBus: this.eventBus,
-            position: position
+            position
         });
 
         return view;
-    }
-
-    private destroyTile(position: TilePosition): void {
-        this.boardMap.get(position)?.hide();
-    }
-
-    private dropTile(from: TilePosition, to: TilePosition, type: TileType): void {
-        this.destroyTile(from);
-        this.spawnTile(to, type);
-    }
-
-    private spawnTile(at: TilePosition, type: TileType): void {
-        const view = this.boardMap.get(at);
-        if (view === null) return;
-        view.set(this.tileAssets.get(type));
-        view.show();
     }
 }

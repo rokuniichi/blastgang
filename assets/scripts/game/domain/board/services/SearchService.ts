@@ -2,7 +2,7 @@ import { Matrix } from "../../../../core/collections/Matrix";
 import { TileMove } from "../models/TileMove";
 import { TilePosition } from "../models/TilePosition";
 import { TileType } from "../models/TileType";
-import { BoardService } from "./BoardService";
+import { BoardService } from "./IBoardService";
 
 export class SearchService extends BoardService {
     public findCluster(start: TilePosition): TilePosition[] {
