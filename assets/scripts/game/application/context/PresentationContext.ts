@@ -1,5 +1,5 @@
 import { EventBus } from "../../../core/events/EventBus";
-import { TileChange } from "../../domain/board/models/TileChange";
+import { TileSpawn } from "../../domain/board/models/TileSpawn";
 import { DomainContext } from "./DomainContext";
 
 export class PresentationContext {
@@ -9,7 +9,7 @@ export class PresentationContext {
     public readonly currentScore: number;
     public readonly boardWidth: number;
     public readonly boardHeight: number;
-    public readonly initialBoard: TileChange[];
+    public readonly initialBoard: TileSpawn[];
 
     public constructor(domainContext: DomainContext) {
         this.eventBus = domainContext.eventBus;

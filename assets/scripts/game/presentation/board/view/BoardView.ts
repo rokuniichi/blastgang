@@ -1,9 +1,7 @@
-import { Matrix } from "../../../../core/collections/Matrix";
-import { assertNotNull, assertNumber } from "../../../../core/utils/assert";
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
-import { TileChange } from "../../../domain/board/models/TileChange";
 import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
+import { TileSpawn } from "../../../domain/board/models/TileSpawn";
 import { TileType } from "../../../domain/board/models/TileType";
 import { AnimationSettings } from "../../animations/AnimationSettings";
 import { TileAssets } from "../../assets/TileAssets";
@@ -32,46 +30,135 @@ export class BoardView extends EventView<BoardViewContext> {
     @property(TileAssets)
     private tileAssets: TileAssets = null!;
 
-    private views!: Matrix<TileView>;
-
-    public validate(): void {
-        super.validate();
-        assertNotNull(this.tilePrefab, this, "tilePrefab");
-        assertNotNull(this.backgroundLayer, this, "tileAssets");
-        assertNotNull(this.tileLayer, this, "tileLayer");
-        assertNotNull(this.fxLayer, this, "fxLayer");
-        assertNotNull(this.tileAssets, this, "tileAssets");
-    }
-
-    protected preInit(): void {
-        super.preInit();
-        assertNotNull(this.context.animationSystem, this, "animationSystem");
-        assertNumber(this.context.boardWidth, this, "boardWidth");
-        assertNumber(this.context.boardHeight, this, "boardHeight");
-    }
+    private tiles = new Map<number, TileView>();
 
     protected onInit(): void {
-        this.views = new Matrix<TileView>(
-            this.context.boardWidth,
-            this.context.boardHeight,
-            (x: number, y: number): TileView => this.createTile({ x, y })
-        );
-
-        this.render(this.context.initialBoard);
+        this.initBoard();
+        this.on(BoardChangedEvent, this.onBoardChanged);
     }
 
-    protected postInit(): void {
-        this.on(BoardChangedEvent, this.onBoardProcessed);
+    private initBoard(): void {
+        this.context.initialBoard.forEach((spawn) => {
+            let view = this.get(spawn.at);
+            if (!view) view = this.createTile(spawn.at);
+            view.set(this.tileAssets.get(spawn.type));
+            this.set(spawn.at, view);
+        })
+    }
+
+    private onBoardChanged = async (event: BoardChangedEvent) => {
+        await this.animate(event);
+        this.syncBoard(event);
+    };
+
+    private syncBoard(event: BoardChangedEvent) {
+        /* event.destroyed.forEach((position) => this.destroyTile(position)); */
+        /* event.dropped.forEach((move) => this.dropTile(move.from, move.to)); */
+        /* event.spawned.forEach((spawn) => this.spawnTile(spawn.at, spawn.type)); */
+        event.changes.forEach((change) => {
+            const view = this.get(change.position);
+            if (!view) return;
+            view.set(this.tileAssets.get(change.after));
+        })
+        this.emit(new BoardSyncedEvent());
+        /* const board = this.context.boardModel;
+
+        for (let x = 0; x < board.width; x++) {
+            for (let y = 0; y < board.height; y++) {
+                const pos = { x, y };
+                const type = board.get(pos);
+
+                const view = this.tiles.get(this.key(x, y));
+
+                if (type === TileType.NONE) {
+                    if (view) view.hide();
+                } else {
+                    if (!view) {
+                        const v = this.createTile(pos);
+                        v.set(this.tileAssets.get(type));
+                        this.tiles.set(this.key(x, y), v);
+                    } else {
+                        view.show();
+                        view.set(this.tileAssets.get(type));
+                    }
+                }
+            }
+        } */
+    }
+
+    private async animate(event: BoardChangedEvent) {
+        await Promise.all([
+            //this.animateDestroy(event.destroyed),
+            //this.animateDrop(event.dropped),
+            //this.animateSpawn(event.spawned)
+        ]);
+    }
+
+    private async animateDestroy(data: TilePosition[]) {
+        const tasks = [];
+
+        for (const position of data) {
+            const view = this.get(position);
+            if (!view) continue;
+
+            tasks.push(
+                this.context.animationSystem
+                    .play(AnimationSettings.tileDestroy(view.get()))
+                    .then(() => {
+                        view.node.destroy();
+                        this.delete(position);
+                    })
+            );
+        }
+
+        await Promise.all(tasks);
+    }
+
+    private async animateDrop(data: TileMove[]) {
+        const tasks = [];
+
+        for (const move of data) {
+            const view = this.get(move.from);
+            if (!view) continue;
+
+            this.delete(move.from);
+            this.set(move.to, view);
+
+            const startY = -move.from.y * view.node.height;
+            const finalY = -move.to.y * view.node.height;
+            const delta = finalY - startY;
+
+            tasks.push(this.animateFall(view.node, startY, delta));
+        }
+
+        await Promise.all(tasks);
+    }
+
+    private async animateSpawn(data: TileSpawn[]) {
+        const tasks = [];
+
+        for (const spawn of data) {
+            const view = this.createTile(spawn.at);
+            this.set(spawn.at, view);
+            const finalY = -spawn.at.y * view.node.height;
+            const startY = finalY + view.node.height * 6;
+            const delta = finalY - startY;
+
+            tasks.push(this.animateFall(view.node, startY, delta));
+        }
+
+        await Promise.all(tasks);
+    }
+
+    private animateFall(node: cc.Node, startY: number, delta: number) {
+        return this.context.animationSystem.play(AnimationSettings.tileFall(node, startY, delta));
     }
 
     private createTile(position: TilePosition): TileView {
-        const node: cc.Node = cc.instantiate(this.tilePrefab);
+        const node = cc.instantiate(this.tilePrefab);
         node.setParent(this.tileLayer);
         node.setPosition(position.x * node.width, -position.y * node.height);
-
-        const view = node.getComponent(TileView);
-        assertNotNull(view, this, "TileView");
-
+        const view = node.getComponent(TileView)!;
         view.init({
             eventBus: this.eventBus,
             position: position
@@ -80,84 +167,33 @@ export class BoardView extends EventView<BoardViewContext> {
         return view;
     }
 
-    private updateTile(change: TileChange): void {
-        console.log(`CHANGE: ${change.position.x}:${change.position.y} = ${change.typeAfter}`)
-        const view = this.views.get(change.position.x, change.position.y);
-
-        this.views.forEach((tileView) => tileView.show);
-
-        if (change.typeAfter === TileType.NONE) {
-            view.hide();
-        } else {
-            view.show();
-            view.set(this.tileAssets.get(change.typeAfter));
-        }
+    private destroyTile(position: TilePosition): void {
+        this.get(position)?.hide();
     }
 
-
-    private onBoardProcessed = async (event: BoardChangedEvent): Promise<void> => {
-        await this.animate(event.destroyed, event.dropped);
-        this.render(event.changes);
+    private dropTile(from: TilePosition, to: TilePosition, type: TileType): void {
+        this.destroyTile(from);
+        this.spawnTile(to, type);
     }
 
-
-    private render(changes: TileChange[]): void {
-        for (const change of changes) {
-            this.updateTile(change);
-        }
-
-        this.emit(new BoardSyncedEvent());
+    private spawnTile(at: TilePosition, type: TileType): void {
+        const view = this.get(at);
+        if (view === null) return;
+        view.set(this.tileAssets.get(type));
+        view.show();
     }
 
-    private async animate(destroyed: TilePosition[], dropped: TileMove[]): Promise<void> {
-        await Promise.all([
-            this.animateDestruction(destroyed),
-            this.animateGravity(dropped)
-        ]);
+    private get(position: TilePosition): TileView | null {
+        const result = this.tiles.get(TilePosition.key(position, this.context.boardWidth));
+        return result ?? null;
     }
 
-    private async animateDestruction(destroyed: TilePosition[]): Promise<void> {
-        const tasks: Promise<void>[] = [];
-
-        for (const position of destroyed) {
-            const view = this.views.get(position.x, position.y);
-            view.node.setParent(this.backgroundLayer);
-            tasks.push(this.context.animationSystem
-                .play(AnimationSettings.tileDestroy(view.get()))
-                .then(() => {
-                    view.node.setParent(this.tileLayer);
-                    view.hide();
-                }));
-            view.node.setParent(this.tileLayer);
-        }
-
-        await Promise.all(tasks);
+    private set(position: TilePosition, tile: TileView): void {
+        this.tiles.set(TilePosition.key(position, this.context.boardWidth), tile)
     }
 
-    private async animateGravity(dropped: TileMove[]): Promise<void> {
-        const tasks: Promise<void>[] = [];
+    private delete(position: TilePosition): void {
+        this.tiles.delete(TilePosition.key(position, this.context.boardWidth));
 
-        for (const drop of dropped) {
-            console.log(`dropping from ${drop.from.x}:${drop.from.y} to ${drop.to.x}:${drop.to.y}`);
-
-            const from = this.views.get(drop.from.x, drop.from.y);
-            const to = this.views.get(drop.to.x, drop.to.y);
-
-            const startY = from.node.y;
-            const delta = to.node.y - from.node.y;
-
-            from.node.setParent(this.fxLayer);
-
-            tasks.push(
-                this.context.animationSystem
-                    .play(AnimationSettings.tileFall(from.node, startY, delta))
-                    .then(() => {
-                        from.node.setParent(this.tileLayer);
-                        from.node.y = startY;
-                    })
-            );
-        }
-
-        await Promise.all(tasks);
     }
 }

@@ -3,8 +3,7 @@ import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
 import { BoardProcessingEvent } from "../../../domain/board/events/BoardProcessingEvent";
 import { BoardModel } from "../../../domain/board/models/BoardModel";
-import { TileChangeReason } from "../../../domain/board/models/TileChangeReason";
-import { ClearService } from "../../../domain/board/services/ClearService";
+import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";
 import { SearchService } from "../../../domain/board/services/SearchService";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
@@ -24,7 +23,7 @@ export class BoardController extends BaseController {
     private readonly _boardModel: BoardModel;
     private readonly _spawnService: SpawnService;
     private readonly _searchService: SearchService;
-    private readonly _clearService: ClearService;
+    private readonly _clearService: DestroyService;
     private readonly _moveService: MoveService;
 
     public constructor(context: DomainContext) {
@@ -48,19 +47,17 @@ export class BoardController extends BaseController {
 
     private onTileClicked = (event: TileClickedEvent): void => {
         if (this._gameStateModel.state !== "IDLE") return;
-        const cluster = this._searchService.findCluster(this._boardModel, event.position);
+        const cluster = this._searchService.findCluster(event.position);
 
         if (cluster.length < this._gameConfig.clusterSize) return;
         this._eventBus.emit(new BoardProcessingEvent());
 
-        const destroyed = this._clearService.clear(TileChangeReason.DESTROYED, this._boardModel, cluster);
-        const dropped = this._searchService.findDrops(this._boardModel);
-        this._moveService.move(TileChangeReason.DROPPED, this._boardModel, dropped);
-        this._spawnService.spawn(TileChangeReason.SPAWNED, this._boardModel);
-
-        const changes = this._boardModel.changes;
-
-        this._eventBus.emit(new BoardChangedEvent(destroyed, dropped, changes));
+        const destroyed = this._clearService.clear(cluster);
+        const dropped = this._searchService.findDrops();
+        this._moveService.move(dropped);
+        const spawned = this._spawnService.spawn();
+        const changes = this._boardModel.flush();
+        this._eventBus.emit(new BoardChangedEvent(destroyed, dropped, spawned, changes));
     };
 
     public dispose(): void {

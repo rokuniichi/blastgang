@@ -1,8 +1,8 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardModel } from "../../domain/board/models/BoardModel";
-import { TileChange } from "../../domain/board/models/TileChange";
-import { TileChangeReason } from "../../domain/board/models/TileChangeReason";
-import { ClearService } from "../../domain/board/services/ClearService";
+import { TilePosition } from "../../domain/board/models/TilePosition";
+import { TileSpawn } from "../../domain/board/models/TileSpawn";
+import { DestroyService } from "../../domain/board/services/DestroyService";
 import { MoveService } from "../../domain/board/services/MoveService";
 import { SearchService } from "../../domain/board/services/SearchService";
 import { SpawnService } from "../../domain/board/services/SpawnService";
@@ -11,6 +11,7 @@ import { ScoreService } from "../../domain/state/services/ScoreService";
 import { GameConfig } from "../config/GameConfig";
 import { BoardController } from "../controllers/board/BoardController";
 import { GameStateController } from "../controllers/state/GameStateController";
+import { BoardRuntime } from "../runtime/board/BoardRuntime";
 
 export class DomainContext {
     public readonly gameConfig: GameConfig;
@@ -21,13 +22,14 @@ export class DomainContext {
     public readonly gameStateController: GameStateController;
 
     public readonly boardModel: BoardModel;
+    public readonly boardRuntime: BoardRuntime;
     public readonly spawnService: SpawnService;
     public readonly searchService: SearchService;
-    public readonly clearService: ClearService;
+    public readonly clearService: DestroyService;
     public readonly moveService: MoveService;
     public readonly boardController: BoardController;
 
-    public readonly initialBoard: TileChange[];
+    public readonly initialBoard: TileSpawn[];
 
     public constructor(config: GameConfig) {
         this.gameConfig = config;
@@ -38,14 +40,16 @@ export class DomainContext {
         this.gameStateController = new GameStateController(this);
 
         this.boardModel = new BoardModel(config.boardWidth, config.boardHeight);
-        this.spawnService = new SpawnService(config.allowedTypes);
-        this.searchService = new SearchService();
-        this.clearService = new ClearService();
-        this.moveService = new MoveService();
+        // TODO implement within services
+        this.boardRuntime = new BoardRuntime(config.boardWidth, config.boardHeight);
+        this.spawnService = new SpawnService(this.boardModel, config.allowedTypes);
+        this.searchService = new SearchService(this.boardModel);
+        this.clearService = new DestroyService(this.boardModel);
+        this.moveService = new MoveService(this.boardModel);
+        
         this.boardController = new BoardController(this);
 
-        this.spawnService.spawn(TileChangeReason.SPAWNED, this.boardModel);
-        this.initialBoard = this.boardModel.changes;
+        this.initialBoard = this.spawnService.spawn();
     }
 
     public init(): void {

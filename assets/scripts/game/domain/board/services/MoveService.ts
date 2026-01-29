@@ -1,12 +1,10 @@
-import { BoardModel } from "../models/BoardModel";
-import { TileChangeReason } from "../models/TileChangeReason";
 import { TileMove } from "../models/TileMove";
+import { BoardService } from "./BoardService";
 
-export class MoveService {
-
-    public move(reason: TileChangeReason, board: BoardModel, drops: readonly TileMove[]): void {
+export class MoveService extends BoardService {
+    public move(drops: readonly TileMove[]): void {
         for (const drop of drops) {
-            board.move(reason, drop.from, drop.to)
+            this.boardModel.move(drop)
         }
     }
 }
