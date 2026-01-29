@@ -1,57 +1,82 @@
+import { TileType } from "../../../domain/board/models/TileType";
 import { AnimationSettings } from "../../core/animations/AnimationSettings";
 import { AnimationSystem } from "../../core/animations/AnimationSystem";
 import { TileAssets } from "../../core/assets/TileAssets";
-import { FxPool } from "./TileFxPool";
-
+import { TileView } from "../view/TileView";
 
 export class BoardFxLayer {
 
-    private readonly pool: FxPool;
-
+    private pool: cc.Node[] = [];
     constructor(
-        fxRoot: cc.Node,
-        tilePrefab: cc.Prefab,
-        private tileAssets: TileAssets,
-        private animationSystem: AnimationSystem
-    ) {
-        this.pool = new FxPool(tilePrefab, fxRoot);
+        private animationSystem: AnimationSystem,
+        private backgroundLayer: cc.Node,
+        private fxLayer: cc.Node,
+        private tileAssets: TileAssets
+    ) { }
+
+    private clone(source: TileView): TileView {
+        let target = this.pool.pop();
+        const node = source.node;
+
+        if (!target || !cc.isValid(target)) {
+            target = cc.instantiate(node);
+        }
+
+        target.setParent(this.fxLayer);
+        target.active = true;
+
+        target.setPosition(node.getPosition());
+        target.scale = node.scale;
+        target.opacity = node.opacity;
+
+        const view = target.getComponent(TileView);
+        view.set(source.get().clone());
+
+        return view;
     }
 
-    private createFxTile(type: any, worldPos: cc.Vec3): cc.Node {
-        const node = this.pool.get();
+    private release(node: cc.Node) {
+        if (!cc.isValid(node)) return;
 
-        node.setPosition(worldPos);
+        cc.Tween.stopAllByTarget(node);
+        node.active = false;
+        node.removeFromParent(false);
 
-        const sprite = node.getComponent(cc.Sprite)!;
-        sprite.spriteFrame = this.tileAssets.get(type);
-
-        node.scale = 1;
-        node.opacity = 255;
-
-        return node;
+        this.pool.push(node);
     }
 
-    async playDestroy(type: any, worldPos: cc.Vec3): Promise<void> {
-        const node = this.createFxTile(type, worldPos);
+    async destroy(tile: TileView): Promise<void> {
+        const fx = this.clone(tile);
+        fx.node.setParent(this.fxLayer);
 
-        await this.animationSystem.play(AnimationSettings.tileDestroy(node));
+        await this.animationSystem.play(
+            AnimationSettings.tileDestroy(fx.node)
+        );
 
-        this.pool.release(node);
+        this.release(fx.node);
     }
 
-    async playDrop(type: any, from: cc.Vec3, to: cc.Vec3): Promise<void> {
-        const node = this.createFxTile(type, from);
+    async drop(tile: TileView, to: cc.Vec3): Promise<void> {
+        const fx = this.clone(tile);
+        fx.node.setParent(this.backgroundLayer);
 
-        await this.animationSystem.play(AnimationSettings.tileFall(node, to.y));
+        await this.animationSystem.play(
+            AnimationSettings.tileFall(fx.node, to.y)
+        );
 
-        this.pool.release(node);
+        this.release(fx.node);
     }
 
-    async playSpawn(type: any, from: cc.Vec3, to: cc.Vec3): Promise<void> {
-        const node = this.createFxTile(type, from);
+    async spawn(tile: TileView, from: cc.Vec3, to: cc.Vec3, type: TileType): Promise<void> {
+        const fx = this.clone(tile);
+        fx.set(this.tileAssets.get(type));
 
-        await this.animationSystem.play(AnimationSettings.tileFall(node, to.y));
+        fx.node.setPosition(from);
 
-        this.pool.release(node);
+        await this.animationSystem.play(
+            AnimationSettings.tileFall(fx.node, to.y)
+        );
+
+        this.release(fx.node);
     }
 }

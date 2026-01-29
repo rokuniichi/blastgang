@@ -4,12 +4,11 @@ import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileSpawn } from "../../../domain/board/models/TileSpawn";
 import { TileType } from "../../../domain/board/models/TileType";
-import { AnimationSettings } from "../../core/animations/AnimationSettings";
 import { TileAssets } from "../../core/assets/TileAssets";
 import { BoardSyncedEvent } from "../../core/events/BoardSyncedEvent";
-import { getWorldPosition } from "../../core/utils/position";
 import { EventView } from "../../core/view/EventView";
 import { BoardViewContext } from "../context/BoardViewContext";
+import { BoardFxLayer } from "../fx/BoardFxLayer";
 import { BoardMap } from "./BoardMap";
 import { TileView } from "./TileView";
 
@@ -18,11 +17,12 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class BoardView extends EventView<BoardViewContext> {
+
     @property(cc.Prefab)
     private tilePrefab: cc.Prefab = null!;
 
     @property(cc.Node)
-    private backgroundLayer: cc.Node = null!;
+    private backgroundLayer: cc.Node = null!
 
     @property(cc.Node)
     private tileLayer: cc.Node = null!;
@@ -34,16 +34,13 @@ export class BoardView extends EventView<BoardViewContext> {
     private tileAssets: TileAssets = null!;
 
     private boardMap!: BoardMap;
+    private fx!: BoardFxLayer;
 
     protected onInit(): void {
         this.boardMap = new BoardMap(this.context.boardWidth, this.context.boardHeight);
-            (
-                this.boardMap,
-                this.context.animationSystem,
-                this.tileAssets,
-                this.context.boardWidth,
-                this.context.boardHeight
-            )
+
+        this.fx = new BoardFxLayer(this.context.animationSystem, this.backgroundLayer, this.fxLayer, this.tileAssets);
+
         this.drawBoard(this.context.initialBoard);
         this.on(BoardChangedEvent, this.onBoardChanged);
     }
@@ -76,69 +73,81 @@ export class BoardView extends EventView<BoardViewContext> {
             }
 
             view.set(this.tileAssets.get(change.after));
-            view.node.setPosition(getWorldPosition(change.position, view.node, this.context.boardWidth, this.context.boardHeight));
+
+            const pos = this.getLocalPosition(change.position, view.node);
+            view.node.setPosition(pos);
             view.show();
         }
     }
 
-    private async animate(event: BoardChangedEvent): Promise<void> {
+    private async animate(event: BoardChangedEvent) {
         await Promise.all([
             this.animateDestroy(event.destroyed),
             this.animateDrop(event.dropped),
-            //this.animateSpawn(event.spawned)
+            this.animateSpawn(event.spawned)
         ]);
+
     }
 
-    private async animateDestroy(data: TilePosition[]): Promise<void> {
-        const tasks = [];
+    private async animateDestroy(data: TilePosition[]) {
+        const tasks: Promise<void>[] = [];
 
-        for (const position of data) {
-            const view = this.boardMap.get(position);
+        for (const pos of data) {
+            const view = this.boardMap.get(pos);
             if (!view) continue;
-            view.node.setParent(this.backgroundLayer);
-            tasks.push(
-                this.context.animationSystem.play(AnimationSettings.tileDestroy(view.node))
-                    .then(() => view.node.setParent(this.tileLayer))
-            );
+            view.hide();
+            tasks.push(this.fx.destroy(view));
         }
+
         await Promise.all(tasks);
     }
 
-    private async animateDrop(data: TileMove[]): Promise<void> {
+    private async animateDrop(data: TileMove[]) {
         const tasks: Promise<void>[] = [];
 
         for (const move of data) {
             const view = this.boardMap.get(move.from);
             if (!view) continue;
-            view.node.setParent(this.fxLayer);
-            const targetY = getWorldPosition(move.to, view.node, this.context.boardWidth, this.context.boardHeight).y;
-            tasks.push(this.context.animationSystem.play(AnimationSettings.tileFall(view.node, targetY))
-                .then(() => view.node.setParent(this.tileLayer)));
+            view.hide();
+            const targetWorld = this.getLocalPosition(move.to, view.node);
+            tasks.push(this.fx.drop(view, targetWorld));
         }
 
         await Promise.all(tasks);
     }
 
-    private async animateSpawn(data: TileSpawn[]): Promise<void> {
+    private async animateSpawn(data: TileSpawn[]) {
         const tasks: Promise<void>[] = [];
 
         for (const spawn of data) {
             const view = this.boardMap.get(spawn.at);
             if (!view) continue;
-            view.node.setParent(this.fxLayer);
-            view.node.setPosition(getWorldPosition({x: spawn.at.x, y: -1}, view.node, this.context.boardWidth, this.context.boardHeight));
-            const targetY = getWorldPosition(spawn.at, view.node, this.context.boardWidth, this.context.boardHeight).y;
-            tasks.push(this.context.animationSystem.play(AnimationSettings.tileFall(view.node, targetY))
-                .then(() => view.node.setParent(this.tileLayer)));
+
+            const to = this.getLocalPosition(spawn.at, view.node);
+            const from = to.clone();
+            from.y += view.node.height * 2;
+
+            tasks.push(this.fx.spawn(view, from, to, spawn.type));
         }
 
         await Promise.all(tasks);
     }
 
+    private getLocalPosition(pos: TilePosition, node: cc.Node): cc.Vec3 {
+        const originX = -((this.context.boardWidth - 1) * node.width) / 2;
+        const originY = ((this.context.boardHeight - 1) * node.height) / 2;
+
+        return cc.v3(
+            originX + pos.x * node.width,
+            originY - pos.y * node.height,
+            0
+        );
+    }
 
     private createTile(position: TilePosition): TileView {
         const node = cc.instantiate(this.tilePrefab);
         node.setParent(this.tileLayer);
+
         const view = node.getComponent(TileView)!;
         view.init({
             eventBus: this.eventBus,

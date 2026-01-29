@@ -55,7 +55,7 @@ export class TileView extends EventView<TileViewContext> {
         this.sprite.spriteFrame = spriteFrame;
     }
 
-    public get(): cc.Node {
-        return this.sprite.node;
+    public get(): cc.SpriteFrame {
+        return this.sprite.spriteFrame;
     }
 }
