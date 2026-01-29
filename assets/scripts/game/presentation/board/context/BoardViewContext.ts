@@ -1,8 +1,10 @@
-import { BoardModel } from "../../../domain/board/models/BoardModel";
+import { TileChange } from "../../../domain/board/models/TileChange";
 import { AnimationSystem } from "../../animations/AnimationSystem";
 import { EventViewContext } from "../../core/context/EventViewContext";
 
 export interface BoardViewContext extends EventViewContext {
-    readonly boardModel: BoardModel;
     readonly animationSystem: AnimationSystem;
+    readonly boardWidth: number;
+    readonly boardHeight: number;
+    readonly initialBoard: TileChange[];
 }

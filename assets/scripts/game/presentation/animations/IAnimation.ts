@@ -1,6 +1,7 @@
 import { AnimationType } from "./AnimationType";
+import { IAnimationSettings } from "./IAnimationSettings";
 
-export interface IAnimation {
-    readonly type: AnimationType;
-    play(target: cc.Node): Promise<void>;
+export interface IAnimation<T extends IAnimationSettings> {
+    type: AnimationType;
+    play(settings: T): Promise<void>;
 }

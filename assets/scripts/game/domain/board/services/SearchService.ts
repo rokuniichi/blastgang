@@ -9,11 +9,11 @@ export class SearchService {
     public constructor() { }
 
     public findCluster(board: BoardModel, start: TilePosition): TilePosition[] {
-        const targetType: TileType = board.get(start);
+        const targetType = board.get(start);
 
-        const result: TilePosition[] = [];
-        const visited: Matrix<boolean> = new Matrix<boolean>(board.width, board.height, () => false);
-        const stack: TilePosition[] = [start];
+        const result = [];
+        const visited = new Matrix<boolean>(board.width, board.height, () => false);
+        const stack = [start];
 
         while (stack.length > 0 && targetType !== TileType.NONE) {
             const position = stack.pop();
@@ -60,7 +60,7 @@ export class SearchService {
         for (let x = board.width - 1; x >= 0; x--) {
             let drop = 0;
             for (let y = board.height - 1; y >= 0; y--) {
-                if (board.isEmpty({ x, y })) drop++;
+                if (board.empty({ x, y })) drop++;
                 else if (drop > 0) result.push({ from: { x, y }, to: { x, y: y + drop } });
             }
         }

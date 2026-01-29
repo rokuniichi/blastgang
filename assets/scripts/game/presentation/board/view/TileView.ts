@@ -1,8 +1,8 @@
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { TileViewContext } from "../context/TileViewContext";
-import { TileClickedEvent } from "../../events/TileClickedEvent";
 import { EventView } from "../../core/view/EventView";
+import { TileClickedEvent } from "../../events/TileClickedEvent";
+import { TileViewContext } from "../context/TileViewContext";
 
 
 const { ccclass, property } = cc._decorator;
@@ -13,24 +13,30 @@ export class TileView extends EventView<TileViewContext> {
     @property(cc.Sprite)
     private sprite: cc.Sprite = null!;
 
-     @property(cc.Node)
+    @property(cc.Node)
     private target: cc.Node | null = null;
 
     private position!: TilePosition;
 
-    public override validate(): void {
+    public validate(): void {
+        super.validate();
         assertNotNull(this.sprite, this, "Sprite");
     }
 
-    protected override onInit(): void {
+    protected preInit(): void {
+        super.preInit();
+        assertNotNull(this.context.position, this, "boardModel");
+    }
+
+    protected onInit(): void {
         this.position = this.context.position;
     }
 
-    protected override subscribe(): void {
+    protected postInit(): void {
         this.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 
-    protected override unsubscribe(): void {
+    protected onDispose(): void {
         this.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 

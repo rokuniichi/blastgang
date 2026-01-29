@@ -22,7 +22,7 @@ Play at: https://rokuniichi.github.io/blastgang/
         └── Events (MovesUpdatedEvent, BoardProcessedEvent...)
     ├── Application (management)
         ├── Entry (GameEntry) 
-        ├── Context (GameContext) 
+        ├── Context (DomainContext) 
         └── Controllers (BoardController, GameStateController)
     ├── Presentation (visuals)
         ├── Animations (animation system)
@@ -41,8 +41,8 @@ Play at: https://rokuniichi.github.io/blastgang/
 - Services don't hold states and act as algorithm containers
 - Controllers coordinate Domain processes ("who goes where and when and why")
 - Dependencies are managed via Contexts
-- GameContext acts as a dependency-root, GameEntry as a launcher
-- Architecture is easily scalable and is open to more levels of abstraction (e.g. creating a GameManager above GameContext for a level-management system, where GameContext would probably become LevelContext)
+- DomainContext acts as a dependency-root, GameEntry as a launcher
+- Architecture is easily scalable and is open to more levels of abstraction (e.g. creating a GameManager above DomainContext for a level-management system, where DomainContext would probably become LevelContext)
 
 ## Notes
 - Supports JSON config injection

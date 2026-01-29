@@ -1,66 +1,65 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { GameConfig } from "../../config/GameConfig";
-import { BoardProcessedEvent } from "../../../domain/board/events/BoardProcessedEvent";
+import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
 import { BoardProcessingEvent } from "../../../domain/board/events/BoardProcessingEvent";
 import { BoardModel } from "../../../domain/board/models/BoardModel";
 import { DestructionService } from "../../../domain/board/services/DestructionService";
-import { FillService } from "../../../domain/board/services/FillService";
 import { GravityService } from "../../../domain/board/services/GravityService";
 import { SearchService } from "../../../domain/board/services/SearchService";
+import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { TileClickedEvent } from "../../../presentation/events/TileClickedEvent";
-import { GameContext } from "../../context/GameContext";
+import { GameConfig } from "../../config/GameConfig";
+import { DomainContext } from "../../context/DomainContext";
 import { BaseController } from "../BaseController";
 
 export class BoardController extends BaseController {
 
     private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
-    private readonly config: GameConfig;
-    private readonly eventBus: EventBus;
-    private readonly gameStateModel: GameStateModel;
-    private readonly boardModel: BoardModel;
-    private readonly fillService: FillService;
-    private readonly searchService: SearchService;
-    private readonly destructionService: DestructionService;
-    private readonly gravityService: GravityService;
+    private readonly _gameConfig: GameConfig;
+    private readonly _eventBus: EventBus;
+    private readonly _gameStateModel: GameStateModel;
+    private readonly _boardModel: BoardModel;
+    private readonly _spawnService: SpawnService;
+    private readonly _searchService: SearchService;
+    private readonly _destructionService: DestructionService;
+    private readonly _gravityService: GravityService;
 
-    public constructor(context: GameContext) {
+    public constructor(context: DomainContext) {
         super();
 
-        this.config = context.gameConfig;
-        this.eventBus = context.eventBus;
-        this.gameStateModel = context.gameStateModel;
-        this.boardModel = context.boardModel;
-        this.fillService = context.fillService;
-        this.searchService = context.searchService;
-        this.destructionService = context.destructionService;
-        this.gravityService = context.gravityService;
+        this._gameConfig = context.gameConfig;
+        this._eventBus = context.eventBus;
+        this._gameStateModel = context.gameStateModel;
+        this._boardModel = context.boardModel;
+        this._spawnService = context.spawnService;
+        this._searchService = context.searchService;
+        this._destructionService = context.destructionService;
+        this._gravityService = context.gravityService;
     }
 
     protected onInit(): void {
-        this.fillService.spawn(this.boardModel);
-
         this._subscriptions.add(
-            this.eventBus.on(TileClickedEvent, this.onTileClicked)
+            this._eventBus.on(TileClickedEvent, this.onTileClicked)
         );
     }
 
     private onTileClicked = (event: TileClickedEvent): void => {
-        if (this.gameStateModel.state !== "IDLE") return;
+        if (this._gameStateModel.state !== "IDLE") return;
+        const cluster = this._searchService.findCluster(this._boardModel, event.position);
 
-        const cluster = this.searchService.findCluster(this.boardModel, event.position);
+        if (cluster.length < this._gameConfig.clusterSize) return;
+        this._eventBus.emit(new BoardProcessingEvent());
 
-        if (cluster.length < this.config.clusterSize) return;
-        this.eventBus.emit(new BoardProcessingEvent());
+        const destroyed = this._destructionService.destroy(this._boardModel, cluster);
+        const dropped = this._searchService.findDrops(this._boardModel);
+        this._gravityService.apply(this._boardModel, dropped);
+        this._spawnService.fill(this._boardModel);
 
-        const destroyed = this.destructionService.destroy(this.boardModel, cluster);
-        const dropped = this.searchService.findDrops(this.boardModel);
-        this.gravityService.apply(this.boardModel, dropped);
-        const spawned = this.fillService.spawn(this.boardModel);
+        const changes = this._boardModel.changes;
 
-        this.eventBus.emit(new BoardProcessedEvent(destroyed, dropped, spawned));
+        this._eventBus.emit(new BoardChangedEvent(destroyed, dropped, changes));
     };
 
     public dispose(): void {

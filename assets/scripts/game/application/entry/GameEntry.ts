@@ -1,6 +1,7 @@
 import { ViewInstaller } from "../../presentation/installer/ViewInstaller";
 import { GameConfigLoader } from "../config/GameConfigLoader";
-import { GameContext } from "../context/GameContext";
+import { DomainContext } from "../context/DomainContext";
+import { PresentationContext } from "../context/PresentationContext";
 import { GameSettings } from "../GameSettings";
 
 const { ccclass, property } = cc._decorator;
@@ -11,27 +12,25 @@ export class GameEntry extends cc.Component {
     @property(ViewInstaller)
     private viewInstaller: ViewInstaller = null!;
 
-    private gameContext: GameContext | null = null;
+    private domainContext: DomainContext | null = null;
+    private presentationContext: PresentationContext | null = null;
 
     protected async start(): Promise<void> {
         const configMode = GameSettings.configMode;
 
         const gameConfig = await new GameConfigLoader().load(configMode);
 
-        this.gameContext = new GameContext(gameConfig);
-        this.gameContext.init();
+        this.domainContext = new DomainContext(gameConfig);
+        this.domainContext.init();
 
-        this.viewInstaller.init({
-            eventBus: this.gameContext.eventBus,
-            gameStateModel: this.gameContext.gameStateModel,
-            boardModel: this.gameContext.boardModel
-        });
+        this.presentationContext = new PresentationContext(this.domainContext);
+        this.viewInstaller.init(this.presentationContext);
     }
 
     protected onDestroy(): void {
-        if (this.gameContext !== null) {
-            this.gameContext.dispose();
-            this.gameContext = null;
+        if (this.domainContext !== null) {
+            this.domainContext.dispose();
+            this.domainContext = null;
         }
     }
 }

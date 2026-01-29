@@ -1,71 +1,43 @@
 import { AnimationType } from "./AnimationType";
+import { DestructionSettings } from "./settings/DestructionSettings";
 import { IAnimation } from "./IAnimation";
 
-const { ccclass, property } = cc._decorator;
 
-@ccclass
-export class DestructionAnimation extends cc.Component implements IAnimation {
+export class DestructionAnimation implements IAnimation<DestructionSettings> {
 
-    @property
-    public squashDuration = 0.12;
+    public readonly type = AnimationType.DESTRUCTION;
 
-    @property
-    public popDuration = 0.18;
+    play(settings: DestructionSettings): Promise<void> {
+        const {
+            node,
+            squashDuration,
+            squashScale,
+            popDuration,
+            popScale,
+            shrinkDuration,
+            shrinkOpacity,
+            shrinkScale
+        } = settings;
 
-    @property
-    public fadeDuration = 0.2;
-
-    @property
-    public squashX = 0.92;
-
-    @property
-    public squashY = 1.05;
-
-    @property
-    public popScale = 1.15;
-
-    @property
-    public finalScale = 0.6;
-
-    @property
-    public finalOpacity = 80;
-
-    public readonly type: AnimationType = AnimationType.DESTRUCTION;
-
-    public play(target: cc.Node): Promise<void> {
-        return new Promise<void>((resolve) => {
-            if (!cc.isValid(target)) {
+        return new Promise(resolve => {
+            if (!cc.isValid(node)) {
                 resolve();
                 return;
             }
 
-            const originalScale = target.scale;
-            const originalOpacity = target.opacity;
+            const originalScale = node.scale;
+            const originalOpacity = node.opacity;
 
-            cc.tween(target)
-                .to(this.squashDuration, {
-                    scaleX: originalScale * this.squashX,
-                    scaleY: originalScale * this.squashY
-                }, { easing: "sineOut" })
-
-                .to(this.popDuration, {
-                    scale: originalScale * this.popScale
-                }, { easing: "quadOut" })
-
+            cc.tween(node)
+                .to(squashDuration, { scale: originalScale * squashScale }, { easing: "sineOut" })
+                .to(popDuration, { scale: originalScale * popScale }, { easing: "quadOut" })
                 .parallel(
-                    cc.tween().to(this.fadeDuration, {
-                        opacity: this.finalOpacity
-                    }, { easing: "sineIn" }),
-
-                    cc.tween().to(this.fadeDuration, {
-                        scale: originalScale * this.finalScale
-                    }, { easing: "quadIn" })
+                    cc.tween().to(shrinkDuration, { opacity: shrinkOpacity }),
+                    cc.tween().to(shrinkDuration, { scale: originalScale * shrinkScale })
                 )
-
                 .call(() => {
-                    target.scale = originalScale;
-                    target.opacity = originalOpacity;
-
+                    node.scale = originalScale;
+                    node.opacity = originalOpacity;
                     resolve();
                 })
                 .start();

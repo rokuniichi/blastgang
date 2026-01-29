@@ -1,19 +1,18 @@
 import { IDisposable } from "../../../core/lifecycle/IDisposable";
 import { IInitializable } from "../../../core/lifecycle/IInitializable";
 
-export abstract class BaseController
-    implements IInitializable, IDisposable {
+export abstract class BaseController implements IInitializable, IDisposable {
 
     private _initialized = false;
 
-    public init(...args: any[]): void {
+    public init(): void {
         if (this._initialized) return;
         this._initialized = true;
 
-        this.onInit(...args);
+        this.onInit();
     }
 
-    protected abstract onInit(...args: any[]): void;
+    protected abstract onInit(): void;
 
     public dispose(): void {
         if (!this._initialized) return;

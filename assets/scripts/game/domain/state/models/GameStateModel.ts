@@ -1,29 +1,42 @@
 export class GameStateModel {
-    private _movesLeft = 0;
-    private _targetScore = 0;
-    private _currentScore = 0;
-    private _state = "IDLE";
 
-    constructor(movesLeft: number, targetScore: number) {
+    private _movesLeft: number;
+    private _targetScore: number;
+    private _currentScore: number;
+    private _state: string;
+
+    constructor(movesLeft: number, targetScore: number, currentScore: number) {
         this._movesLeft = movesLeft;
         this._targetScore = targetScore;
+        this._currentScore = currentScore;
         this._state = "IDLE"
     }
 
-    get movesLeft() { return this._movesLeft; }
-    get targetScore() { return this._targetScore; }
-    get currentScore() { return this._currentScore; }
-    get state() { return this._state; }
+    public get movesLeft() {
+        return this._movesLeft;
+    }
 
-    addScore(value: number): void {
+    public get targetScore() {
+        return this._targetScore;
+    }
+
+    public get currentScore() {
+        return this._currentScore;
+    }
+
+    public get state() {
+        return this._state;
+    }
+
+    public addScore(value: number): void {
         this._currentScore += value;
     }
 
-    useMove(): void {
+    public useMove(): void {
         this._movesLeft--;
     }
 
-    setState(state: string) {
+    public setState(state: string) {
         this._state = state;
     }
 }

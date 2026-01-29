@@ -1,10 +1,11 @@
 import { IDisposable } from "../../../../core/lifecycle/IDisposable";
 import { IInitializable } from "../../../../core/lifecycle/IInitializable";
 import { IValidatable } from "../../../../core/lifecycle/IValidatable";
+import { assertNotNull } from "../../../../core/utils/assert";
 
 
 export abstract class ContextView<TContext> extends cc.Component implements IInitializable<TContext>, IDisposable, IValidatable {
-
+    
     protected context!: TContext;
 
     private _initialized: boolean = false;
@@ -21,6 +22,7 @@ export abstract class ContextView<TContext> extends cc.Component implements IIni
 
     public init(context: TContext): void {
         if (this._initialized) return;
+        assertNotNull(context, this, "context");    
         this.context = context;
         this.preInit();
         this.onInit();
@@ -28,7 +30,7 @@ export abstract class ContextView<TContext> extends cc.Component implements IIni
         this._initialized = true;
     }
 
-    protected preInit(): void { }
+    protected abstract preInit(): void;
     protected abstract onInit(): void;
     protected postInit(): void { }
 

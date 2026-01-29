@@ -1,5 +1,5 @@
 import { ValueChangedEvent } from "../../../../core/events/ValueChangedEvent";
-import { assertNotNull } from "../../../../core/utils/assert";
+import { assertNotNull, assertNumber } from "../../../../core/utils/assert";
 import { DynamicTextViewContext } from "../context/DynamicTextViewContext";
 import { EventView } from "./EventView";
 
@@ -12,15 +12,21 @@ export abstract class DynamicTextView<TContext extends DynamicTextViewContext> e
 
     protected abstract eventType(): new (...args: any[]) => ValueChangedEvent;
 
-    public override validate(): void {
+    public validate(): void {
+        super.validate();
         assertNotNull(this.targetLabel, this, "targetLabel");
     }
 
-    protected override onInit(): void {
+    protected preInit(): void {
+        super.preInit();
+        assertNumber(this.context.initialValue, this, "initialValue");
+    }
+
+    protected onInit(): void {
         this.render(this.context.initialValue);
     }
 
-    protected override subscribe(): void {
+    protected postInit(): void {
         this.on(this.eventType(), this.onValueChanged);
     }
 

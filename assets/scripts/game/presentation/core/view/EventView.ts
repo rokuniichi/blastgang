@@ -9,29 +9,21 @@ import { ContextView } from "./ContextView";
 export abstract class EventView<TContext extends EventViewContext> extends ContextView<TContext> {
 
     protected eventBus!: EventBus;
-    private readonly subscriptions: SubscriptionGroup = new SubscriptionGroup();
+    private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
-    protected override preInit(): void {
+    protected preInit(): void {
         assertNotNull(this.context.eventBus, this, "eventBus");
         this.eventBus = this.context.eventBus;
     }
 
-    protected override postInit(): void {
-        this.subscribe();
+    protected onDispose(): void {
+        super.onDispose();
+        this._subscriptions.clear();
     }
-
-    protected subscribe(): void { }
-
-    protected override onDispose(): void {
-        this.unsubscribe();
-        this.subscriptions.clear();
-    }
-
-    protected unsubscribe(): void { }
 
     protected on<T extends IEvent>(type: EventConstructor<T>, handler: EventHandler<T>): void {
-        const sub: Subscription = this.eventBus.on(type, handler);
-        this.subscriptions.add(sub);
+        const subscription = this.eventBus.on(type, handler);
+        this._subscriptions.add(subscription);
     }
 
     protected emit<T extends IEvent>(event: T): void {

@@ -2,20 +2,20 @@ import { Subscription } from "./Subscription";
 
 export class SubscriptionGroup {
 
-    private readonly subs: Subscription[];
+    private readonly _subscriptions: Subscription[];
 
     public constructor() {
-        this.subs = [];
+        this._subscriptions = [];
     }
 
     public add(sub: Subscription): void {
-        this.subs.push(sub);
+        this._subscriptions.push(sub);
     }
 
     public clear(): void {
-        for (const sub of this.subs) {
+        for (const sub of this._subscriptions) {
             sub.unsubscribe();
         }
-        this.subs.length = 0;
+        this._subscriptions.length = 0;
     }
 }

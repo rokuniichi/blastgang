@@ -6,17 +6,17 @@ export type EventHandler<T extends IEvent> = (event: T) => void;
 
 export class EventBus {
 
-    private readonly listeners: Map<EventConstructor<IEvent>, EventHandler<IEvent>[]> = new Map();
+    private readonly _listeners: Map<EventConstructor<IEvent>, EventHandler<IEvent>[]> = new Map();
 
     public on<T extends IEvent>(
         eventType: EventConstructor<T>,
         handler: EventHandler<T>
     ): Subscription {
         const handlers: EventHandler<IEvent>[] =
-            this.listeners.get(eventType) ?? [];
+            this._listeners.get(eventType) ?? [];
 
         handlers.push(handler as EventHandler<IEvent>);
-        this.listeners.set(eventType, handlers);
+        this._listeners.set(eventType, handlers);
 
         return {
             unsubscribe: (): void => this.off(eventType, handler)
@@ -27,7 +27,7 @@ export class EventBus {
         eventType: EventConstructor<T>,
         handler: EventHandler<T>
     ): void {
-        const handlers = this.listeners.get(eventType);
+        const handlers = this._listeners.get(eventType);
         if (!handlers) return;
 
         const index: number = handlers.indexOf(handler as EventHandler<IEvent>);
@@ -37,7 +37,7 @@ export class EventBus {
     }
 
     public emit<T extends IEvent>(event: T): void {
-        const handlers = this.listeners.get(
+        const handlers = this._listeners.get(
             event.constructor as EventConstructor<IEvent>
         );
 
@@ -49,6 +49,6 @@ export class EventBus {
     }
 
     public clear(): void {
-        this.listeners.clear();
+        this._listeners.clear();
     }
 }

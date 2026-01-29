@@ -1,10 +1,11 @@
+import { TileChange } from "../models/TileChange";
 import { TileDrop } from "../models/TileDrop";
 import { TilePosition } from "../models/TilePosition";
 
-export class BoardProcessedEvent {
+export class BoardChangedEvent {
     public constructor(
         public readonly destroyed: TilePosition[],
         public readonly dropped: TileDrop[],
-        public readonly spawned: TilePosition[]
+        public readonly changes: TileChange[]
     ) { }
 }

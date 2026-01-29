@@ -1,16 +1,17 @@
 import { EventBus } from "../../../core/events/EventBus";
-import { GameConfig } from "../config/GameConfig";
 import { BoardModel } from "../../domain/board/models/BoardModel";
+import { TileChange } from "../../domain/board/models/TileChange";
 import { DestructionService } from "../../domain/board/services/DestructionService";
-import { FillService } from "../../domain/board/services/FillService";
 import { GravityService } from "../../domain/board/services/GravityService";
 import { SearchService } from "../../domain/board/services/SearchService";
+import { SpawnService } from "../../domain/board/services/SpawnService";
 import { GameStateModel } from "../../domain/state/models/GameStateModel";
 import { ScoreService } from "../../domain/state/services/ScoreService";
+import { GameConfig } from "../config/GameConfig";
 import { BoardController } from "../controllers/board/BoardController";
 import { GameStateController } from "../controllers/state/GameStateController";
 
-export class GameContext {
+export class DomainContext {
     public readonly gameConfig: GameConfig;
     public readonly eventBus: EventBus;
 
@@ -19,26 +20,31 @@ export class GameContext {
     public readonly gameStateController: GameStateController;
 
     public readonly boardModel: BoardModel;
-    public readonly fillService: FillService;
+    public readonly spawnService: SpawnService;
     public readonly searchService: SearchService;
     public readonly destructionService: DestructionService;
     public readonly gravityService: GravityService;
     public readonly boardController: BoardController;
 
+    public readonly initialBoard: TileChange[];
+
     public constructor(config: GameConfig) {
         this.gameConfig = config;
         this.eventBus = new EventBus();
 
-        this.gameStateModel = new GameStateModel(config.maxMoves, config.targetScore);
+        this.gameStateModel = new GameStateModel(config.maxMoves, config.targetScore, 0);
         this.scoreService = new ScoreService(config.scoreMultiplier);
         this.gameStateController = new GameStateController(this);
 
         this.boardModel = new BoardModel(config.boardWidth, config.boardHeight);
-        this.fillService = new FillService(config.allowedTypes);
+        this.spawnService = new SpawnService(config.allowedTypes);
         this.searchService = new SearchService();
         this.destructionService = new DestructionService();
         this.gravityService = new GravityService();
         this.boardController = new BoardController(this);
+
+        this.spawnService.fill(this.boardModel);
+        this.initialBoard = this.boardModel.changes;
     }
 
     public init(): void {

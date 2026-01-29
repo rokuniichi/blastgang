@@ -1,35 +1,31 @@
 import { assertNotNull } from "../../../core/utils/assert";
 import { AnimationType } from "./AnimationType";
+import { DestructionAnimation } from "./DestructionAnimation";
+import { FadeAnimation } from "./FadeAnimation";
 import { IAnimation } from "./IAnimation";
+import { IAnimationSettings } from "./IAnimationSettings";
 
-const { ccclass, property } = cc._decorator;
 
-@ccclass
-export class AnimationSystem extends cc.Component {
+export class AnimationSystem {
 
-    @property([cc.Component])
-    private animationComponents: cc.Component[] = [];
+    private animations = new Map<AnimationType, IAnimation<any>>();
 
-    private animations: Map<AnimationType, IAnimation> = new Map();
-
-    protected onLoad(): void {
+    constructor() {
         this.register();
     }
 
     private register(): void {
-        for (const component of this.animationComponents) {
-            const animation = component as unknown as IAnimation;
-            this.animations.set(animation.type, animation);
-        }
+        this.add(new DestructionAnimation());
+        this.add(new FadeAnimation());
     }
 
-    public play(type: AnimationType, target: cc.Node): Promise<void> {
-        const animation = this.animations.get(type);
-        assertNotNull(animation, this, `Animation "${type}" not registered`);
-        return animation.play(target);
+    private add(animation: IAnimation<any>): void {
+        this.animations.set(animation.type, animation);
     }
 
-    public has(type: AnimationType): boolean {
-        return this.animations.has(type);
+    public play(settings: IAnimationSettings): Promise<void> {
+        const animation = this.animations.get(settings.type);
+        assertNotNull(animation, this, "animation");
+        return animation.play(settings);
     }
 }
