@@ -30,7 +30,7 @@ Play at: https://rokuniichi.github.io/blastgang/
         └── Events (TileClickedEvent...)
 ├── Core
     ├── Utilities (assert, ensure, Matrix...)
-    └──  Events (event system)
+    └── Events (event system)
 ```
 *the scheme is for reference, details are subject to change
 
@@ -43,6 +43,8 @@ Play at: https://rokuniichi.github.io/blastgang/
 - Dependencies are managed via Contexts
 - DomainContext acts as a dependency-root, GameEntry as a launcher
 - Architecture is easily scalable and is open to more levels of abstraction (e.g. creating a GameManager above DomainContext for a level-management system, where DomainContext would probably become LevelContext)
+- TileFX system is done using basic object-pooling
+- Animation settings are stored as hardcoded values with a possibility to re-define and inject them via implementation with ease
 
 ## Notes
 - Supports JSON config injection
