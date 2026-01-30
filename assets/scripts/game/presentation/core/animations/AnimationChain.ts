@@ -31,10 +31,8 @@ export class AnimationChain {
 
     private async run(): Promise<void> {
         while (!this.empty()) {
-            console.log("Starting task...");
             const task = this._chain.shift()!;
             await task();
-            console.log("Task COMPLETE!");
         }
 
         this._running = false;

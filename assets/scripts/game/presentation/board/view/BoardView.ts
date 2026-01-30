@@ -57,7 +57,6 @@ export class BoardView extends EventView<BoardViewContext> {
     };
 
     private onTileClickRejected = async (event: TileClickRejectedEvent) => {
-        console.log(`Tile rejected for reason: ${event.reason.toString()}`);
         if (event.reason == TileClickRejectedReason.NO_CLUSTER) {
             this.animateShake(event.position);
         }

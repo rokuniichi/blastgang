@@ -50,7 +50,7 @@ export class AnimationSettings {
         return {
             type: AnimationType.SHAKE,
             node,
-            duration: 1,
+            duration: 0.05,
             amplitude: 8
         }
     }
