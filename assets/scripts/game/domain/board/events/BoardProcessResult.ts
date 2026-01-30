@@ -3,7 +3,7 @@ import { TileMove } from "../models/TileMove";
 import { TilePosition } from "../models/TilePosition";
 import { TileSpawn } from "../models/TileSpawn";
 
-export class BoardChangedEvent {
+export class BoardProcessResult {
     public constructor(
         public readonly destroyed: TilePosition[],
         public readonly dropped: TileMove[],

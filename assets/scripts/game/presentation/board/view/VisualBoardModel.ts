@@ -2,7 +2,7 @@ import { BoardKey } from "../../../application/board/BoardKey";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileView } from "./TileView";
 
-export class BoardMap {
+export class VisualBoardModel {
     private readonly _map: Map<string, TileView>;
 
     constructor() {

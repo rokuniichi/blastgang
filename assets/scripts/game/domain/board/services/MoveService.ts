@@ -6,7 +6,7 @@ export class MoveService extends BoardService {
     public move(moves: readonly TileMove[]): void {
         for (const move of moves) {
             this.boardRuntime.lock(TileLockReason.MOVE, move.to);
-            this.boardModel.move(move)
+            this.logicalModel.move(move)
         }
     }
 }

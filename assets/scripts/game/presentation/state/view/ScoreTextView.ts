@@ -1,6 +1,6 @@
 import { assertNumber } from "../../../../core/utils/assert";
 import { ScoreUpdatedEvent } from "../../../domain/state/events/ScoreUpdatedEvent";
-import { DynamicTextView } from "../../core/view/DynamicTextView";
+import { DynamicTextView } from "../../common/view/DynamicTextView";
 import { ScoreTextViewContext } from "../context/ScoreTextViewContext";
 
 const { ccclass } = cc._decorator;

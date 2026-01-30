@@ -1,7 +1,6 @@
-import { AnimationType } from "../../common/animations/AnimationType";
-import { IAnimation } from "../../common/animations/IAnimation";
-import { GravityFallSettings } from "../../common/animations/settings/GravityFallSettings";
-
+import { AnimationType } from "./AnimationType";
+import { IAnimation } from "./IAnimation";
+import { GravityFallSettings } from "./settings/GravityFallSettings";
 
 export class GravityFallAnimation implements IAnimation<GravityFallSettings> {
 

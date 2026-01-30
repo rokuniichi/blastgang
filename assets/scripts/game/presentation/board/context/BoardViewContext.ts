@@ -1,7 +1,7 @@
 import { BoardRuntime } from "../../../application/board/runtime/BoardRuntime";
 import { TileChange } from "../../../domain/board/models/TileChange";
-import { AnimationSystem } from "../../core/animations/AnimationSystem";
-import { EventViewContext } from "../../core/context/EventViewContext";
+import { AnimationSystem } from "../../common/animations/AnimationSystem";
+import { EventViewContext } from "../../common/context/EventViewContext";
 
 export interface BoardViewContext extends EventViewContext {
     readonly animationSystem: AnimationSystem;

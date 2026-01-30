@@ -1,4 +1,4 @@
-import { GameConfigMode } from "../core/config/GameConfigMode";
+import { GameConfigMode } from "../common/config/GameConfigMode";
 
 export const GameSettings = {
     configMode: GameConfigMode.JSON,

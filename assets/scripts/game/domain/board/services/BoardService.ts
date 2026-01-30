@@ -1,12 +1,12 @@
 import { BoardRuntime } from "../../../application/board/runtime/BoardRuntime";
-import { BoardModel } from "../models/BoardModel";
+import { LogicalBoardModel } from "../models/LogicalBoardModel";
 
 export abstract class BoardService {
-    protected readonly boardModel: BoardModel;
+    protected readonly logicalModel: LogicalBoardModel;
     protected readonly boardRuntime: BoardRuntime;
 
-    constructor(boardModel: BoardModel, boardRuntime: BoardRuntime) {
-        this.boardModel = boardModel;
+    constructor(boardModel: LogicalBoardModel, boardRuntime: BoardRuntime) {
+        this.logicalModel = boardModel;
         this.boardRuntime = boardRuntime;
     }
 }

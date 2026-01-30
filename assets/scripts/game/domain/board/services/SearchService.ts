@@ -6,10 +6,10 @@ import { BoardService } from "./BoardService";
 
 export class SearchService extends BoardService {
     public findCluster(start: TilePosition): TilePosition[] {
-        const targetType = this.boardModel.get(start);
+        const targetType = this.logicalModel.get(start);
 
         const result = [];
-        const visited = new Matrix<boolean>(this.boardModel.width, this.boardModel.height, () => false);
+        const visited = new Matrix<boolean>(this.logicalModel.width, this.logicalModel.height, () => false);
         const stack = [start];
 
         while (stack.length > 0 && targetType !== TileType.NONE) {
@@ -20,7 +20,7 @@ export class SearchService extends BoardService {
 
             visited.set(position.x, position.y, true);
 
-            if (this.boardRuntime.isLocked(position) || this.boardModel.get(position) !== targetType) {
+            if (this.boardRuntime.isLocked(position) || this.logicalModel.get(position) !== targetType) {
                 continue;
             }
 
@@ -43,7 +43,7 @@ export class SearchService extends BoardService {
         const result: TilePosition[] = [];
 
         for (const position of neighbors) {
-            if (position.x < 0 || position.y < 0 || position.x >= this.boardModel.width || position.y >= this.boardModel.height) {
+            if (position.x < 0 || position.y < 0 || position.x >= this.logicalModel.width || position.y >= this.logicalModel.height) {
                 continue;
             }
             result.push(position);
@@ -54,10 +54,10 @@ export class SearchService extends BoardService {
 
     public findDrops(): TileMove[] {
         const result: TileMove[] = [];
-        for (let x = this.boardModel.width - 1; x >= 0; x--) {
+        for (let x = this.logicalModel.width - 1; x >= 0; x--) {
             let drop = 0;
-            for (let y = this.boardModel.height - 1; y >= 0; y--) {
-                if (this.boardModel.empty({ x, y })) drop++;
+            for (let y = this.logicalModel.height - 1; y >= 0; y--) {
+                if (this.logicalModel.empty({ x, y })) drop++;
                 else if (drop > 0) result.push({ from: { x, y }, to: { x, y: y + drop } });
             }
         }

@@ -7,7 +7,7 @@ export class DestroyService extends BoardService {
         const result: TilePosition[] = [];
 
         for (const position of cluster) {
-            this.boardModel.destroy(position);
+            this.logicalModel.destroy(position);
             this.boardRuntime.lock(TileLockReason.DESTROY, position);
             result.push(position);
         }

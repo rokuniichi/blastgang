@@ -19,8 +19,8 @@ export class PresentationContext {
         this.movesLeft = domainContext.gameStateModel.movesLeft;
         this.targetScore = domainContext.gameStateModel.targetScore;
         this.currentScore = domainContext.gameStateModel.currentScore;
-        this.boardWidth = domainContext.boardModel.width;
-        this.boardHeight = domainContext.boardModel.height;
+        this.boardWidth = domainContext.logicalModel.width;
+        this.boardHeight = domainContext.logicalModel.height;
         this.initialBoard = domainContext.initialBoard;
     }
 }

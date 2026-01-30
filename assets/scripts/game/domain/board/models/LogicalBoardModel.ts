@@ -6,7 +6,7 @@ import { TilePosition } from "./TilePosition";
 import { TileSpawn } from "./TileSpawn";
 import { TileType } from "./TileType";
 
-export class BoardModel {
+export class LogicalBoardModel {
 
     private readonly _board: Matrix<TileType>;
     private _changes: Map<string, TileChange>;

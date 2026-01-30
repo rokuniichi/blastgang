@@ -17,8 +17,10 @@ export class BoardRuntime {
         this._locks = new Matrix<number>(width, height, () => TileLockReason.NONE);
     }
 
-    public reset(): void {
-        this._locks.forEach((x, y, _) => this.clear({ x, y }));
+    public unlockAll(): void {
+        this._locks.forEach((value, x, y) => {
+            this.clear({ x, y });
+        });
     }
 
     public isLocked(pos: TilePosition): boolean {

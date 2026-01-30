@@ -1,8 +1,9 @@
-import { AnimationType } from "../../../common/animations/AnimationType";
-import { DestructionSettings } from "../../../common/animations/settings/DestructionSettings";
-import { FadeSettings } from "../../../common/animations/settings/FadeSettings";
-import { GravityFallSettings } from "../../../common/animations/settings/GravityFallSettings";
-import { ShakeSettings } from "../../../common/animations/settings/ShakeSettings";
+import { AnimationType } from "../AnimationType";
+import { DestructionSettings } from "./DestructionSettings";
+import { FadeSettings } from "./FadeSettings";
+import { GravityFallSettings } from "./GravityFallSettings";
+import { ShakeSettings } from "./ShakeSettings";
+
 
 export class AnimationSettings {
 

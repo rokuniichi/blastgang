@@ -1,7 +1,6 @@
-import { AnimationType } from "../../common/animations/AnimationType";
-import { IAnimation } from "../../common/animations/IAnimation";
-import { FadeSettings } from "../../common/animations/settings/FadeSettings";
-
+import { AnimationType } from "./AnimationType";
+import { FadeSettings } from "./settings/FadeSettings";
+import { IAnimation } from "./IAnimation";
 
 export class FadeAnimation implements IAnimation<FadeSettings> {
 

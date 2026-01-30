@@ -3,8 +3,8 @@ import { BoardView } from "../board/view/BoardView";
 import { PresentationContext } from "./PresentationContext";
 import { MovesTextView } from "../state/view/MovesTextView";
 import { ScoreTextView } from "../state/view/ScoreTextView";
-import { AnimationSystem } from "../core/animations/AnimationSystem";
-import { ContextView } from "../core/view/ContextView";
+import { AnimationSystem } from "../common/animations/AnimationSystem";
+import { ContextView } from "../common/view/ContextView";
 
 const { ccclass, property } = cc._decorator;
 

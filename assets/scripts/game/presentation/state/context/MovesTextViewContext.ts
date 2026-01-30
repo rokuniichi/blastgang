@@ -1,3 +1,3 @@
-import { DynamicTextViewContext } from "../../core/context/DynamicTextViewContext";
+import { DynamicTextViewContext } from "../../common/context/DynamicTextViewContext";
 
 export interface MovesTextViewContext extends DynamicTextViewContext { }

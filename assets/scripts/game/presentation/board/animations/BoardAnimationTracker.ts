@@ -1,8 +1,8 @@
 import { BoardKey } from "../../../application/board/BoardKey";
 import { BoardRuntime, TileLockReason } from "../../../application/board/runtime/BoardRuntime";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { AnimationChain } from "../../core/animations/AnimationChain";
-import { AnimationTask } from "../../core/animations/AnimationTask";
+import { AnimationChain } from "../../common/animations/AnimationChain";
+import { AnimationTask } from "../../common/animations/AnimationTask";
 
 export class BoardAnimationTracker {
     private readonly _runtimeModel;

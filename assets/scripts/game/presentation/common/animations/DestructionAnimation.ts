@@ -1,7 +1,6 @@
-import { AnimationType } from "../../common/animations/AnimationType";
-import { IAnimation } from "../../common/animations/IAnimation";
-import { DestructionSettings } from "../../common/animations/settings/DestructionSettings";
-
+import { AnimationType } from "./AnimationType";
+import { DestructionSettings } from "./settings/DestructionSettings";
+import { IAnimation } from "./IAnimation";
 
 export class DestructionAnimation implements IAnimation<DestructionSettings> {
 

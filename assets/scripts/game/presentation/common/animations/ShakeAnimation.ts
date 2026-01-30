@@ -1,7 +1,6 @@
-import { AnimationType } from "../../common/animations/AnimationType";
-import { IAnimation } from "../../common/animations/IAnimation";
-import { ShakeSettings } from "../../common/animations/settings/ShakeSettings";
-
+import { AnimationType } from "./AnimationType";
+import { IAnimation } from "./IAnimation";
+import { ShakeSettings } from "./settings/ShakeSettings";
 
 export class ShakeAnimation implements IAnimation<ShakeSettings> {
 

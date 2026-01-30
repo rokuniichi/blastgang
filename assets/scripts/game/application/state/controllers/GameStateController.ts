@@ -1,14 +1,14 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
+import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
 import { MovesUpdatedEvent } from "../../../domain/state/events/MovesUpdatedEvent";
 import { ScoreUpdatedEvent } from "../../../domain/state/events/ScoreUpdatedEvent";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
 import { BoardSyncedEvent } from "../../../presentation/board/events/BoardSyncedEvent";
-import { GameConfig } from "../../core/config/GameConfig";
+import { GameConfig } from "../../common/config/GameConfig";
 import { DomainContext } from "../../../domain/context/DomainContext";
-import { BaseController } from "../../core/controllers/BaseController";
+import { BaseController } from "../../common/controllers/BaseController";
 
 
 export class GameStateController extends BaseController {
@@ -31,7 +31,7 @@ export class GameStateController extends BaseController {
 
     protected onInit(): void {
         this._subscriptions.add(
-            this._eventBus.on(BoardChangedEvent, this.onBoardProcessed)
+            this._eventBus.on(BoardProcessResult, this.onBoardProcessed)
         );
 
         this._subscriptions.add(
@@ -39,7 +39,7 @@ export class GameStateController extends BaseController {
         )
     }
 
-    private onBoardProcessed = (event: BoardChangedEvent): void => {
+    private onBoardProcessed = (event: BoardProcessResult): void => {
         if (event.destroyed.length < 1) {
             return;
         }

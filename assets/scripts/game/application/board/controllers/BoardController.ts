@@ -1,8 +1,8 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
+import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
 import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejectedEvent";
-import { BoardModel } from "../../../domain/board/models/BoardModel";
+import { LogicalBoardModel } from "../../../domain/board/models/LogicalBoardModel";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";
 import { SearchService } from "../../../domain/board/services/SearchService";
@@ -10,9 +10,9 @@ import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { DomainContext } from "../../../domain/context/DomainContext";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { BoardSyncedEvent } from "../../../presentation/board/events/BoardSyncedEvent";
-import { TileClickedEvent } from "../../../presentation/board/events/TileClickedEvent";
-import { GameConfig } from "../../core/config/GameConfig";
-import { BaseController } from "../../core/controllers/BaseController";
+import { TileClickedCommand } from "../../../presentation/board/events/TileClickedCommand";
+import { GameConfig } from "../../common/config/GameConfig";
+import { BaseController } from "../../common/controllers/BaseController";
 import { BoardRuntime } from "../runtime/BoardRuntime";
 
 export class BoardController extends BaseController {
@@ -22,7 +22,7 @@ export class BoardController extends BaseController {
     private readonly _gameConfig: GameConfig;
     private readonly _eventBus: EventBus;
     private readonly _gameStateModel: GameStateModel;
-    private readonly _boardModel: BoardModel;
+    private readonly _logicalModel: LogicalBoardModel;
     private readonly _boardRuntime: BoardRuntime;
     private readonly _spawnService: SpawnService;
     private readonly _searchService: SearchService;
@@ -35,7 +35,7 @@ export class BoardController extends BaseController {
         this._gameConfig = context.gameConfig;
         this._eventBus = context.eventBus;
         this._gameStateModel = context.gameStateModel;
-        this._boardModel = context.boardModel;
+        this._logicalModel = context.logicalModel;
         this._boardRuntime = context.boardRuntime;
         this._spawnService = context.spawnService;
         this._searchService = context.searchService;
@@ -45,7 +45,7 @@ export class BoardController extends BaseController {
 
     protected onInit(): void {
         this._subscriptions.add(
-            this._eventBus.on(TileClickedEvent, this.onTileClicked)
+            this._eventBus.on(TileClickedCommand, this.onTileClicked)
         );
 
         this._subscriptions.add(
@@ -53,7 +53,7 @@ export class BoardController extends BaseController {
         )
     }
 
-    private onTileClicked = (event: TileClickedEvent): void => {
+    private onTileClicked = (event: TileClickedCommand): void => {
         if (this._boardRuntime.isLocked(event.position)) {
             this._eventBus.emit(new TileClickRejectedEvent(TileClickRejectedReason.LOCKED, event.position));
             return;
@@ -70,12 +70,12 @@ export class BoardController extends BaseController {
         const dropped = this._searchService.findDrops();
         this._moveService.move(dropped);
         const spawned = this._spawnService.spawn();
-        const changes = this._boardModel.flush();
-        this._eventBus.emit(new BoardChangedEvent(destroyed, dropped, spawned, changes));
+        const changes = this._logicalModel.flush();
+        this._eventBus.emit(new BoardProcessResult(destroyed, dropped, spawned, changes));
     };
 
     private onBoardSynced = (): void => {
-        this._boardRuntime.reset();
+        this._boardRuntime.unlockAll();
     }
 
     public dispose(): void {
