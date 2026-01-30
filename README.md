@@ -1,52 +1,71 @@
-# BlastGang
+# 💥 BlastGang
 
-## Description
-A simplified Blast puzzle game done in Cocos Creator with an attempt to implement MVCS driven around with events.
+**Blast-puzzle game** built with **Cocos Creator**, focused on clean architecture, separation of concerns, future-proof design.   
+The project explores a hybrid of different philosophies and design dogmas such as **DDD + MVCS + event-driven** approach.
 
-Play at: https://rokuniichi.github.io/blastgang/
+🎮 Play online:  
+https://rokuniichi.github.io/blastgang/
 
-## Requirements
-- **Cocos 2.4.0**
+---
 
-## Building
-1. Build target: Web Mobile
-2. Build folder: `/docs`
-3. Deploy on your web-server
+## 🏆 Key Goals
 
-## Architecture*
+- Decouple game logic and rendering
+- Apply Domain-Driven Design principles
+- Build an event-driven MVCS architecture
+- Make the codebase readable, extensible, scalable
+
+---
+
+## 🧩 Core Concepts
+
+- **Domain-first architecture** | game rules are independent from Cocos and UI
+- **Event-driven communication** | loose coupling between layers
+- **Controllers as orchestrators** | no business logic in views
+- **Services as pure algorithms** | stateless, deterministic, reusable
+- **Contexts as dependency containers** | explicit dependency graph
+- **Initialization pipelines** | deterministic game startup flow
+- **Runtime vs Domain separation** | logical state vs execution state
+
+---
+
+## 🏗️ Architecture Overview
+
+The project is split into four major layers:
+
 ```
-├── Game
-    ├── Domain (logic)
-        ├── Models (BoardModel, GameStateModel...)
-        ├── Services (ClusterService, SearchService, DestructionService...)
-        └── Events (MovesUpdatedEvent, BoardProcessedEvent...)
-    ├── Application (management)
-        ├── Entry (GameEntry) 
-        ├── Context (DomainContext) 
-        └── Controllers (BoardController, GameStateController)
-    ├── Presentation (visuals)
-        ├── Animations (animation system)
-        ├── Views (BoardView, TileView...)
-        └── Events (TileClickedEvent...)
-├── Core
-    ├── Utilities (assert, ensure, Matrix...)
-    └── Events (event system)
+core/           → utilities & infrastructure
+game/
+  domain/       → pure game rules and business logic
+  application/  → orchestration, use-cases, runtime, initialization
+  presentation/ → Cocos views, animations, UI, input
+  entry/        → composition root & bootstrap
 ```
-*the scheme is for reference, details are subject to change
 
-## Implementation
-- Game logic is independent of rendering
-- Tile lifecycle instead of input-locking
-- EventBus is the glue between Domain and Presentation
-- Services don't hold states and act as algorithm containers
-- Controllers coordinate Domain processes ("who goes where and when and why")
-- Dependencies are managed via Contexts
-- DomainContext acts as a dependency-root, GameEntry as a launcher
-- Architecture is easily scalable and is open to more levels of abstraction (e.g. creating a GameManager above DomainContext for a level-management system, where DomainContext would probably become LevelContext)
-- TileFX system is done using basic object-pooling
-- Animation settings are stored as hardcoded values with a possibility to re-define and inject them via implementation with ease
+### Dependency direction
 
-## Notes
-- Supports JSON config injection
-- Physics engine is disabled
-- The project is optimized for mobile browsers
+```
+presentation ───────▶ application ───────▶ domain
+       │                    │                    │
+       └────────────────────┴────────────────────┘
+                           core
+```
+
+---
+
+⚙️ Requirements
+- Cocos Creator **2.4.0**
+
+---
+
+## 🛠️ Build & Run
+1.    Build target: Web Mobile
+2.    Output folder: ```/build```
+3.    Deploy to any web server (or run via Cocos)
+
+---
+
+## 📌 Notes
+- JSON-based configuration supported
+- Physics engine disabled
+- Web-browser build target
