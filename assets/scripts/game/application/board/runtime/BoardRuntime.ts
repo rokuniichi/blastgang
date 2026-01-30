@@ -17,6 +17,10 @@ export class BoardRuntime {
         this._locks = new Matrix<number>(width, height, () => TileLockReason.NONE);
     }
 
+    public reset(): void {
+        this._locks.forEach((x, y, _) => this.clear({ x, y }));
+    }
+
     public isLocked(pos: TilePosition): boolean {
         return this._locks.get(pos.x, pos.y) !== TileLockReason.NONE;
     }
@@ -31,13 +35,7 @@ export class BoardRuntime {
         this._locks.set(position.x, position.y, value & ~reason);
     }
 
-    public clear(position: TilePosition): void {
+    private clear(position: TilePosition): void {
         this._locks.set(position.x, position.y, TileLockReason.NONE);
-    }
-
-    public flush(): TilePosition[] {
-        const result: TilePosition[] = [];
-        this._locks.forEach((_, x, y) => this.clear({ x, y }));
-        return result;
     }
 }

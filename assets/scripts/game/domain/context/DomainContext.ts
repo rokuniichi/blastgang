@@ -35,7 +35,6 @@ export class DomainContext {
         this.gameConfig = config;
         this.eventBus = new EventBus();
 
-        // TODO save system support in future
         this.gameStateModel = new GameStateModel(config.maxMoves, config.targetScore, 0, GameStateType.PLAYING);
         this.scoreService = new ScoreService(config.scoreMultiplier);
         this.gameStateController = new GameStateController(this);
@@ -50,6 +49,7 @@ export class DomainContext {
         this.boardController = new BoardController(this);
 
         this.spawnService.spawn();
+        this.boardRuntime.reset();
 
         this.initialBoard = this.boardModel.flush();
     }
