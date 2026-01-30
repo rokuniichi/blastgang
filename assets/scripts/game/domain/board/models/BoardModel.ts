@@ -25,9 +25,9 @@ export class BoardModel {
     }
 
     public flush(): TileChange[] {
-        const res = Array.from(this._changes.values());
+        const result = Array.from(this._changes.values());
         this._changes.clear();
-        return res;
+        return result;
     }
 
     public get(position: TilePosition): TileType {
