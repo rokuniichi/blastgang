@@ -1,6 +1,6 @@
 import { IConfigProvider } from "../../../../core/config/IConfigProvider";
 import { JsonConfigProvider } from "../../../../core/config/providers/JsonConfigProvider";
-import { GameSettings } from "../../settings/GameSettings";
+import { GameSettings } from "../settings/GameSettings";
 import { GameConfig } from "./GameConfig";
 import { GameConfigMode } from "./GameConfigMode";
 import { GameConfigValidator } from "./GameConfigValidator";

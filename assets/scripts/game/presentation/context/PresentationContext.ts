@@ -13,7 +13,7 @@ export class PresentationContext {
     public readonly boardHeight: number;
     public readonly initialBoard: TileChange[];
 
-    public constructor(domainContext: DomainContext) {
+    public constructor(domainContext: DomainContext, initialBoard: TileChange[]) {
         this.eventBus = domainContext.eventBus;
         this.boardRuntime = domainContext.boardRuntime;
         this.movesLeft = domainContext.gameStateModel.movesLeft;
@@ -21,6 +21,6 @@ export class PresentationContext {
         this.currentScore = domainContext.gameStateModel.currentScore;
         this.boardWidth = domainContext.logicalModel.width;
         this.boardHeight = domainContext.logicalModel.height;
-        this.initialBoard = domainContext.initialBoard;
+        this.initialBoard = initialBoard;
     }
 }

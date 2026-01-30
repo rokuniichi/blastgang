@@ -1,13 +1,12 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
+import { DomainContext } from "../../../domain/context/DomainContext";
 import { MovesUpdatedEvent } from "../../../domain/state/events/MovesUpdatedEvent";
 import { ScoreUpdatedEvent } from "../../../domain/state/events/ScoreUpdatedEvent";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
-import { BoardSyncedEvent } from "../../../presentation/board/events/BoardSyncedEvent";
 import { GameConfig } from "../../common/config/GameConfig";
-import { DomainContext } from "../../../domain/context/DomainContext";
 import { BaseController } from "../../common/controllers/BaseController";
 
 
@@ -33,10 +32,6 @@ export class GameStateController extends BaseController {
         this._subscriptions.add(
             this._eventBus.on(BoardProcessResult, this.onBoardProcessed)
         );
-
-        this._subscriptions.add(
-            this._eventBus.on(BoardSyncedEvent, this.onBoardSynced)
-        )
     }
 
     private onBoardProcessed = (event: BoardProcessResult): void => {
@@ -49,9 +44,6 @@ export class GameStateController extends BaseController {
         this._eventBus.emit(new ScoreUpdatedEvent(this._gameStateModel.currentScore));
         this._eventBus.emit(new MovesUpdatedEvent(this._gameStateModel.movesLeft));
     };
-
-    private onBoardSynced = (event: BoardSyncedEvent): void => {
-    }
 
     public dispose(): void {
         this._subscriptions.clear();

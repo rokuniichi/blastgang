@@ -1,6 +1,7 @@
 import { DomainContext } from "../../domain/context/DomainContext";
 import { PresentationContext } from "../../presentation/context/PresentationContext";
 import { PresentationInstaller } from "../../presentation/context/PresentationInstaller";
+import { BoardInitializationService } from "../board/services/BoardInitializationService";
 import { GameConfigLoader } from "../common/config/GameConfigLoader";
 import { GameSettings } from "../common/settings/GameSettings";
 
@@ -17,10 +18,17 @@ export class GameStartup {
 
         this._domainContext = new DomainContext(config);
 
+        const boardInit = new BoardInitializationService(
+            this._domainContext.logicalModel,
+            this._domainContext.spawnService
+        );
+
+        const initialBoard = boardInit.initialize();
+
         this._domainContext.gameStateController.init();
         this._domainContext.boardController.init();
 
-        this._presentationContext = new PresentationContext(this._domainContext);
+        this._presentationContext = new PresentationContext(this._domainContext, initialBoard);
 
         this.presentationInstaller.init(this._presentationContext);
     }

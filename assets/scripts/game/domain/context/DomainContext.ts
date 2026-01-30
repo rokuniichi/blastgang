@@ -2,10 +2,8 @@ import { EventBus } from "../../../core/events/EventBus";
 import { BoardController } from "../../application/board/controllers/BoardController";
 import { BoardRuntime } from "../../application/board/runtime/BoardRuntime";
 import { GameConfig } from "../../application/common/config/GameConfig";
-import { BaseController } from "../../application/common/controllers/BaseController";
 import { GameStateController } from "../../application/state/controllers/GameStateController";
 import { LogicalBoardModel } from "../board/models/LogicalBoardModel";
-import { TileChange } from "../board/models/TileChange";
 import { DestroyService } from "../board/services/DestroyService";
 import { MoveService } from "../board/services/MoveService";
 import { SearchService } from "../board/services/SearchService";
@@ -30,10 +28,6 @@ export class DomainContext {
     public readonly moveService: MoveService;
     public readonly boardController: BoardController;
 
-    public readonly controllers: BaseController[] = [];
-
-    public initialBoard: TileChange[] = [];
-
     public constructor(config: GameConfig) {
         this.gameConfig = config;
         this.eventBus = new EventBus();
@@ -50,16 +44,5 @@ export class DomainContext {
         this.moveService = new MoveService(this.logicalModel, this.boardRuntime);
 
         this.boardController = new BoardController(this);
-
-        this.controllers.push(
-            this.gameStateController,
-            this.boardController
-        )
-    }
-
-    public dispose(): void {
-        this.boardController.dispose();
-        this.gameStateController.dispose();
-        this.eventBus.clear();
     }
 }
