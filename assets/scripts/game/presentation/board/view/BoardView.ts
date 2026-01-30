@@ -1,5 +1,5 @@
 import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
-import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejectedEvent";
+import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejection";
 import { TileChange } from "../../../domain/board/models/TileChange";
 import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";

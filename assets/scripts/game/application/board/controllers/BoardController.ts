@@ -1,7 +1,7 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
-import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejectedEvent";
+import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejection";
 import { LogicalBoardModel } from "../../../domain/board/models/LogicalBoardModel";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";

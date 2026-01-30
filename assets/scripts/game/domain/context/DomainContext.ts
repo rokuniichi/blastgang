@@ -1,7 +1,8 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardController } from "../../application/board/controllers/BoardController";
-import { BoardRuntime, TileLockReason } from "../../application/board/runtime/BoardRuntime";
+import { BoardRuntime } from "../../application/board/runtime/BoardRuntime";
 import { GameConfig } from "../../application/common/config/GameConfig";
+import { BaseController } from "../../application/common/controllers/BaseController";
 import { GameStateController } from "../../application/state/controllers/GameStateController";
 import { LogicalBoardModel } from "../board/models/LogicalBoardModel";
 import { TileChange } from "../board/models/TileChange";
@@ -29,7 +30,9 @@ export class DomainContext {
     public readonly moveService: MoveService;
     public readonly boardController: BoardController;
 
-    public readonly initialBoard: TileChange[];
+    public readonly controllers: BaseController[] = [];
+
+    public initialBoard: TileChange[] = [];
 
     public constructor(config: GameConfig) {
         this.gameConfig = config;
@@ -48,13 +51,10 @@ export class DomainContext {
 
         this.boardController = new BoardController(this);
 
-        this.spawnService.initialSpawn();
-        this.initialBoard = this.logicalModel.flush();
-    }
-
-    public init(): void {
-        this.gameStateController.init();
-        this.boardController.init();
+        this.controllers.push(
+            this.gameStateController,
+            this.boardController
+        )
     }
 
     public dispose(): void {

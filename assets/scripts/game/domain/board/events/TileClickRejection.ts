@@ -1,5 +1,5 @@
 import { IEvent } from "../../../../core/events/IEvent";
-import { TilePosition } from "../../../domain/board/models/TilePosition";
+import { TilePosition } from "../models/TilePosition";
 
 export enum TileClickRejectedReason {
     NO_CLUSTER,
