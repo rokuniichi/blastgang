@@ -1,4 +1,5 @@
 import { Matrix } from "../../../../core/collections/Matrix";
+import { BoardKey } from "../../../application/board/BoardKey";
 import { TileChange } from "./TileChange";
 import { TileMove } from "./TileMove";
 import { TilePosition } from "./TilePosition";
@@ -8,7 +9,7 @@ import { TileType } from "./TileType";
 export class BoardModel {
 
     private readonly _board: Matrix<TileType>;
-    private _changes: Map<number, TileChange>;
+    private _changes: Map<string, TileChange>;
 
     constructor(width: number, height: number) {
         this._board = new Matrix<TileType>(width, height, () => TileType.NONE);
@@ -60,7 +61,7 @@ export class BoardModel {
     }
 
     private pushChange(position: TilePosition, before: TileType, after: TileType) {
-        const key = TilePosition.key(position, this.width);
+        const key = BoardKey.position(position);
         let change = this._changes.get(key);
 
         if (!change) {

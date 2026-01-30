@@ -1,9 +1,11 @@
-import { EventBus } from "../../../../core/events/EventBus";
-import { TileChange } from "../../../domain/board/models/TileChange";
-import { DomainContext } from "./DomainContext";
+import { EventBus } from "../../../core/events/EventBus";
+import { BoardRuntime } from "../../application/board/runtime/BoardRuntime";
+import { TileChange } from "../../domain/board/models/TileChange";
+import { DomainContext } from "../../domain/context/DomainContext";
 
 export class PresentationContext {
     public readonly eventBus: EventBus;
+    public readonly boardRuntime: BoardRuntime;
     public readonly movesLeft: number;
     public readonly targetScore: number;
     public readonly currentScore: number;
@@ -13,6 +15,7 @@ export class PresentationContext {
 
     public constructor(domainContext: DomainContext) {
         this.eventBus = domainContext.eventBus;
+        this.boardRuntime = domainContext.boardRuntime;
         this.movesLeft = domainContext.gameStateModel.movesLeft;
         this.targetScore = domainContext.gameStateModel.targetScore;
         this.currentScore = domainContext.gameStateModel.currentScore;

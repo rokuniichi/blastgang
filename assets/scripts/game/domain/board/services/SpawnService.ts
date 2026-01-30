@@ -1,14 +1,15 @@
+import { BoardRuntime, TileLockReason } from "../../../application/board/runtime/BoardRuntime";
 import { BoardModel } from "../models/BoardModel";
 import { TileSpawn } from "../models/TileSpawn";
 import { TileType } from "../models/TileType";
-import { BoardService } from "./IBoardService";
+import { BoardService } from "./BoardService";
 
 export class SpawnService extends BoardService {
 
     private readonly _allowedTypes: TileType[];
 
-    public constructor(boardModel: BoardModel, allowedTypes: TileType[]) {
-        super(boardModel);
+    public constructor(boardModel: BoardModel, boardRuntime: BoardRuntime, allowedTypes: TileType[]) {
+        super(boardModel, boardRuntime);
         this._allowedTypes = allowedTypes;
     }
 
@@ -18,11 +19,12 @@ export class SpawnService extends BoardService {
             for (let y = 0; y < this.boardModel.height; y++) {
                 const position = { x, y };
 
-                if (this.boardModel.empty(position)) {
+                if (this.boardRuntime.isLocked(position) || this.boardModel.empty(position)) {
                     const type = this.randomTile();
                     const data = { at: position, type: type };
                     this.boardModel.spawn(data);
                     result.push(data);
+                    this.boardRuntime.lock(TileLockReason.SPAWN, data.at);
                 }
             }
         }

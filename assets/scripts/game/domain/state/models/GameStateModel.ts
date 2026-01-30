@@ -1,15 +1,17 @@
+import { GameStateType } from "./GameStateType";
+
 export class GameStateModel {
 
     private _movesLeft: number;
     private _targetScore: number;
     private _currentScore: number;
-    private _state: string;
+    private _stateType: GameStateType;
 
-    constructor(movesLeft: number, targetScore: number, currentScore: number) {
+    constructor(movesLeft: number, targetScore: number, currentScore: number, initialState: GameStateType) {
         this._movesLeft = movesLeft;
         this._targetScore = targetScore;
         this._currentScore = currentScore;
-        this._state = "IDLE"
+        this._stateType = initialState;
     }
 
     public get movesLeft() {
@@ -25,7 +27,7 @@ export class GameStateModel {
     }
 
     public get state() {
-        return this._state;
+        return this._stateType;
     }
 
     public addScore(value: number): void {
@@ -36,7 +38,7 @@ export class GameStateModel {
         this._movesLeft--;
     }
 
-    public setState(state: string) {
-        this._state = state;
+    public setState(state: GameStateType) {
+        this._stateType = state;
     }
 }

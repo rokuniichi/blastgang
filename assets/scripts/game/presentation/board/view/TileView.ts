@@ -1,6 +1,6 @@
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { TileClickedEvent } from "../../core/events/TileClickedEvent";
+import { TileClickedEvent } from "../events/TileClickedEvent";
 import { EventView } from "../../core/view/EventView";
 import { TileViewContext } from "../context/TileViewContext";
 
@@ -13,7 +13,7 @@ export class TileView extends EventView<TileViewContext> {
     @property(cc.Sprite)
     private sprite: cc.Sprite = null!;
 
-    private position!: TilePosition;
+    public position!: TilePosition;
 
     public validate(): void {
         super.validate();
@@ -56,6 +56,6 @@ export class TileView extends EventView<TileViewContext> {
     }
 
     public get(): cc.SpriteFrame {
-        return this.sprite.spriteFrame;
+        return this.sprite.spriteFrame.clone();
     }
 }

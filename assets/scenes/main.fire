@@ -192,7 +192,7 @@
     "_id": "50bxXNYsdAG6QTYz+aj9qh"
   },
   {
-    "__type__": "42448B5AjJOJLRYwcw+GVHC",
+    "__type__": "4e52fEwHilAvZkfHNvNYkuB",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -208,7 +208,7 @@
     "scoreTextView": {
       "__id__": 37
     },
-    "_id": "82AqLxTTtMdZCFeaPs0dY2"
+    "_id": "88xcD+fiNJ67W/c/qXoSQ2"
   },
   {
     "__type__": "bb883j+cbZB3Jz/i+gZlUKc",
@@ -3609,7 +3609,7 @@
       "__id__": 2
     },
     "_enabled": true,
-    "viewInstaller": {
+    "presentationInstaller": {
       "__id__": 4
     },
     "_id": "00A8s+31FGEI0RmIvLfIdX"

@@ -13,12 +13,12 @@ export class ShakeAnimation implements IAnimation<ShakeSettings> {
                 return;
             }
 
-            const startRotation = settings.node.rotation;
+            const startAngle = settings.node.angle;
             cc.tween(settings.node)
-                .to(0.05, { rotation: startRotation + settings.amplitude })  // Поворот влево
-                .to(0.1, { rotation: startRotation - settings.amplitude })  // Поворот вправо
-                .to(0.1, { rotation: startRotation + settings.amplitude })
-                .to(0.05, { rotation: startRotation })
+                .to(settings.duration, { angle: startAngle + settings.amplitude })  // Поворот влево
+                .to(settings.duration * 2, { angle: startAngle - settings.amplitude })  // Поворот вправо
+                .to(settings.duration * 2, { angle: startAngle + settings.amplitude })
+                .to(settings.duration, { angle: startAngle })
                 .call(resolve)
                 .start();
         });

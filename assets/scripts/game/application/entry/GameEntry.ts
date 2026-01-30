@@ -1,8 +1,8 @@
-import { ViewInstaller } from "../../../presentation/core/installer/ViewInstaller";
-import { GameSettings } from "../../GameSettings";
-import { GameConfigLoader } from "../config/GameConfigLoader";
-import { DomainContext } from "../context/DomainContext";
-import { PresentationContext } from "../context/PresentationContext";
+import { DomainContext } from "../../domain/context/DomainContext";
+import { PresentationContext } from "../../presentation/context/PresentationContext";
+import { PresentationInstaller } from "../../presentation/context/PresentationInstaller";
+import { GameConfigLoader } from "../core/config/GameConfigLoader";
+import { GameSettings } from "../settings/GameSettings";
 
 
 const { ccclass, property } = cc._decorator;
@@ -10,8 +10,8 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class GameEntry extends cc.Component {
 
-    @property(ViewInstaller)
-    private viewInstaller: ViewInstaller = null!;
+    @property(PresentationInstaller)
+    private presentationInstaller: PresentationInstaller = null!;
 
     private domainContext: DomainContext | null = null;
     private presentationContext: PresentationContext | null = null;
@@ -23,9 +23,9 @@ export class GameEntry extends cc.Component {
 
         this.domainContext = new DomainContext(gameConfig);
         this.domainContext.init();
-
         this.presentationContext = new PresentationContext(this.domainContext);
-        this.viewInstaller.init(this.presentationContext);
+        
+        this.presentationInstaller.init(this.presentationContext);
     }
 
     protected onDestroy(): void {

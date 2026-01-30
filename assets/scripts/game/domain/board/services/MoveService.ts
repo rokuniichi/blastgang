@@ -1,10 +1,12 @@
+import { TileLockReason } from "../../../application/board/runtime/BoardRuntime";
 import { TileMove } from "../models/TileMove";
-import { BoardService } from "./IBoardService";
+import { BoardService } from "./BoardService";
 
 export class MoveService extends BoardService {
-    public move(drops: readonly TileMove[]): void {
-        for (const drop of drops) {
-            this.boardModel.move(drop)
+    public move(moves: readonly TileMove[]): void {
+        for (const move of moves) {
+            this.boardRuntime.lock(TileLockReason.MOVE, move.to);
+            this.boardModel.move(move)
         }
     }
 }

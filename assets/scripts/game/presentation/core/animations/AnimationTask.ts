@@ -1,0 +1,1 @@
+export type AnimationTask = () => Promise<void>;

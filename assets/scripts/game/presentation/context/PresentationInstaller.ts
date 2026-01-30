@@ -1,15 +1,15 @@
-import { assertNotNull } from "../../../../core/utils/assert";
-import { PresentationContext } from "../../../application/core/context/PresentationContext";
-import { AnimationSystem } from "../animations/AnimationSystem";
-import { BoardView } from "../../board/view/BoardView";
-import { ContextView } from "../view/ContextView";
-import { MovesTextView } from "../../state/view/MovesTextView";
-import { ScoreTextView } from "../../state/view/ScoreTextView";
+import { assertNotNull } from "../../../core/utils/assert";
+import { BoardView } from "../board/view/BoardView";
+import { PresentationContext } from "./PresentationContext";
+import { MovesTextView } from "../state/view/MovesTextView";
+import { ScoreTextView } from "../state/view/ScoreTextView";
+import { AnimationSystem } from "../core/animations/AnimationSystem";
+import { ContextView } from "../core/view/ContextView";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class ViewInstaller extends ContextView<PresentationContext> {
+export class PresentationInstaller extends ContextView<PresentationContext> {
     @property(BoardView)
     private boardView: BoardView = null!;
 
@@ -36,6 +36,7 @@ export class ViewInstaller extends ContextView<PresentationContext> {
 
         this.boardView.init({
             eventBus: this.context.eventBus,
+            boardRuntime: this.context.boardRuntime,
             animationSystem: this.animationSystem,
             boardWidth: this.context.boardWidth,
             boardHeight: this.context.boardHeight,

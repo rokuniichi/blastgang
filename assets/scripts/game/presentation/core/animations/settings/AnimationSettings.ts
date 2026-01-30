@@ -1,8 +1,8 @@
-import { AnimationType } from "./AnimationType";
-import { DestructionSettings } from "./settings/DestructionSettings";
-import { FadeSettings } from "./settings/FadeSettings";
-import { GravityFallSettings } from "./settings/GravityFallSettings";
-import { ShakeSettings } from "./settings/ShakeSettings";
+import { AnimationType } from "../AnimationType";
+import { DestructionSettings } from "./DestructionSettings";
+import { FadeSettings } from "./FadeSettings";
+import { GravityFallSettings } from "./GravityFallSettings";
+import { ShakeSettings } from "./ShakeSettings";
 
 
 export class AnimationSettings {
@@ -50,6 +50,7 @@ export class AnimationSettings {
         return {
             type: AnimationType.SHAKE,
             node,
+            duration: 1,
             amplitude: 8
         }
     }

@@ -2,7 +2,7 @@ import { Matrix } from "../../../../core/collections/Matrix";
 import { TileMove } from "../models/TileMove";
 import { TilePosition } from "../models/TilePosition";
 import { TileType } from "../models/TileType";
-import { BoardService } from "./IBoardService";
+import { BoardService } from "./BoardService";
 
 export class SearchService extends BoardService {
     public findCluster(start: TilePosition): TilePosition[] {
@@ -20,7 +20,7 @@ export class SearchService extends BoardService {
 
             visited.set(position.x, position.y, true);
 
-            if (this.boardModel.get(position) !== targetType) {
+            if (this.boardRuntime.isLocked(position) || this.boardModel.get(position) !== targetType) {
                 continue;
             }
 

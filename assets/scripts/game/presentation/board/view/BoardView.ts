@@ -1,16 +1,16 @@
 import { BoardChangedEvent } from "../../../domain/board/events/BoardProcessedEvent";
-import { TileClickRejectedEvent } from "../../../domain/board/events/TileClickRejectedEvent";
+import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejectedEvent";
 import { TileChange } from "../../../domain/board/models/TileChange";
 import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileSpawn } from "../../../domain/board/models/TileSpawn";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TileAssets } from "../../core/assets/TileAssets";
-import { BoardSyncedEvent } from "../../core/events/BoardSyncedEvent";
-import { TileClickedEvent } from "../../core/events/TileClickedEvent";
 import { EventView } from "../../core/view/EventView";
+import { BoardAnimationHelper } from "../animations/BoardAnimationHelper";
+import { BoardAnimationTracker } from "../animations/BoardAnimationTracker";
 import { BoardViewContext } from "../context/BoardViewContext";
-import { BoardFxLayer } from "../fx/BoardFxLayer";
+import { BoardSyncedEvent } from "../events/BoardSyncedEvent";
 import { BoardMap } from "./BoardMap";
 import { TileView } from "./TileView";
 
@@ -35,13 +35,15 @@ export class BoardView extends EventView<BoardViewContext> {
     @property(TileAssets)
     private tileAssets: TileAssets = null!;
 
-    private boardMap!: BoardMap;
-    private fx!: BoardFxLayer;
+    private _boardMap!: BoardMap;
+
+    private _animationTracker!: BoardAnimationTracker;
+    private _animationHelper!: BoardAnimationHelper;
 
     protected onInit(): void {
-        this.boardMap = new BoardMap(this.context.boardWidth, this.context.boardHeight);
-
-        this.fx = new BoardFxLayer(this.context.animationSystem, this.backgroundLayer, this.fxLayer, this.tileAssets);
+        this._boardMap = new BoardMap();
+        this._animationTracker = new BoardAnimationTracker(this.context.boardRuntime);
+        this._animationHelper = new BoardAnimationHelper(this.context.animationSystem, this._animationTracker, this.backgroundLayer, this.fxLayer, this.tileAssets);
 
         this.drawBoard(this.context.initialBoard);
         this.on(BoardChangedEvent, this.onBoardChanged);
@@ -49,12 +51,26 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     private onBoardChanged = async (event: BoardChangedEvent) => {
-        await this.animate(event);
+        this.animate(event);
         this.syncBoard(event.changes);
+        this.sortTiles();
     };
 
-    private onTileClickRejected = async (event: TileClickedEvent) => {
-        await this.animateShake(event.position);
+    private onTileClickRejected = async (event: TileClickRejectedEvent) => {
+        console.log(`Tile rejected for reason: ${event.reason.toString()}`);
+        if (event.reason == TileClickRejectedReason.NO_CLUSTER) {
+            this.animateShake(event.position);
+        }
+    }
+
+    private sortTiles(): void {
+        const tiles = this._boardMap.views();
+
+        tiles.sort((a, b) => a.position.y - b.position.y)
+
+        for (let i = 0; i < tiles.length; i++) {
+            tiles[i].node.setSiblingIndex(i);
+        }
     }
 
     private syncBoard(changes: TileChange[]) {
@@ -64,88 +80,63 @@ export class BoardView extends EventView<BoardViewContext> {
 
     private drawBoard(changes: TileChange[]): void {
         for (const change of changes) {
-            let view = this.boardMap.get(change.position);
-
+            let view = this._boardMap.get(change.position);
             if (change.after === TileType.NONE) {
                 if (view) {
-                    view.node.destroy();
-                    this.boardMap.delete(change.position);
+                    // MEMO
+                    view.hide();
                 }
                 continue;
             }
-
             if (!view) {
                 view = this.createTile(change.position);
-                this.boardMap.set(change.position, view);
+                this._boardMap.set(change.position, view);
             }
-
             view.set(this.tileAssets.get(change.after));
-
             const pos = this.getLocalPosition(change.position, view.node);
             view.node.setPosition(pos);
-            view.show();
         }
     }
 
-    private async animate(event: BoardChangedEvent) {
-        await Promise.all([
-            this.animateDestroy(event.destroyed),
-            this.animateDrop(event.dropped),
-            this.animateSpawn(event.spawned)
-        ]);
-
+    private animate(event: BoardChangedEvent) {
+        this.animateDestroy(event.destroyed);
+        this.animateDrop(event.dropped);
+        this.animateSpawn(event.spawned);
     }
 
-    private async animateDestroy(data: TilePosition[]) {
-        const tasks: Promise<void>[] = [];
-
+    private animateDestroy(data: TilePosition[]) {
         for (const pos of data) {
-            const view = this.boardMap.get(pos);
+            const view = this._boardMap.get(pos);
             if (!view) continue;
-            view.hide();
-            tasks.push(this.fx.destroy(view));
+            this._animationHelper.destroy(view);
         }
-
-        await Promise.all(tasks);
     }
 
-    private async animateDrop(data: TileMove[]) {
-        const tasks: Promise<void>[] = [];
-
+    private animateDrop(data: TileMove[]) {
         for (const move of data) {
-            const view = this.boardMap.get(move.from);
+            const view = this._boardMap.get(move.from);
             if (!view) continue;
-            view.hide();
-            const targetWorld = this.getLocalPosition(move.to, view.node);
-            tasks.push(this.fx.drop(view, targetWorld));
+            const target = this.getLocalPosition(move.to, view.node);
+            this._animationHelper.drop(view, target);
         }
-
-        await Promise.all(tasks);
     }
 
-    private async animateSpawn(data: TileSpawn[]) {
-        const tasks: Promise<void>[] = [];
-
+    private animateSpawn(data: TileSpawn[]) {
         for (const spawn of data) {
-            const view = this.boardMap.get(spawn.at);
+            const view = this._boardMap.get(spawn.at);
             if (!view) continue;
 
             const to = this.getLocalPosition(spawn.at, view.node);
             const from = to.clone();
             from.y += view.node.height * 2;
-
-            tasks.push(this.fx.spawn(view, from, to, spawn.type));
+            this._animationHelper.spawn(view, from, to, spawn.type);
         }
-
-        await Promise.all(tasks);
     }
 
-    private async animateShake(data: TilePosition) {
-        const view = this.boardMap.get(data);
+    private animateShake(data: TilePosition) {
+        const view = this._boardMap.get(data);
         if (!view) return;
-        view.hide();
-        await this.fx.shake(view);
-        view.show();
+        this._animationHelper.shake(view);
     }
 
     private getLocalPosition(pos: TilePosition, node: cc.Node): cc.Vec3 {
