@@ -1,6 +1,5 @@
 import { EventBus, EventConstructor, EventHandler } from "../../../../core/events/EventBus";
 import { IEvent } from "../../../../core/events/IEvent";
-import { Subscription } from "../../../../core/events/Subscription";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { assertNotNull } from "../../../../core/utils/assert";
 import { EventViewContext } from "../context/EventViewContext";
