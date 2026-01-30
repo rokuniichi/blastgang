@@ -56,7 +56,7 @@ export class BoardController extends BaseController {
     private onTileClicked = (event: TileClickedEvent): void => {
         if (this._boardRuntime.isLocked(event.position)) {
             this._eventBus.emit(new TileClickRejectedEvent(TileClickRejectedReason.LOCKED, event.position));
-            //return;
+            return;
         }
 
         const cluster = this._searchService.findCluster(event.position);
@@ -75,7 +75,7 @@ export class BoardController extends BaseController {
     };
 
     private onBoardSynced = (): void => {
-        this._boardRuntime.flush();
+        this._boardRuntime.reset();
     }
 
     public dispose(): void {
