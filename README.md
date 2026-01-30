@@ -4,7 +4,7 @@
 The project explores a hybrid of different philosophies and design dogmas such as **DDD + MVCS + event-driven** approach.
 
 🎮 Play online:  
-https://rokuniichi.github.io/blastgang/
+https://rokuniichi.github.io/blastgang
 
 ---
 
@@ -48,7 +48,7 @@ game/
 presentation ───────▶ application ───────▶ domain
      │                     │                  │
      └─────────────────────┴──────────────────┘
-                           core
+                          core
 ```
 
 ---
