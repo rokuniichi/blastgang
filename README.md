@@ -31,15 +31,14 @@ https://rokuniichi.github.io/blastgang
 
 ## 🏗️ Architecture Overview
 
-The project is split into four major layers:
-
 ```
 core/           → utilities & infrastructure
 game/
   domain/       → pure game rules and business logic
-  application/  → orchestration, use-cases, runtime, initialization
+  application/  → orchestration, use-cases, runtime
   presentation/ → Cocos views, animations, UI, input
-  entry/        → composition root & bootstrap
+  startup/      → composition root
+  entry/        → engine entry point (Cocos adapter)
 ```
 
 ### Dependency direction
@@ -59,13 +58,15 @@ presentation ───────▶ application ───────▶ domai
 ---
 
 ## 🛠️ Build & Run
+
 1.    Build target: Web Mobile
-2.    Output folder: ```/build```
+2.    Output folder: ```/build/web-mobile```
 3.    Deploy to any web server (or run via Cocos)
 
 ---
 
 ## 📌 Notes
+
 - JSON-based configuration supported
 - Physics engine disabled
 - Web-browser build target
