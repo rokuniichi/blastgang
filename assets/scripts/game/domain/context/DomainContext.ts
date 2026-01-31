@@ -1,6 +1,6 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardController } from "../../application/board/controllers/BoardController";
-import { BoardRuntime } from "../../application/board/runtime/BoardRuntime";
+import { RuntimeBoardModel } from "../../application/board/runtime/RuntimeBoardModel";
 import { GameConfig } from "../../application/common/config/GameConfig";
 import { GameStateController } from "../../application/state/controllers/GameStateController";
 import { LogicalBoardModel } from "../board/models/LogicalBoardModel";
@@ -21,7 +21,7 @@ export class DomainContext {
     public readonly gameStateController: GameStateController;
 
     public readonly logicalModel: LogicalBoardModel;
-    public readonly boardRuntime: BoardRuntime;
+    public readonly runtimeModel: RuntimeBoardModel;
     public readonly spawnService: SpawnService;
     public readonly searchService: SearchService;
     public readonly destroyService: DestroyService;
@@ -37,11 +37,11 @@ export class DomainContext {
         this.gameStateController = new GameStateController(this);
 
         this.logicalModel = new LogicalBoardModel(config.boardWidth, config.boardHeight);
-        this.boardRuntime = new BoardRuntime(config.boardWidth, config.boardHeight);
-        this.spawnService = new SpawnService(this.logicalModel, this.boardRuntime, config.allowedTypes);
-        this.searchService = new SearchService(this.logicalModel, this.boardRuntime);
-        this.destroyService = new DestroyService(this.logicalModel, this.boardRuntime);
-        this.moveService = new MoveService(this.logicalModel, this.boardRuntime);
+        this.runtimeModel = new RuntimeBoardModel(config.boardWidth, config.boardHeight);
+        this.spawnService = new SpawnService(this.logicalModel, this.runtimeModel,);
+        this.searchService = new SearchService(this.logicalModel, this.runtimeModel);
+        this.destroyService = new DestroyService(this.logicalModel, this.runtimeModel);
+        this.moveService = new MoveService(this.logicalModel, this.runtimeModel);
 
         this.boardController = new BoardController(this);
     }

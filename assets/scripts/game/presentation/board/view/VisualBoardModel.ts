@@ -5,7 +5,7 @@ import { TileView } from "./TileView";
 export class VisualBoardModel {
     private readonly _map: Map<string, TileView>;
 
-    constructor() {
+    public constructor() {
         this._map = new Map<string, TileView>();
     }
 

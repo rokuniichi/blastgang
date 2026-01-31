@@ -11,7 +11,7 @@ export class LogicalBoardModel {
     private readonly _board: Matrix<TileType>;
     private _changes: Map<string, TileChange>;
 
-    constructor(width: number, height: number) {
+    public constructor(width: number, height: number) {
         this._board = new Matrix<TileType>(width, height, () => TileType.NONE);
         this._changes = new Map();
     }

@@ -9,16 +9,16 @@ export enum TileLockReason {
     SHAKE = 1 << 3
 }
 
-export class BoardRuntime {
+export class RuntimeBoardModel {
 
     private readonly _locks: Matrix<number>;
 
-    constructor(width: number, height: number) {
+    public constructor(width: number, height: number) {
         this._locks = new Matrix<number>(width, height, () => TileLockReason.NONE);
     }
 
     public unlockAll(): void {
-        this._locks.forEach((value, x, y) => {
+        this._locks.forEach((_, x, y) => {
             this.clear({ x, y });
         });
     }
@@ -33,8 +33,7 @@ export class BoardRuntime {
     }
 
     public unlock(reason: TileLockReason, position: TilePosition): void {
-        const value = this._locks.get(position.x, position.y);
-        this._locks.set(position.x, position.y, value & ~reason);
+        this.clear(position);
     }
 
     private clear(position: TilePosition): void {

@@ -4,7 +4,7 @@ import { AnimationSystem } from "../../common/animations/AnimationSystem";
 import { BoardAnimationTracker } from "./BoardAnimationTracker";
 import { TileAssets } from "../../common/assets/TileAssets";
 import { TileView } from "../view/TileView";
-import { TileLockReason } from "../../../application/board/runtime/BoardRuntime";
+import { TileLockReason } from "../../../application/board/runtime/RuntimeBoardModel";
 import { AnimationTask } from "../../common/animations/AnimationTask";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 
@@ -12,7 +12,7 @@ export class BoardAnimationHelper {
 
     private pool: cc.Node[] = [];
 
-    constructor(
+    public constructor(
         private readonly _animationSystem: AnimationSystem,
         private readonly _animationTracker: BoardAnimationTracker,
         private readonly _backgroundLayer: cc.Node,
@@ -83,7 +83,7 @@ export class BoardAnimationHelper {
             await this._animationSystem.play(AnimationSettings.tileFall(target, to.y));
         };
 
-        this.play(sequence, tile, to, TileLockReason.SPAWN);
+        this.play(sequence, tile, at, TileLockReason.SPAWN);
     }
 
     public shake(tile: TileView): void {

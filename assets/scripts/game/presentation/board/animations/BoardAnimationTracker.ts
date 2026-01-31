@@ -1,5 +1,5 @@
 import { BoardKey } from "../../../application/board/BoardKey";
-import { BoardRuntime, TileLockReason } from "../../../application/board/runtime/BoardRuntime";
+import { RuntimeBoardModel, TileLockReason } from "../../../application/board/runtime/RuntimeBoardModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { AnimationChain } from "../../common/animations/AnimationChain";
 import { AnimationTask } from "../../common/animations/AnimationTask";
@@ -8,7 +8,7 @@ export class BoardAnimationTracker {
     private readonly _runtimeModel;
     private readonly _chains: Map<string, AnimationChain>;
 
-    constructor(runtimeModel: BoardRuntime) {
+    public constructor(runtimeModel: RuntimeBoardModel) {
         this._runtimeModel = runtimeModel;
         this._chains = new Map<string, AnimationChain>();
     }

@@ -12,7 +12,7 @@ export class AnimationSystem {
 
     private animations = new Map<AnimationType, IAnimation<any>>();
 
-    constructor() {
+    public constructor() {
         this.register();
     }
 

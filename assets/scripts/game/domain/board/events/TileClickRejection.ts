@@ -7,8 +7,8 @@ export enum TileClickRejectedReason {
 }
 
 export class TileClickRejectedEvent implements IEvent {
-    constructor(
+    public constructor(
         public readonly reason: TileClickRejectedReason,
         public readonly position: TilePosition
-    ) {}
+    ) { }
 }

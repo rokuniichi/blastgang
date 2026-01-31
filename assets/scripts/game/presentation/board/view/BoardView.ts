@@ -11,8 +11,8 @@ import { BoardAnimationHelper } from "../animations/BoardAnimationHelper";
 import { BoardAnimationTracker } from "../animations/BoardAnimationTracker";
 import { BoardViewContext } from "../context/BoardViewContext";
 import { BoardSyncedEvent } from "../events/BoardSyncedEvent";
-import { VisualBoardModel } from "./VisualBoardModel";
 import { TileView } from "./TileView";
+import { VisualBoardModel } from "./VisualBoardModel";
 
 
 const { ccclass, property } = cc._decorator;
@@ -54,15 +54,16 @@ export class BoardView extends EventView<BoardViewContext> {
             this.context.boardHeight
         );
 
+
         this.drawBoard(this.context.initialBoard);
         this.on(BoardProcessResult, this.onBoardChanged);
         this.on(TileClickRejectedEvent, this.onTileClickRejected)
     }
 
     private onBoardChanged = async (event: BoardProcessResult) => {
-        await this.animate(event);
-        this.syncBoard(event.changes);
+        this.animate(event);
         this.sortTiles();
+        this.syncBoard(event.changes);
     };
 
     private onTileClickRejected = async (event: TileClickRejectedEvent) => {
@@ -107,9 +108,9 @@ export class BoardView extends EventView<BoardViewContext> {
     }
 
     private animate(event: BoardProcessResult) {
-        this.animateDestroy(event.destroyed);
-        this.animateDrop(event.dropped);
-        //this.animateSpawn(event.spawned);
+        this.animateDestroy(event.instructions.destroyed);
+        this.animateDrop(event.instructions.dropped);
+        this.animateSpawn(event.instructions.spawned);
     }
 
     private animateDestroy(data: TilePosition[]) {

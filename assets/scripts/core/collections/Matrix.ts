@@ -4,7 +4,7 @@ export class Matrix<T> {
     private readonly _height: number;
     private readonly _data: T[][];
 
-    constructor(width: number, height: number, factory: (x: number, y: number) => T) {
+    public constructor(width: number, height: number, factory: (x: number, y: number) => T) {
         this._width = width;
         this._height = height;
         this._data = new Array<T[]>(height);
