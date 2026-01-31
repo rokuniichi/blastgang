@@ -1,5 +1,5 @@
 import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
-import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejection";
+import { TileClickRejection, TileClickRejectionReason } from "../../../domain/board/events/TileClickRejection";
 import { TileCommit } from "../../../domain/board/models/TileChange";
 import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
@@ -57,7 +57,7 @@ export class BoardView extends EventView<BoardViewContext> {
 
         this.drawBoard(this.context.initialBoard);
         this.on(BoardProcessResult, this.onBoardChanged);
-        this.on(TileClickRejectedEvent, this.onTileClickRejected)
+        this.on(TileClickRejection, this.onTileClickRejected)
     }
 
     private onBoardChanged = async (result: BoardProcessResult) => {
@@ -66,8 +66,8 @@ export class BoardView extends EventView<BoardViewContext> {
         this.syncBoard(result.commits);
     };
 
-    private onTileClickRejected = async (event: TileClickRejectedEvent) => {
-        if (event.reason == TileClickRejectedReason.NO_CLUSTER) {
+    private onTileClickRejected = async (event: TileClickRejection) => {
+        if (event.reason == TileClickRejectionReason.NO_CLUSTER) {
             this.animateShake(event.position);
         }
     }
