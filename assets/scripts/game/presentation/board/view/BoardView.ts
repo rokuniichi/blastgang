@@ -1,6 +1,6 @@
 import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
 import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejection";
-import { TileChange } from "../../../domain/board/models/TileChange";
+import { TileCommit } from "../../../domain/board/models/TileChange";
 import { TileMove } from "../../../domain/board/models/TileMove";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileSpawn } from "../../../domain/board/models/TileSpawn";
@@ -60,10 +60,10 @@ export class BoardView extends EventView<BoardViewContext> {
         this.on(TileClickRejectedEvent, this.onTileClickRejected)
     }
 
-    private onBoardChanged = async (event: BoardProcessResult) => {
-        this.animate(event);
+    private onBoardChanged = async (result: BoardProcessResult) => {
+        this.animate(result);
         this.sortTiles();
-        this.syncBoard(event.changes);
+        this.syncBoard(result.commits);
     };
 
     private onTileClickRejected = async (event: TileClickRejectedEvent) => {
@@ -82,12 +82,12 @@ export class BoardView extends EventView<BoardViewContext> {
         }
     }
 
-    private syncBoard(changes: TileChange[]) {
+    private syncBoard(changes: TileCommit[]) {
         this.drawBoard(changes);
         this.emit(new BoardSyncedEvent());
     }
 
-    private drawBoard(changes: TileChange[]): void {
+    private drawBoard(changes: TileCommit[]): void {
         for (const change of changes) {
             let view = this._visualModel.get(change.position);
             if (change.after === TileType.NONE) {
@@ -107,10 +107,10 @@ export class BoardView extends EventView<BoardViewContext> {
         }
     }
 
-    private animate(event: BoardProcessResult) {
-        this.animateDestroy(event.instructions.destroyed);
-        this.animateDrop(event.instructions.dropped);
-        this.animateSpawn(event.instructions.spawned);
+    private animate(result: BoardProcessResult) {
+        this.animateDestroy(result.changes.destroyed);
+        this.animateDrop(result.changes.dropped);
+        this.animateSpawn(result.changes.spawned);
     }
 
     private animateDestroy(data: TilePosition[]) {
