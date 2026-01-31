@@ -9,11 +9,11 @@ import { TileType } from "./TileType";
 export class LogicalBoardModel {
 
     private readonly _board: Matrix<TileType>;
-    private _changes: Map<string, TileCommit>;
+    private _commits: Map<string, TileCommit>;
 
     public constructor(width: number, height: number) {
         this._board = new Matrix<TileType>(width, height, () => TileType.NONE);
-        this._changes = new Map();
+        this._commits = new Map();
     }
 
     public get width(): number {
@@ -25,8 +25,8 @@ export class LogicalBoardModel {
     }
 
     public flush(): TileCommit[] {
-        const result = Array.from(this._changes.values());
-        this._changes.clear();
+        const result = Array.from(this._commits.values());
+        this._commits.clear();
         return result;
     }
 
@@ -62,11 +62,11 @@ export class LogicalBoardModel {
 
     private pushChange(position: TilePosition, before: TileType, after: TileType) {
         const key = BoardKey.position(position);
-        let change = this._changes.get(key);
+        let change = this._commits.get(key);
 
         if (!change) {
             change = { position, before, after };
-            this._changes.set(key, change);
+            this._commits.set(key, change);
         } else {
             change.after = after;
         }
