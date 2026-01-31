@@ -35,11 +35,11 @@ export class GameStateController extends BaseController {
     }
 
     private onBoardProcessed = (event: BoardProcessResult): void => {
-        if (event.instructions.destroyed.length < 1) {
+        if (event.changes.destroyed.length < 1) {
             return;
         }
 
-        this._gameStateModel.addScore(this._scoreService.calculate(event.instructions.destroyed.length));
+        this._gameStateModel.addScore(this._scoreService.calculate(event.changes.destroyed.length));
         this._gameStateModel.useMove();
         this._eventBus.emit(new ScoreUpdatedEvent(this._gameStateModel.currentScore));
         this._eventBus.emit(new MovesUpdatedEvent(this._gameStateModel.movesLeft));

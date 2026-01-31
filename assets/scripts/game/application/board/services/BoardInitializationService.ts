@@ -1,5 +1,5 @@
 import { LogicalBoardModel } from "../../../domain/board/models/LogicalBoardModel";
-import { TileChange } from "../../../domain/board/models/TileChange";
+import { TileCommit } from "../../../domain/board/models/TileChange";
 import { TileType } from "../../../domain/board/models/TileType";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { RuntimeBoardModel, TileLockReason } from "../runtime/RuntimeBoardModel";
@@ -12,7 +12,7 @@ export class BoardInitializationService {
         private readonly _spawnService: SpawnService
     ) { }
 
-    public initialize(): TileChange[] {
+    public initialize(): TileCommit[] {
         const spawned = this._spawnService.spawn(this._allowedTypes);
         spawned.forEach((spawn, _) => this._runtimeModel.unlock(TileLockReason.SPAWN, spawn.at));
         return this._logicalModel.flush();

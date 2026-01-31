@@ -1,6 +1,6 @@
 import { Matrix } from "../../../../core/collections/Matrix";
 import { BoardKey } from "../../../application/board/BoardKey";
-import { TileChange } from "./TileChange";
+import { TileCommit } from "./TileChange";
 import { TileMove } from "./TileMove";
 import { TilePosition } from "./TilePosition";
 import { TileSpawn } from "./TileSpawn";
@@ -9,7 +9,7 @@ import { TileType } from "./TileType";
 export class LogicalBoardModel {
 
     private readonly _board: Matrix<TileType>;
-    private _changes: Map<string, TileChange>;
+    private _changes: Map<string, TileCommit>;
 
     public constructor(width: number, height: number) {
         this._board = new Matrix<TileType>(width, height, () => TileType.NONE);
@@ -24,7 +24,7 @@ export class LogicalBoardModel {
         return this._board.height;
     }
 
-    public flush(): TileChange[] {
+    public flush(): TileCommit[] {
         const result = Array.from(this._changes.values());
         this._changes.clear();
         return result;
