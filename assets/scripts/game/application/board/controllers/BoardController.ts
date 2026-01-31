@@ -1,7 +1,7 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
-import { TileClickRejectedEvent, TileClickRejectedReason } from "../../../domain/board/events/TileClickRejection";
+import { TileClickRejection, TileClickRejectionReason } from "../../../domain/board/events/TileClickRejection";
 import { LogicalBoardModel } from "../../../domain/board/models/LogicalBoardModel";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";
@@ -55,14 +55,14 @@ export class BoardController extends BaseController {
 
     private onTileClicked = (event: TileClickedCommand): void => {
         if (this._boardRuntime.isLocked(event.position)) {
-            this._eventBus.emit(new TileClickRejectedEvent(TileClickRejectedReason.LOCKED, event.position));
+            this._eventBus.emit(new TileClickRejection(TileClickRejectionReason.LOCKED, event.position));
             return;
         }
 
         const cluster = this._searchService.findCluster(event.position);
 
         if (cluster.length < this._gameConfig.clusterSize) {
-            this._eventBus.emit(new TileClickRejectedEvent(TileClickRejectedReason.NO_CLUSTER, event.position));
+            this._eventBus.emit(new TileClickRejection(TileClickRejectionReason.NO_CLUSTER, event.position));
             return;
         }
 
