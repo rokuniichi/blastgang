@@ -20,7 +20,7 @@ export class SearchService extends BoardService {
 
             visited.set(position.x, position.y, true);
 
-            if (this.boardRuntime.isLocked(position) || this.logicalModel.get(position) !== targetType) {
+            if (this.runtimeModel.isLocked(position) || this.logicalModel.get(position) !== targetType) {
                 continue;
             }
 

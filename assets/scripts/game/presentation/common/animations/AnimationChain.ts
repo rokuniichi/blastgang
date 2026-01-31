@@ -7,7 +7,7 @@ export class AnimationChain {
     private _running: boolean;
     private _onResolve?: AnimationTask;
 
-    constructor() {
+    public constructor() {
         this._chain = [];
         this._running = false;
     }

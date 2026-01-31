@@ -10,7 +10,9 @@ export class GameStartup {
     private _domainContext!: DomainContext;
     private _presentationContext!: PresentationContext;
 
-    public constructor(private readonly presentationInstaller: PresentationInstaller) { }
+    public constructor(
+        private readonly presentationInstaller: PresentationInstaller
+    ) { }
 
     public async start(): Promise<void> {
         const configMode = GameSettings.configMode;
@@ -19,7 +21,9 @@ export class GameStartup {
         this._domainContext = new DomainContext(config);
 
         const boardInit = new BoardInitializationService(
+            this._domainContext.gameConfig.allowedTypes,
             this._domainContext.logicalModel,
+            this._domainContext.runtimeModel,
             this._domainContext.spawnService
         );
 

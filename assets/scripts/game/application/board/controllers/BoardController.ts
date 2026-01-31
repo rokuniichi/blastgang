@@ -13,7 +13,7 @@ import { BoardSyncedEvent } from "../../../presentation/board/events/BoardSynced
 import { TileClickedCommand } from "../../../presentation/board/events/TileClickedCommand";
 import { GameConfig } from "../../common/config/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
-import { BoardRuntime } from "../runtime/BoardRuntime";
+import { RuntimeBoardModel } from "../runtime/RuntimeBoardModel";
 
 export class BoardController extends BaseController {
 
@@ -23,7 +23,7 @@ export class BoardController extends BaseController {
     private readonly _eventBus: EventBus;
     private readonly _gameStateModel: GameStateModel;
     private readonly _logicalModel: LogicalBoardModel;
-    private readonly _boardRuntime: BoardRuntime;
+    private readonly _boardRuntime: RuntimeBoardModel;
     private readonly _spawnService: SpawnService;
     private readonly _searchService: SearchService;
     private readonly _destroyService: DestroyService;
@@ -36,7 +36,7 @@ export class BoardController extends BaseController {
         this._eventBus = context.eventBus;
         this._gameStateModel = context.gameStateModel;
         this._logicalModel = context.logicalModel;
-        this._boardRuntime = context.boardRuntime;
+        this._boardRuntime = context.runtimeModel;
         this._spawnService = context.spawnService;
         this._searchService = context.searchService;
         this._destroyService = context.destroyService;
@@ -69,13 +69,13 @@ export class BoardController extends BaseController {
         const destroyed = this._destroyService.destroy(cluster);
         const dropped = this._searchService.findDrops();
         this._moveService.move(dropped);
-        const spawned = this._spawnService.spawn();
+        const spawned = this._spawnService.spawn(this._gameConfig.allowedTypes);
         const changes = this._logicalModel.flush();
-        this._eventBus.emit(new BoardProcessResult(destroyed, dropped, spawned, changes));
+        this._eventBus.emit(new BoardProcessResult(changes, {destroyed, dropped, spawned}));
     };
 
     private onBoardSynced = (): void => {
-        this._boardRuntime.unlockAll();
+        //this._boardRuntime.unlockAll();
     }
 
     public dispose(): void {

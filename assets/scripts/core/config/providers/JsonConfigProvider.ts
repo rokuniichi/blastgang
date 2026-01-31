@@ -3,11 +3,13 @@ import { IConfig } from "../IConfig";
 import { IConfigValidator } from "../IConfigValidator";
 
 export class JsonConfigProvider<TConfig extends IConfig> extends BaseConfigProvider<TConfig> {
-    constructor(private readonly _path: string, private readonly _validator: IConfigValidator<TConfig>) {
+    public constructor(
+        private readonly _path: string, 
+        private readonly _validator: IConfigValidator<TConfig>) {
         super();
     }
 
-    async load(): Promise<void> {
+    public async load(): Promise<void> {
         const asset = await this.loadJsonAsset(this._path);
         this.config = this._validator.validate(asset.json);
     }
