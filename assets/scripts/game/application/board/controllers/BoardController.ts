@@ -70,8 +70,8 @@ export class BoardController extends BaseController {
         const dropped = this._searchService.findDrops();
         this._moveService.move(dropped);
         const spawned = this._spawnService.spawn(this._gameConfig.allowedTypes);
-        const changes = this._logicalModel.flush();
-        this._eventBus.emit(new BoardProcessResult(changes, {destroyed, dropped, spawned}));
+        const commits = this._logicalModel.flush();
+        this._eventBus.emit(new BoardProcessResult(commits, {destroyed, dropped, spawned}));
     };
 
     private onBoardSynced = (): void => {
