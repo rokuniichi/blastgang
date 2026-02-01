@@ -7,12 +7,10 @@ import { ContextView } from "./ContextView";
 
 export abstract class EventView<TContext extends EventViewContext> extends ContextView<TContext> {
 
-    protected eventBus!: EventBus;
     private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
     protected preInit(): void {
         assertNotNull(this.context.eventBus, this, "eventBus");
-        this.eventBus = this.context.eventBus;
     }
 
     protected onDispose(): void {
@@ -21,11 +19,11 @@ export abstract class EventView<TContext extends EventViewContext> extends Conte
     }
 
     protected on<T extends IEvent>(type: EventConstructor<T>, handler: EventHandler<T>): void {
-        const subscription = this.eventBus.on(type, handler);
+        const subscription = this.context.eventBus.on(type, handler);
         this._subscriptions.add(subscription);
     }
 
     protected emit<T extends IEvent>(event: T): void {
-        this.eventBus.emit(event);
+        this.context.eventBus.emit(event);
     }
 }

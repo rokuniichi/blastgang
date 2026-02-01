@@ -1,9 +1,9 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardController } from "../../application/board/controllers/BoardController";
-import { RuntimeBoardModel } from "../../application/board/runtime/RuntimeBoardModel";
+import { BoardRuntimeModel } from "../../application/board/runtime/BoardRuntimeModel";
 import { GameConfig } from "../../application/common/config/GameConfig";
 import { GameStateController } from "../../application/state/controllers/GameStateController";
-import { LogicalBoardModel } from "../board/models/LogicalBoardModel";
+import { BoardLogicalModel } from "../board/models/BoardLogicalModel";
 import { DestroyService } from "../board/services/DestroyService";
 import { MoveService } from "../board/services/MoveService";
 import { SearchService } from "../board/services/SearchService";
@@ -20,8 +20,8 @@ export class DomainContext {
     public readonly scoreService: ScoreService;
     public readonly gameStateController: GameStateController;
 
-    public readonly logicalModel: LogicalBoardModel;
-    public readonly runtimeModel: RuntimeBoardModel;
+    public readonly logicalModel: BoardLogicalModel;
+    public readonly runtimeModel: BoardRuntimeModel;
     public readonly spawnService: SpawnService;
     public readonly searchService: SearchService;
     public readonly destroyService: DestroyService;
@@ -36,8 +36,8 @@ export class DomainContext {
         this.scoreService = new ScoreService(config.scoreMultiplier);
         this.gameStateController = new GameStateController(this);
 
-        this.logicalModel = new LogicalBoardModel(config.boardWidth, config.boardHeight);
-        this.runtimeModel = new RuntimeBoardModel(config.boardWidth, config.boardHeight);
+        this.logicalModel = new BoardLogicalModel(config.boardWidth, config.boardHeight);
+        this.runtimeModel = new BoardRuntimeModel(config.boardWidth, config.boardHeight);
         this.spawnService = new SpawnService(this.logicalModel, this.runtimeModel,);
         this.searchService = new SearchService(this.logicalModel, this.runtimeModel);
         this.destroyService = new DestroyService(this.logicalModel, this.runtimeModel);

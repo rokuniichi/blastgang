@@ -1,9 +1,9 @@
-import { RuntimeBoardModel } from "../../../application/board/runtime/RuntimeBoardModel";
-import { LogicalBoardModel } from "../models/LogicalBoardModel";
+import { BoardRuntimeModel } from "../../../application/board/runtime/BoardRuntimeModel";
+import { BoardLogicalModel } from "../models/BoardLogicalModel";
 
 export abstract class BoardService {
     public constructor(
-        protected readonly logicalModel: LogicalBoardModel, 
-        protected readonly runtimeModel: RuntimeBoardModel
+        protected readonly logicalModel: BoardLogicalModel, 
+        protected readonly runtimeModel: BoardRuntimeModel
     ) { }
 }

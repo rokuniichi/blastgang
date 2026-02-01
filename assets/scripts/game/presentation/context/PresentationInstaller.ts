@@ -36,7 +36,7 @@ export class PresentationInstaller extends ContextView<PresentationContext> {
 
         this.boardView.init({
             eventBus: this.context.eventBus,
-            boardRuntime: this.context.boardRuntime,
+            runtimeModel: this.context.boardRuntime,
             animationSystem: this.animationSystem,
             boardWidth: this.context.boardWidth,
             boardHeight: this.context.boardHeight,

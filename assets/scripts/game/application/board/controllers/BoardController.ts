@@ -2,18 +2,17 @@ import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
 import { TileClickRejection, TileClickRejectionReason } from "../../../domain/board/events/TileClickRejection";
-import { LogicalBoardModel } from "../../../domain/board/models/LogicalBoardModel";
+import { BoardLogicalModel } from "../../../domain/board/models/BoardLogicalModel";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";
 import { SearchService } from "../../../domain/board/services/SearchService";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { DomainContext } from "../../../domain/context/DomainContext";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
-import { BoardSyncedEvent } from "../../../presentation/board/events/BoardSyncedEvent";
 import { TileClickedCommand } from "../../../presentation/board/events/TileClickedCommand";
 import { GameConfig } from "../../common/config/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
-import { RuntimeBoardModel } from "../runtime/RuntimeBoardModel";
+import { BoardRuntimeModel } from "../runtime/BoardRuntimeModel";
 
 export class BoardController extends BaseController {
 
@@ -22,8 +21,8 @@ export class BoardController extends BaseController {
     private readonly _gameConfig: GameConfig;
     private readonly _eventBus: EventBus;
     private readonly _gameStateModel: GameStateModel;
-    private readonly _logicalModel: LogicalBoardModel;
-    private readonly _boardRuntime: RuntimeBoardModel;
+    private readonly _logicalModel: BoardLogicalModel;
+    private readonly _boardRuntime: BoardRuntimeModel;
     private readonly _spawnService: SpawnService;
     private readonly _searchService: SearchService;
     private readonly _destroyService: DestroyService;
@@ -47,10 +46,6 @@ export class BoardController extends BaseController {
         this._subscriptions.add(
             this._eventBus.on(TileClickedCommand, this.onTileClicked)
         );
-
-        this._subscriptions.add(
-            this._eventBus.on(BoardSyncedEvent, this.onBoardSynced)
-        )
     }
 
     private onTileClicked = (event: TileClickedCommand): void => {
@@ -71,12 +66,8 @@ export class BoardController extends BaseController {
         this._moveService.move(dropped);
         const spawned = this._spawnService.spawn(this._gameConfig.allowedTypes);
         const commits = this._logicalModel.flush();
-        this._eventBus.emit(new BoardProcessResult(commits, {destroyed, dropped, spawned}));
+        this._eventBus.emit(new BoardProcessResult(commits, { destroyed, dropped, spawned }));
     };
-
-    private onBoardSynced = (): void => {
-        //this._boardRuntime.unlockAll();
-    }
 
     public dispose(): void {
         this._subscriptions.clear();

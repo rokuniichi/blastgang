@@ -1,18 +1,18 @@
 import { Matrix } from "../../../../core/collections/Matrix";
 import { BoardKey } from "../../../application/board/BoardKey";
-import { TileCommit } from "./TileChange";
+import { TileCommit } from "./TileCommit";
 import { TileMove } from "./TileMove";
 import { TilePosition } from "./TilePosition";
 import { TileSpawn } from "./TileSpawn";
 import { TileType } from "./TileType";
 
-export class LogicalBoardModel {
+export class BoardLogicalModel {
 
     private readonly _board: Matrix<TileType>;
     private _commits: Map<string, TileCommit>;
 
     public constructor(width: number, height: number) {
-        this._board = new Matrix<TileType>(width, height, () => TileType.NONE);
+        this._board = new Matrix<TileType>(width, height, () => TileType.EMPTY);
         this._commits = new Map();
     }
 
@@ -35,7 +35,7 @@ export class LogicalBoardModel {
     }
 
     public empty(position: TilePosition): boolean {
-        return this._board.get(position.x, position.y) == TileType.NONE;
+        return this._board.get(position.x, position.y) == TileType.EMPTY;
     }
 
     public spawn(spawn: TileSpawn) {
@@ -45,11 +45,11 @@ export class LogicalBoardModel {
     public move(move: TileMove) {
         const type = this.get(move.from);
         this.setType(move.to, type);
-        this.setType(move.from, TileType.NONE);
+        this.setType(move.from, TileType.EMPTY);
     }
 
     public destroy(position: TilePosition) {
-        this.setType(position, TileType.NONE);
+        this.setType(position, TileType.EMPTY);
     }
 
     private setType(position: TilePosition, type: TileType) {
