@@ -1,9 +1,9 @@
-import { TileCommit } from "../models/TileChange";
-import { TileChanges } from "../models/TileChanges";
+import { TileCommit } from "../models/TileCommit";
+import { TileMutations as TileMutations } from "../models/TileMutations";
 
 export class BoardProcessResult {
     public constructor(
         public readonly commits: TileCommit[],
-        public readonly changes: TileChanges
+        public readonly mutations: TileMutations
     ) { }
 }

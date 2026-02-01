@@ -1,14 +1,14 @@
-import { LogicalBoardModel } from "../../../domain/board/models/LogicalBoardModel";
-import { TileCommit } from "../../../domain/board/models/TileChange";
+import { BoardLogicalModel } from "../../../domain/board/models/BoardLogicalModel";
+import { TileCommit } from "../../../domain/board/models/TileCommit";
 import { TileType } from "../../../domain/board/models/TileType";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
-import { RuntimeBoardModel, TileLockReason } from "../runtime/RuntimeBoardModel";
+import { BoardRuntimeModel, TileLockReason } from "../runtime/BoardRuntimeModel";
 
 export class BoardInitializationService {
     public constructor(
         private readonly _allowedTypes: TileType[],
-        private readonly _logicalModel: LogicalBoardModel,
-        private readonly _runtimeModel: RuntimeBoardModel,
+        private readonly _logicalModel: BoardLogicalModel,
+        private readonly _runtimeModel: BoardRuntimeModel,
         private readonly _spawnService: SpawnService
     ) { }
 

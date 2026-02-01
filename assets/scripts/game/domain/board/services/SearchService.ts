@@ -12,7 +12,7 @@ export class SearchService extends BoardService {
         const visited = new Matrix<boolean>(this.logicalModel.width, this.logicalModel.height, () => false);
         const stack = [start];
 
-        while (stack.length > 0 && targetType !== TileType.NONE) {
+        while (stack.length > 0 && targetType !== TileType.EMPTY) {
             const position = stack.pop();
             if (!position) continue;
 

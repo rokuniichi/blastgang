@@ -5,11 +5,12 @@ export class AnimationChain {
     private readonly _chain: AnimationTask[];
 
     private _running: boolean;
-    private _onResolve?: AnimationTask;
+    private _onResolve: AnimationTask[];
 
     public constructor() {
         this._chain = [];
         this._running = false;
+        this._onResolve = [];
     }
 
     public busy(): boolean {
@@ -26,7 +27,7 @@ export class AnimationChain {
     }
 
     public onResolve(task: AnimationTask): void {
-        this._onResolve = task;
+        this._onResolve.push(task);
     }
 
     private async run(): Promise<void> {
@@ -36,7 +37,7 @@ export class AnimationChain {
         }
 
         this._running = false;
-        this._onResolve?.();
+        this._onResolve.forEach((task) => task?.());
     }
 
     private empty(): boolean {

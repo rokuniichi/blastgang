@@ -1,4 +1,4 @@
-import { TileLockReason } from "../../../application/board/runtime/RuntimeBoardModel";
+import { TileLockReason } from "../../../application/board/runtime/BoardRuntimeModel";
 import { TilePosition } from "../models/TilePosition";
 import { BoardService } from "./BoardService";
 

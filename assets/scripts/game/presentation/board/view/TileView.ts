@@ -3,6 +3,8 @@ import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileClickedCommand } from "../events/TileClickedCommand";
 import { EventView } from "../../common/view/EventView";
 import { TileViewContext } from "../context/TileViewContext";
+import { TileAssets } from "../../common/assets/TileAssets";
+import { TileType } from "../../../domain/board/models/TileType";
 
 
 const { ccclass, property } = cc._decorator;
@@ -13,7 +15,12 @@ export class TileView extends EventView<TileViewContext> {
     @property(cc.Sprite)
     private sprite: cc.Sprite = null!;
 
+    @property(TileAssets)
+    private tileAssets: TileAssets = null!;
+
     public position!: TilePosition;
+
+    private _type!: TileType;
 
     public validate(): void {
         super.validate();
@@ -51,11 +58,13 @@ export class TileView extends EventView<TileViewContext> {
         this.sprite.node.active = false;
     }
 
-    public set(spriteFrame: cc.SpriteFrame): void {
+    public set(type: TileType): void {
+        this._type = type;
+        const spriteFrame = this.tileAssets.get(type);
         this.sprite.spriteFrame = spriteFrame;
     }
 
-    public get(): cc.SpriteFrame {
-        return this.sprite.spriteFrame.clone();
+    public get(): TileType {
+        return this._type;
     }
 }

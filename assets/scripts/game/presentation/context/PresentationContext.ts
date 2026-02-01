@@ -1,11 +1,11 @@
 import { EventBus } from "../../../core/events/EventBus";
-import { RuntimeBoardModel } from "../../application/board/runtime/RuntimeBoardModel";
-import { TileCommit } from "../../domain/board/models/TileChange";
+import { BoardRuntimeModel } from "../../application/board/runtime/BoardRuntimeModel";
+import { TileCommit } from "../../domain/board/models/TileCommit";
 import { DomainContext } from "../../domain/context/DomainContext";
 
 export class PresentationContext {
     public readonly eventBus: EventBus;
-    public readonly boardRuntime: RuntimeBoardModel;
+    public readonly boardRuntime: BoardRuntimeModel;
     public readonly movesLeft: number;
     public readonly targetScore: number;
     public readonly currentScore: number;
