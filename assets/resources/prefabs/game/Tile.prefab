@@ -133,6 +133,9 @@
       "__id__": 1
     },
     "_enabled": true,
+    "empty": {
+      "__uuid__": "2410d0da-24ad-4bb3-a85a-3c71c1608de9"
+    },
     "red": {
       "__uuid__": "61d91933-f10f-4502-9cc8-6e621a2ee2ea"
     },

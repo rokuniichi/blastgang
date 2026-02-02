@@ -58,7 +58,7 @@ export class SearchService extends BoardService {
             let drop = 0;
             for (let y = this.logicalModel.height - 1; y >= 0; y--) {
                 if (this.logicalModel.empty({ x, y })) drop++;
-                else if (drop > 0) result.push({ from: { x, y }, to: { x, y: y + drop } });
+                else if (drop > 0) result.push({ type: this.logicalModel.get({ x, y }), from: { x, y }, to: { x, y: y + drop } });
             }
         }
 

@@ -8,6 +8,9 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class TileAssets extends cc.Component implements IValidatable {
     @property(cc.SpriteFrame)
+    private empty: cc.SpriteFrame = null!;
+
+    @property(cc.SpriteFrame)
     private red: cc.SpriteFrame = null!;
 
     @property(cc.SpriteFrame)
@@ -28,11 +31,12 @@ export class TileAssets extends cc.Component implements IValidatable {
     private _map!: Map<TileType, cc.SpriteFrame>;
 
     protected onLoad(): void {
-        this.validate();    
+        this.validate();
     }
 
     public validate(): void {
         this._map = new Map<TileType, cc.SpriteFrame>([
+            [TileType.EMPTY, ensureNotNull(this.empty, this, "EMPTY")],
             [TileType.RED, ensureNotNull(this.red, this, "RED")],
             [TileType.GREEN, ensureNotNull(this.green, this, "GREEN")],
             [TileType.BLUE, ensureNotNull(this.blue, this, "BLUE")],

@@ -4,8 +4,6 @@
   "allowedTypes": [
     "RED",
     "GREEN",
-    "BLUE",
-    "PURPLE",
     "YELLOW"
   ],
   "clusterSize": 2,
