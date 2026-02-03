@@ -81,11 +81,10 @@ The **TileRepository** is a registry of all tile entities.
   - ***"What is this tile?"***
 
 #### Runtime model
-The BoardRuntimeModel (or TileRuntimeRegistry) tracks runtime-only state.
-- Implemented as ```Map<TileId, TileRuntimeState>```
-- Stores transient, frame-level information:
-  - stable / unstable
-  - busy / free
+The **BoardRuntimeModel** tracks runtime-only state.
+- Implemented as ```Map<TileId, number>```
+- Stores frame-level information regarding the state of tile's runtime
+- ```number``` value represents the amount of locks currently emplaced upon the tile
 - Exists only for gameplay execution
 - Is synced in runtime through visual agents
 - This model answers:
@@ -169,6 +168,6 @@ The BoardRuntimeModel (or TileRuntimeRegistry) tracks runtime-only state.
 
 ## 📌 Notes
 
-- JSON-based configuration supported
+- JSON-based configuration supported (```/assets/resources/configs```)
 - Physics engine disabled
-- Mobile web browser is main target
+- Mainly optimizied for mobile web browsers and **1080x1920** resolution
