@@ -1,13 +1,12 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { DomainContext } from "../../../domain/context/DomainContext";
 import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { MovesUpdate } from "../../../domain/state/events/MovesUpdate";
 import { ScoreUpdate } from "../../../domain/state/events/ScoreUpdate";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
-import { GameConfig } from "../../common/config/GameConfig";
+import { GameConfig } from "../../common/config/game/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
 
 

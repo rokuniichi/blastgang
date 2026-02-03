@@ -1,7 +1,7 @@
-import { IConfigValidator } from "../../../../core/config/IConfigValidator";
-import { assertObject, assertNonEmptyArray, assertEnumValue } from "../../../../core/utils/assert";
-import { ensureNumber } from "../../../../core/utils/ensure";
-import { TileType } from "../../../domain/board/models/TileType";
+import { IConfigValidator } from "../../../../../core/config/IConfigValidator";
+import { assertObject, assertNonEmptyArray, assertEnumValue } from "../../../../../core/utils/assert";
+import { ensureNumber } from "../../../../../core/utils/ensure";
+import { TileType } from "../../../../domain/board/models/TileType";
 import { GameConfig } from "./GameConfig";
 
 

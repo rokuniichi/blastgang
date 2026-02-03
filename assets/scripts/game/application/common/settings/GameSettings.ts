@@ -1,6 +1,7 @@
-import { GameConfigMode } from "../config/GameConfigMode";
+import { ConfigMode } from "../config/ConfigMode";
 
 export const GameSettings = {
-    configMode: GameConfigMode.JSON,
-    configJsonPath: "configs/game-config"
+    CONFIG_MODE: ConfigMode.JSON,
+    GAME_CONFIG: "configs/game-config",
+    VISUAL_CONFIG: "configs/visual-config"
 };

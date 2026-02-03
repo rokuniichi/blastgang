@@ -14,7 +14,7 @@ import { DomainContext } from "../../../domain/context/DomainContext";
 import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { VisualTileClicked } from "../../../presentation/board/events/VisualTileClicked";
-import { GameConfig } from "../../common/config/GameConfig";
+import { GameConfig } from "../../common/config/game/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
 import { BoardRuntimeModel } from "../runtime/BoardRuntimeModel";
 

@@ -1,7 +1,8 @@
 import { DomainContext } from "../../domain/context/DomainContext";
 import { PresentationContext } from "../../presentation/context/PresentationContext";
 import { PresentationInstaller } from "../../presentation/context/PresentationInstaller";
-import { GameConfigLoader } from "../common/config/GameConfigLoader";
+import { GameConfigLoader } from "../common/config/game/GameConfigLoader";
+import { VisualConfigLoader } from "../common/config/visual/VisualConfigLoader";
 import { GameSettings } from "../common/settings/GameSettings";
 
 export class GameStartup {
@@ -14,17 +15,18 @@ export class GameStartup {
     ) { }
 
     public async start(): Promise<void> {
-        const configMode = GameSettings.configMode;
-        const config = await new GameConfigLoader().load(configMode);
+        const configMode = GameSettings.CONFIG_MODE;
+        const gameConfig = await new GameConfigLoader().load(configMode);
+        const visualConfig = await new VisualConfigLoader().load(configMode);
 
-        this._domainContext = new DomainContext(config);
+        this._domainContext = new DomainContext(gameConfig);
 
         const initialBoard = this._domainContext.spawnService.spawn();
 
         this._domainContext.gameStateController.init();
         this._domainContext.boardController.init();
 
-        this._presentationContext = new PresentationContext(this._domainContext, initialBoard);
+        this._presentationContext = new PresentationContext(visualConfig, this._domainContext, initialBoard);
 
         this.presentationInstaller.init(this._presentationContext);
     }

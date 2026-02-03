@@ -1,7 +1,7 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardController } from "../../application/board/controllers/BoardController";
 import { BoardRuntimeModel } from "../../application/board/runtime/BoardRuntimeModel";
-import { GameConfig } from "../../application/common/config/GameConfig";
+import { GameConfig } from "../../application/common/config/game/GameConfig";
 import { GameStateController } from "../../application/state/controllers/GameStateController";
 import { BoardLogicalModel } from "../board/models/BoardLogicalModel";
 import { TileFactory } from "../board/models/TileFactory";

@@ -1,9 +1,11 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardRuntimeModel } from "../../application/board/runtime/BoardRuntimeModel";
+import { VisualConfig } from "../../application/common/config/visual/VisualConfig";
 import { TileSpawned } from "../../domain/board/events/mutations/TileSpawned";
 import { DomainContext } from "../../domain/context/DomainContext";
 
 export class PresentationContext {
+    public readonly visualConfig: VisualConfig;
     public readonly eventBus: EventBus;
     public readonly boardRuntime: BoardRuntimeModel;
     public readonly movesLeft: number;
@@ -13,7 +15,8 @@ export class PresentationContext {
     public readonly boardHeight: number;
     public readonly initialBoard: TileSpawned[];
 
-    public constructor(domainContext: DomainContext, initialBoard: TileSpawned[]) {
+    public constructor(visualConfig: VisualConfig, domainContext: DomainContext, initialBoard: TileSpawned[]) {
+        this.visualConfig = visualConfig;
         this.eventBus = domainContext.eventBus;
         this.boardRuntime = domainContext.runtimeModel;
         this.movesLeft = domainContext.gameStateModel.movesLeft;
