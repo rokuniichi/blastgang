@@ -1,10 +1,10 @@
-import { AnimationType } from "./AnimationType";
+import { TweenType } from "./tweens/TweenType";
 import { FadeSettings } from "./settings/FadeSettings";
-import { IAnimation } from "./IAnimation";
+import { IAnimation } from "./tweens/ITween";
 
 export class FadeAnimation implements IAnimation<FadeSettings> {
 
-    public readonly type = AnimationType.FADE;
+    public readonly type = TweenType.FADE;
 
     play(settings: FadeSettings): Promise<void> {
 

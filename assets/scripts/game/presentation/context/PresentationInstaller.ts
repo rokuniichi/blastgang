@@ -3,7 +3,7 @@ import { BoardView } from "../board/view/BoardView";
 import { PresentationContext } from "./PresentationContext";
 import { MovesTextView } from "../state/view/MovesTextView";
 import { ScoreTextView } from "../state/view/ScoreTextView";
-import { AnimationSystem } from "../common/animations/AnimationSystem";
+import { TweenHelper } from "../common/animations/TweenHelper";
 import { ContextView } from "../common/view/ContextView";
 
 const { ccclass, property } = cc._decorator;
@@ -19,7 +19,7 @@ export class PresentationInstaller extends ContextView<PresentationContext> {
     @property(ScoreTextView)
     private scoreTextView: ScoreTextView = null!;
 
-    private animationSystem!: AnimationSystem;
+    private animationSystem!: TweenHelper;
 
     protected onLoad(): void {
         assertNotNull(this.boardView, this, "BoardView");
@@ -32,7 +32,7 @@ export class PresentationInstaller extends ContextView<PresentationContext> {
     }
 
     protected onInit(): void {
-        this.animationSystem = new AnimationSystem();
+        this.animationSystem = new TweenHelper();
 
         this.boardView.init({
             eventBus: this.context.eventBus,

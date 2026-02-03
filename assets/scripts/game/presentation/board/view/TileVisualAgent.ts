@@ -1,9 +1,9 @@
 import { EventBus } from "../../../../core/events/EventBus";
-import { BoardRuntimeModel, TileRuntimeState } from "../../../application/board/runtime/BoardRuntimeModel";
 import { TileId } from "../../../domain/board/models/BoardLogicalModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
-import { AnimationHelper } from "../animations/BoardAnimationHelper";
+import { TweenSettings } from "../../common/animations/settings/TweenSettings";
+import { TweenHelper } from "../../common/animations/TweenHelper";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
 import { VisualTileSpawned } from "../events/VisualTileSpawned";
 import { TileView } from "./TileView";
@@ -15,7 +15,7 @@ export class TileVisualAgent {
 
     private readonly _eventBus: EventBus;
 
-    private readonly _animationHelper: AnimationHelper;
+    private readonly _tweenHelper: TweenHelper;
 
     private readonly _boardWidth: number;
     private readonly _boardHeight: number;
@@ -26,13 +26,16 @@ export class TileVisualAgent {
     private readonly _fxLayer: cc.Node;
 
     private currentTween?: cc.Tween;
+
+    private currentPosition?: TilePosition;
     private currentTarget?: TilePosition;
+
 
     private busy = false;
 
     constructor(
         eventBus: EventBus,
-        animationHelper: AnimationHelper,
+        tweenHelper: TweenHelper,
         tileId: string,
         view: TileView,
         boardWidth: number,
@@ -43,7 +46,7 @@ export class TileVisualAgent {
     ) {
         this._eventBus = eventBus;
 
-        this._animationHelper = animationHelper;
+        this._tweenHelper = tweenHelper;
 
         this.id = tileId;
         this.view = view;
@@ -78,6 +81,7 @@ export class TileVisualAgent {
 
     public destroy(): void {
         this.busy = true;
+        this._tweenHelper.build(TweenSettings.tileDestroy(this.view.node));
         /* this.view.node.setParent(this._fxLayer);
         this.currentTween = this._animationHelper.destroy(this.view.node);
         this.busy = false; */

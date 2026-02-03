@@ -1,10 +1,10 @@
-import { AnimationType } from "./AnimationType";
-import { IAnimation } from "./IAnimation";
+import { TweenType } from "./tweens/TweenType";
+import { IAnimation } from "./tweens/ITween";
 import { ShakeSettings } from "./settings/ShakeSettings";
 
 export class ShakeAnimation implements IAnimation<ShakeSettings> {
 
-    public readonly type = AnimationType.SHAKE;
+    public readonly type = TweenType.SHAKE;
 
     play(settings: ShakeSettings): Promise<void> {
         return new Promise(resolve => {

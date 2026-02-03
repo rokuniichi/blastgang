@@ -1,6 +1,6 @@
-import { IAnimationSettings } from "../IAnimationSettings";
+import { ITweenSettings } from "./ITweenSettings";
 
-export interface DestructionSettings extends IAnimationSettings {
+export interface DestructionSettings extends ITweenSettings {
     squashDuration: number;
     squashScale: number;
     popDuration: number;

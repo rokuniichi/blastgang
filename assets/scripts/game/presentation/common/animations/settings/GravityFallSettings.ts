@@ -1,6 +1,6 @@
-import { IAnimationSettings } from "../IAnimationSettings";
+import { ITweenSettings } from "./ITweenSettings";
 
-export interface GravityFallSettings extends IAnimationSettings{
+export interface GravityFallSettings extends ITweenSettings{
     duration: number;
     targetY: number;
     bounce: number;

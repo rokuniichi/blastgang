@@ -1,10 +1,10 @@
-import { AnimationType } from "./AnimationType";
-import { IAnimation } from "./IAnimation";
+import { TweenType } from "./tweens/TweenType";
+import { IAnimation } from "./tweens/ITween";
 import { GravityFallSettings } from "./settings/GravityFallSettings";
 
 export class GravityFallAnimation implements IAnimation<GravityFallSettings> {
 
-    public readonly type = AnimationType.DROP;
+    public readonly type = TweenType.DROP;
 
     play(settings: GravityFallSettings): Promise<void> {
         return new Promise(resolve => {

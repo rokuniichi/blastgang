@@ -1,6 +1,6 @@
-import { IAnimationSettings } from "../IAnimationSettings";
+import { ITweenSettings } from "./ITweenSettings";
 
-export interface FadeSettings extends IAnimationSettings {
+export interface FadeSettings extends ITweenSettings {
     duration: number;
     targetOpacity: number;
 }

@@ -1,4 +1,4 @@
-export enum AnimationType {
+export enum TweenType {
     FADE,
     DESTROY,
     DROP,

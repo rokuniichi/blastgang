@@ -1,15 +1,15 @@
-import { AnimationType } from "../AnimationType";
+import { TweenType } from "../tweens/TweenType";
 import { DestructionSettings } from "./DestructionSettings";
 import { FadeSettings } from "./FadeSettings";
 import { GravityFallSettings } from "./GravityFallSettings";
 import { ShakeSettings } from "./ShakeSettings";
 
 
-export class AnimationSettings {
+export class TweenSettings {
 
     static fadeOverlay(node: cc.Node): FadeSettings {
         return {
-            type: AnimationType.FADE,
+            type: TweenType.FADE,
             node,
 
             duration: 0.25,
@@ -19,7 +19,7 @@ export class AnimationSettings {
 
     static tileFall(node: cc.Node, targetY: number): GravityFallSettings {
         return {
-            type: AnimationType.DROP,
+            type: TweenType.DROP,
             node,
 
             duration: 1,
@@ -33,7 +33,7 @@ export class AnimationSettings {
 
     static tileDestroy(node: cc.Node): DestructionSettings {
         return {
-            type: AnimationType.DESTROY,
+            type: TweenType.DESTROY,
             node,
 
             squashDuration: 0.05,
@@ -48,7 +48,7 @@ export class AnimationSettings {
 
     static tileShake(node: cc.Node): ShakeSettings {
         return {
-            type: AnimationType.SHAKE,
+            type: TweenType.SHAKE,
             node,
             duration: 0.05,
             amplitude: 8

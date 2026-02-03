@@ -2,8 +2,7 @@ import { EventBus } from "../../../../core/events/EventBus";
 import { BoardKey } from "../../../application/board/BoardKey";
 import { BoardRuntimeModel, TileRuntimeState } from "../../../application/board/runtime/BoardRuntimeModel";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
-import { AnimationSystem } from "../../common/animations/AnimationSystem";
-import { AnimationHelper } from "../animations/BoardAnimationHelper";
+import { TweenHelper } from "../../common/animations/TweenHelper";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
 import { VisualTileMoved } from "../events/VisualTileMoved";
 import { VisualTileSpawned } from "../events/VisualTileSpawned";
@@ -13,12 +12,12 @@ import { TileVisualAgentFactory } from "./TileVisualAgentFactory";
 
 export class TileVisualOrchestrator {
     private readonly _eventBus: EventBus;
-    private readonly _animationSystem: AnimationSystem;
+    private readonly _animationSystem: TweenHelper;
 
     private readonly _runtimeModel: BoardRuntimeModel;
     private readonly _visualModel: BoardVisualModel;
 
-    private readonly _animationHelper: AnimationHelper;
+    private readonly _tweenHelper: TweenHelper;
 
     private readonly _viewPool: TileViewPool;
     private readonly _visualAgentFactory: TileVisualAgentFactory;
@@ -34,7 +33,7 @@ export class TileVisualOrchestrator {
 
     public constructor(
         eventBus: EventBus,
-        animationSystem: AnimationSystem,
+        animationSystem: TweenHelper,
         runtimeModel: BoardRuntimeModel,
         boardWidth: number,
         boardHeight: number,
@@ -55,17 +54,13 @@ export class TileVisualOrchestrator {
 
         this._visualModel = new BoardVisualModel();
 
-        this._animationHelper = new AnimationHelper(
-            this._animationSystem,
-
-
-        );
+        this._tweenHelper = new TweenHelper();
 
         this._viewPool = new TileViewPool(this._eventBus, this._tilePrefab, this._tileLayer);
 
         this._visualAgentFactory = new TileVisualAgentFactory(
             this._eventBus,
-            this._animationHelper,
+            this._tweenHelper,
             this._viewPool,
             this._boardWidth,
             this._boardHeight,

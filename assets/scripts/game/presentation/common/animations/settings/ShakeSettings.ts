@@ -1,6 +1,6 @@
-import { IAnimationSettings } from "../IAnimationSettings";
+import { ITweenSettings } from "./ITweenSettings";
 
-export interface ShakeSettings extends IAnimationSettings{
+export interface ShakeSettings extends ITweenSettings{
     node: cc.Node;
     duration: number;
     amplitude: number;

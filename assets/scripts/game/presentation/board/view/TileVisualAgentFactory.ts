@@ -1,6 +1,5 @@
 import { EventBus } from "../../../../core/events/EventBus";
-import { BoardRuntimeModel } from "../../../application/board/runtime/BoardRuntimeModel";
-import { AnimationHelper } from "../animations/BoardAnimationHelper";
+import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TileViewPool } from "./TileViewPool";
 import { TileVisualAgent } from "./TileVisualAgent";
 
@@ -8,7 +7,7 @@ export class TileVisualAgentFactory {
 
     constructor(
         private readonly _eventBus: EventBus,
-        private readonly _animationHelper: AnimationHelper,
+        private readonly _tweenHelper: TweenHelper,
         private readonly _pool: TileViewPool,
         private readonly _boardWidth: number,
         private readonly _boardHeight: number,
@@ -21,7 +20,7 @@ export class TileVisualAgentFactory {
         const view = this._pool.pull();
         return new TileVisualAgent(
             this._eventBus,
-            this._animationHelper,
+            this._tweenHelper,
             tileId,
             view,
             this._boardWidth,
