@@ -2,6 +2,7 @@ import { EventBus } from "../../../../core/events/EventBus";
 import { BoardKey } from "../../../application/board/BoardKey";
 import { BoardRuntimeModel, TileRuntimeState } from "../../../application/board/runtime/BoardRuntimeModel";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
+import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
 import { VisualTileMoved } from "../events/VisualTileMoved";
@@ -116,6 +117,7 @@ export class TileVisualOrchestrator {
                     console.log(`[DISPATCH] rejected: ${mutation.reason}`);
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) break;
+                    if (mutation.reason == TileRejectedReason.NO_MATCH && !agent.busy) agent.shake();
                     console.log(`[DISPATCH] agent: ${agent.id}; position: ${BoardKey.position(agent.position!)}`);
                     //agent.shake();
                     break;

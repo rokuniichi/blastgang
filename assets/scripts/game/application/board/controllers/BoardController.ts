@@ -2,7 +2,7 @@ import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileMutations } from "../../../domain/board/events/mutations/TileMutations";
-import { TileRejected, TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
+import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { BoardLogicalModel } from "../../../domain/board/models/BoardLogicalModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileRepository } from "../../../domain/board/models/TileRepository";
@@ -16,7 +16,6 @@ import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { VisualTileClicked } from "../../../presentation/board/events/VisualTileClicked";
 import { GameConfig } from "../../common/config/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
-import { BoardKey } from "../BoardKey";
 import { BoardRuntimeModel } from "../runtime/BoardRuntimeModel";
 
 export class BoardController extends BaseController {

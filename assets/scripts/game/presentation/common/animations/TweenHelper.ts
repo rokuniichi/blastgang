@@ -3,6 +3,7 @@ import { TweenType } from "./tweens/TweenType";
 import { DestructionTween } from "./tweens/DestructionTween";
 import { ITween } from "./tweens/ITween";
 import { ITweenSettings } from "./settings/ITweenSettings";
+import { ShakeTween } from "./tweens/ShakeTween";
 
 export class TweenHelper {
 
@@ -14,9 +15,9 @@ export class TweenHelper {
 
     private register(): void {
         this.add(new DestructionTween());
-        /* this.add(new FadeTween());
-        this.add(new GravityFallTween());
-        this.add(new ShakeTween()); */
+        //this.add(new FadeTween());
+        //this.add(new GravityFallTween());
+        this.add(new ShakeTween());
     }
 
     private add(tween: ITween<any>): void {

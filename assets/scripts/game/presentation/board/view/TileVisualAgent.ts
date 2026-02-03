@@ -24,11 +24,10 @@ export class TileVisualAgent {
     private readonly _id: TileId;
     private readonly _view: TileView;
 
-    private _type?: TileType;
-    private _position?: TilePosition;
-    private _target?: TilePosition;
-
-    private _tween?: cc.Tween | null;
+    private _type: TileType | null = null;
+    private _position: TilePosition | null = null;
+    private _target: TilePosition | null = null;
+    private _tween: cc.Tween | null = null;
 
     constructor(
         eventBus: EventBus,
@@ -77,12 +76,18 @@ export class TileVisualAgent {
         return this._target ?? null;
     }
 
-    public spawn(type: TileType, at: TilePosition): void {
-        this._position = at;
+    public get busy(): boolean {
+        return this._tween !== null;
+    }
 
+    public spawn(type: TileType, at: TilePosition): void {
+
+        this._position = at;
         this._view.set(type);
         this._view.node.setPosition(this.getLocal(this._position));
         this._view.node.active = true;
+        this._view.node.setParent(this._tileLayer);
+
         this._view.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
 
         this._eventBus.emit(new VisualTileSpawned(this._id));
@@ -123,18 +128,14 @@ export class TileVisualAgent {
             .start();
     }
 
-    public busy(): boolean {
-        return this._tween !== null;
-    }
-
     private onClick(): void {
         if (this._position) this._eventBus.emit(new VisualTileClicked(this._position));
     }
 
     // ===== PRIVATE =====
 
-    private retargetMove(to: TilePosition): void {
-        this.stopTween();
+    private retarget(to: TilePosition): void {
+        this.clear();
         //this.startMove(to);
     }
 
@@ -153,10 +154,10 @@ export class TileVisualAgent {
                .start();
        } */
 
-    private stopTween() {
+    private clear() {
         if (this._tween) {
             this._tween.stop();
-            this._tween = undefined;
+            this._tween = null;
         }
     }
 
