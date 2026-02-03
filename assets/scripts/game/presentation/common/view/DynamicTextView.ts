@@ -23,11 +23,11 @@ export abstract class DynamicTextView<TContext extends DynamicTextViewContext> e
     }
 
     protected onInit(): void {
-        this.render(this.context.initialValue);
+        this.on(this.eventType(), this.onValueChanged);
     }
 
     protected postInit(): void {
-        this.on(this.eventType(), this.onValueChanged);
+        this.render(this.context.initialValue);
     }
 
     private onValueChanged = (event: ValueChangedEvent): void => {

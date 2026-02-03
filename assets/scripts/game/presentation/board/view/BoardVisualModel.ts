@@ -1,28 +1,22 @@
-import { BoardKey } from "../../../application/board/BoardKey";
-import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { TileView } from "./TileView";
+import { TileId } from "../../../domain/board/models/BoardLogicalModel";
+import { TileVisualAgent } from "./TileVisualAgent";
 
 export class BoardVisualModel {
-    private readonly _map: Map<string, TileView>;
+    private readonly _map: Map<TileId, TileVisualAgent>;
 
     public constructor() {
-        this._map = new Map<string, TileView>();
+        this._map = new Map<TileId, TileVisualAgent>();
     }
 
-    public get(position: TilePosition): TileView | null {
-        const result = this._map.get((BoardKey.position(position)));
-        return result ?? null;
+    register(agent: TileVisualAgent) {
+        this._map.set(agent.id, agent);
     }
 
-    public set(position: TilePosition, tile: TileView): void {
-        this._map.set(BoardKey.position(position), tile)
+    get(id: TileId): TileVisualAgent | undefined {
+        return this._map.get(id);
     }
 
-    public delete(position: TilePosition): void {
-        this._map.delete(BoardKey.position(position));
-    }
-
-    public views(): TileView[] {
-        return Array.from(this._map.values());
+    remove(id: TileId) {
+        this._map.delete(id);
     }
 }

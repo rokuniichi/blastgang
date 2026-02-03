@@ -1,5 +1,5 @@
 import { assertNumber } from "../../../../core/utils/assert";
-import { ScoreUpdatedEvent } from "../../../domain/state/events/ScoreUpdatedEvent";
+import { ScoreUpdate } from "../../../domain/state/events/ScoreUpdate";
 import { DynamicTextView } from "../../common/view/DynamicTextView";
 import { ScoreTextViewContext } from "../context/ScoreTextViewContext";
 
@@ -13,7 +13,7 @@ export class ScoreTextView extends DynamicTextView<ScoreTextViewContext> {
     }
 
     protected eventType() {
-        return ScoreUpdatedEvent;
+        return ScoreUpdate;
     }
 
     protected format(value: number): string {

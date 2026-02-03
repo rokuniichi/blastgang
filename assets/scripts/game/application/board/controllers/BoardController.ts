@@ -1,17 +1,22 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
-import { TileClickRejection, TileClickRejectionReason } from "../../../domain/board/events/TileClickRejection";
+import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
+import { TileMutations } from "../../../domain/board/events/mutations/TileMutations";
+import { TileRejected, TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { BoardLogicalModel } from "../../../domain/board/models/BoardLogicalModel";
+import { TilePosition } from "../../../domain/board/models/TilePosition";
+import { TileRepository } from "../../../domain/board/models/TileRepository";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";
 import { SearchService } from "../../../domain/board/services/SearchService";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { DomainContext } from "../../../domain/context/DomainContext";
+import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
-import { TileClickedCommand } from "../../../presentation/board/events/TileClickedCommand";
+import { TileClicked } from "../../../presentation/board/events/TileClicked";
 import { GameConfig } from "../../common/config/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
+import { BoardKey } from "../BoardKey";
 import { BoardRuntimeModel } from "../runtime/BoardRuntimeModel";
 
 export class BoardController extends BaseController {
@@ -23,6 +28,7 @@ export class BoardController extends BaseController {
     private readonly _gameStateModel: GameStateModel;
     private readonly _logicalModel: BoardLogicalModel;
     private readonly _boardRuntime: BoardRuntimeModel;
+    private readonly _tileRepository: TileRepository;
     private readonly _spawnService: SpawnService;
     private readonly _searchService: SearchService;
     private readonly _destroyService: DestroyService;
@@ -36,6 +42,7 @@ export class BoardController extends BaseController {
         this._gameStateModel = context.gameStateModel;
         this._logicalModel = context.logicalModel;
         this._boardRuntime = context.runtimeModel;
+        this._tileRepository = context.tileRepository;
         this._spawnService = context.spawnService;
         this._searchService = context.searchService;
         this._destroyService = context.destroyService;
@@ -44,30 +51,33 @@ export class BoardController extends BaseController {
 
     protected onInit(): void {
         this._subscriptions.add(
-            this._eventBus.on(TileClickedCommand, this.onTileClicked)
+            this._eventBus.on(TileClicked, this.onTileClicked)
         );
     }
 
-    private onTileClicked = (event: TileClickedCommand): void => {
-        if (this._boardRuntime.isLocked(event.position)) {
-            this._eventBus.emit(new TileClickRejection(TileClickRejectionReason.LOCKED, event.position));
-            return;
-        }
+    private onTileClicked = (event: TileClicked): void => {
+        const batch = this.build(event.position);
+        this._eventBus.emit(batch);
+    };
 
-        const cluster = this._searchService.findCluster(event.position);
+    private build(position: TilePosition): BoardMutationsBatch {
+        const id = this._logicalModel.get(position);
+        if (!id) return new BoardMutationsBatch([TileMutations.rejected("_", TileRejectedReason.NON_EXISTANT)]);
+        if (!this._boardRuntime.stable(id))
+            return new BoardMutationsBatch([TileMutations.rejected(id, TileRejectedReason.UNSTABLE)]);
 
+        const cluster = this._searchService.findCluster(position);
         if (cluster.length < this._gameConfig.clusterSize) {
-            this._eventBus.emit(new TileClickRejection(TileClickRejectionReason.NO_CLUSTER, event.position));
-            return;
+            return new BoardMutationsBatch([TileMutations.rejected(id, TileRejectedReason.NO_MATCH)])
         }
 
         const destroyed = this._destroyService.destroy(cluster);
         const dropped = this._searchService.findDrops();
         this._moveService.move(dropped);
-        const spawned = this._spawnService.spawn(this._gameConfig.allowedTypes);
-        const commits = this._logicalModel.flush();
-        this._eventBus.emit(new BoardProcessResult(commits, { destroyed, dropped, spawned }));
-    };
+        const spawned = this._spawnService.spawn();
+        this._eventBus.emit(new GameStateSync(destroyed.length));
+        return new BoardMutationsBatch([...destroyed, ...dropped, ...spawned]);
+    }
 
     public dispose(): void {
         this._subscriptions.clear();

@@ -1,5 +1,6 @@
 import { TileType } from "./TileType";
 
-export interface TileMutation {
+export interface TileModel {
+    readonly id: string;
     readonly type: TileType;
 }

@@ -4,7 +4,7 @@ import { GravityFallSettings } from "./settings/GravityFallSettings";
 
 export class GravityFallAnimation implements IAnimation<GravityFallSettings> {
 
-    public readonly type = AnimationType.GRAVITY_FALL;
+    public readonly type = AnimationType.DROP;
 
     play(settings: GravityFallSettings): Promise<void> {
         return new Promise(resolve => {

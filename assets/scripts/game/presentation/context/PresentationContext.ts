@@ -1,6 +1,6 @@
 import { EventBus } from "../../../core/events/EventBus";
 import { BoardRuntimeModel } from "../../application/board/runtime/BoardRuntimeModel";
-import { TileCommit } from "../../domain/board/models/TileCommit";
+import { TileSpawned } from "../../domain/board/events/mutations/TileSpawned";
 import { DomainContext } from "../../domain/context/DomainContext";
 
 export class PresentationContext {
@@ -11,9 +11,9 @@ export class PresentationContext {
     public readonly currentScore: number;
     public readonly boardWidth: number;
     public readonly boardHeight: number;
-    public readonly initialBoard: TileCommit[];
+    public readonly initialBoard: TileSpawned[];
 
-    public constructor(domainContext: DomainContext, initialBoard: TileCommit[]) {
+    public constructor(domainContext: DomainContext, initialBoard: TileSpawned[]) {
         this.eventBus = domainContext.eventBus;
         this.boardRuntime = domainContext.runtimeModel;
         this.movesLeft = domainContext.gameStateModel.movesLeft;

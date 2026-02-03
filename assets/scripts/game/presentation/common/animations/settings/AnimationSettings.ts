@@ -19,10 +19,10 @@ export class AnimationSettings {
 
     static tileFall(node: cc.Node, targetY: number): GravityFallSettings {
         return {
-            type: AnimationType.GRAVITY_FALL,
+            type: AnimationType.DROP,
             node,
 
-            duration: 0.3,
+            duration: 1,
             targetY,
             bounce: 15,
             bounceDuration: 0.12,
@@ -33,7 +33,7 @@ export class AnimationSettings {
 
     static tileDestroy(node: cc.Node): DestructionSettings {
         return {
-            type: AnimationType.DESTRUCTION,
+            type: AnimationType.DESTROY,
             node,
 
             squashDuration: 0.05,

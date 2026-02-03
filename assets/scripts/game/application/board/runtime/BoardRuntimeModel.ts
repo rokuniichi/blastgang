@@ -1,33 +1,34 @@
-import { Matrix } from "../../../../core/collections/Matrix";
-import { TilePosition } from "../../../domain/board/models/TilePosition";
+import { TileId } from "../../../domain/board/models/BoardLogicalModel";
 
-export enum TileLockReason {
-    NONE = 0,
-    DESTROY = 1 << 0,
-    MOVE = 1 << 1,
-    SPAWN = 1 << 2,
-    SHAKE = 1 << 3,
+export enum TileRuntimeState {
+    IDLE,
+    DESTROYING,
+    DROPPING,
+    SPAWNING
 }
 
 export class BoardRuntimeModel {
 
-    private readonly _locks: Matrix<number>;
+    private readonly _map: Map<TileId, TileRuntimeState>;
 
-    public constructor(width: number, height: number) {
-        this._locks = new Matrix<number>(width, height, () => TileLockReason.NONE);
+    public constructor() {
+        this._map = new Map<TileId, TileRuntimeState>();
     }
 
-    public isLocked(pos: TilePosition): boolean {
-        return this._locks.get(pos.x, pos.y) !== TileLockReason.NONE;
+    public stable(id: TileId): boolean {
+        return this._map.get(id) === TileRuntimeState.IDLE;
     }
 
-    public lock(reason: TileLockReason, position: TilePosition): void {
-        const value = this._locks.get(position.x, position.y);
-        this._locks.set(position.x, position.y, value | reason);
+    public register(id: TileId, state: TileRuntimeState) {
+        this._map.set(id, state);
     }
 
-    public unlock(reason: TileLockReason, position: TilePosition): void {
-        const value = this._locks.get(position.x, position.y);
-        this._locks.set(position.x, position.y, value & ~reason);
+    public set(id: TileId, state: TileRuntimeState): void {
+        const tile = this._map.get(id);
+        if (tile) this._map.set(id, state);
+    }
+
+    public delete(id: TileId): void {
+        this._map.delete(id);
     }
 }

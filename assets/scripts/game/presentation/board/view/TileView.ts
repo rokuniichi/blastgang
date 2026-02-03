@@ -1,6 +1,6 @@
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { TileClickedCommand } from "../events/TileClickedCommand";
+import { TileClicked } from "../events/TileClicked";
 import { EventView } from "../../common/view/EventView";
 import { TileViewContext } from "../context/TileViewContext";
 import { TileAssets } from "../../common/assets/TileAssets";
@@ -27,16 +27,7 @@ export class TileView extends EventView<TileViewContext> {
         assertNotNull(this.sprite, this, "Sprite");
     }
 
-    protected preInit(): void {
-        super.preInit();
-        assertNotNull(this.context.position, this, "boardModel");
-    }
-
     protected onInit(): void {
-        this.position = this.context.position;
-    }
-
-    protected postInit(): void {
         this.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 
@@ -45,7 +36,7 @@ export class TileView extends EventView<TileViewContext> {
     }
 
     private onClick(): void {
-        this.emit(new TileClickedCommand(this.position));
+        this.emit(new TileClicked(this.position));
     }
 
     public show(): void {

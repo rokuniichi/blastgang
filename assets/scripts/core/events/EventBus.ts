@@ -8,10 +8,7 @@ export class EventBus {
 
     private readonly _listeners: Map<EventConstructor<IEvent>, EventHandler<IEvent>[]> = new Map();
 
-    public on<T extends IEvent>(
-        eventType: EventConstructor<T>,
-        handler: EventHandler<T>
-    ): Subscription {
+    public on<T extends IEvent>(eventType: EventConstructor<T>, handler: EventHandler<T>): Subscription {
         const handlers: EventHandler<IEvent>[] =
             this._listeners.get(eventType) ?? [];
 
@@ -23,10 +20,7 @@ export class EventBus {
         };
     }
 
-    public off<T extends IEvent>(
-        eventType: EventConstructor<T>,
-        handler: EventHandler<T>
-    ): void {
+    public off<T extends IEvent>(eventType: EventConstructor<T>, handler: EventHandler<T>): void {
         const handlers = this._listeners.get(eventType);
         if (!handlers) return;
 

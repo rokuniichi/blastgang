@@ -1,8 +1,8 @@
-import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
-import { TileClickRejection, TileClickRejectionReason } from "../../../domain/board/events/TileClickRejection";
+import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
+import { TileClickRejection, TileClickRejectionReason } from "../../../domain/board/events/TileRejected";
 import { EventView } from "../../common/view/EventView";
 import { BoardViewContext } from "../context/BoardViewContext";
-import { BoardVisualOrchestrator } from "./BoardVisualOrchestrator";
+import { BoardVisualOrchestrator } from "./VisualOrchestrator";
 
 const { ccclass, property } = cc._decorator;
 
@@ -36,19 +36,13 @@ export class BoardView extends EventView<BoardViewContext> {
             this.tilePrefab
         );
 
-        this._visualOrchestrator.visualize(new BoardProcessResult(this.context.initialBoard, { destroyed: [], dropped: [], spawned: [] }));
+        
+        this._visualOrchestrator.dispatch(new BoardMutationsBatch(this.context.initialBoard));
 
-        this.on(BoardProcessResult, this.onBoardChanged);
-        this.on(TileClickRejection, this.onTileClickRejected)
+        this.on(BoardMutationsBatch, this.onBoardChanged);
     }
 
-    private onBoardChanged = async (result: BoardProcessResult) => {
-        this._visualOrchestrator.visualize(result);
+    private onBoardChanged = (result: BoardMutationsBatch) => {
+        this._visualOrchestrator.dispatch(result);
     };
-
-    private onTileClickRejected = async (event: TileClickRejection) => {
-        if (event.reason == TileClickRejectionReason.NO_CLUSTER) {
-            this._visualOrchestrator.animateShake(event.position);
-        }
-    }
 }

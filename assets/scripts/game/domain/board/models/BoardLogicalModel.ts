@@ -1,75 +1,50 @@
 import { Matrix } from "../../../../core/collections/Matrix";
-import { BoardKey } from "../../../application/board/BoardKey";
-import { TileCommit } from "./TileCommit";
-import { TileMove } from "./TileMove";
+import { TileFactory } from "./TileFactory";
+import { TileModel } from "./TileModel";
 import { TilePosition } from "./TilePosition";
-import { TileSpawn } from "./TileSpawn";
 import { TileType } from "./TileType";
 
-export class BoardLogicalModel {
 
-    private readonly _board: Matrix<TileType>;
-    private _commits: Map<string, TileCommit>;
+export type TileId = string;
+
+export class BoardLogicalModel {
+    public readonly width: number;
+    public readonly height: number;
+
+    // game map
+    private readonly _grid: Matrix<TileId | null>;
 
     public constructor(width: number, height: number) {
-        this._board = new Matrix<TileType>(width, height, () => TileType.EMPTY);
-        this._commits = new Map();
+        this.width = width;
+        this.height = height;
+
+        this._grid = new Matrix(this.width, this.height, () => null);
     }
 
-    public get width(): number {
-        return this._board.width;
+    public register(at: TilePosition, id: string) {
+        this._grid.set(at.x, at.y, id);
     }
 
-    public get height(): number {
-        return this._board.height;
+    public move(from: TilePosition, to: TilePosition) {
+        const id = this._grid.get(from.x, from.y);
+        if (!id) return;
+
+        this._grid.set(from.x, from.y, null);
+        this._grid.set(to.x, to.y, id);
     }
 
-    public flush(): TileCommit[] {
-        const result = Array.from(this._commits.values());
-        this._commits.clear();
-        return result;
+    public destroy(at: TilePosition) {
+        const id = this._grid.get(at.x, at.y);
+        if (!id) return;
+
+        this._grid.set(at.x, at.y, null);
     }
 
-    public get(position: TilePosition): TileType {
-        return this._board.get(position.x, position.y);
+    public get(at: TilePosition): TileId | null {
+        return this._grid.get(at.x, at.y);
     }
 
-    public empty(position: TilePosition): boolean {
-        return this._board.get(position.x, position.y) == TileType.EMPTY;
-    }
-
-    public spawn(spawn: TileSpawn) {
-        this.setType(spawn.at, spawn.type);
-    }
-
-    public move(move: TileMove) {
-        const type = this.get(move.from);
-        this.setType(move.to, type);
-        this.setType(move.from, TileType.EMPTY);
-    }
-
-    public destroy(position: TilePosition) {
-        this.setType(position, TileType.EMPTY);
-    }
-
-    private setType(position: TilePosition, type: TileType) {
-        const before = this.get(position);
-        if (before === type) return;
-
-        this.pushChange(position, before, type);
-        this._board.set(position.x, position.y, type);
-    }
-
-    private pushChange(position: TilePosition, before: TileType, after: TileType) {
-        const key = BoardKey.position(position);
-        let change = this._commits.get(key);
-
-        if (!change) {
-            change = { position, before, after };
-            this._commits.set(key, change);
-        } else {
-            change.after = after;
-        }
+    public empty (at: TilePosition): boolean {
+        return this._grid.get(at.x, at.y) === null;
     }
 }
-

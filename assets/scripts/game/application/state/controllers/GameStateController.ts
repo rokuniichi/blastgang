@@ -1,9 +1,10 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { BoardProcessResult } from "../../../domain/board/events/BoardProcessResult";
+import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { DomainContext } from "../../../domain/context/DomainContext";
-import { MovesUpdatedEvent } from "../../../domain/state/events/MovesUpdatedEvent";
-import { ScoreUpdatedEvent } from "../../../domain/state/events/ScoreUpdatedEvent";
+import { GameStateSync } from "../../../domain/state/events/GameStateSync";
+import { MovesUpdate } from "../../../domain/state/events/MovesUpdate";
+import { ScoreUpdate } from "../../../domain/state/events/ScoreUpdate";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
 import { GameConfig } from "../../common/config/GameConfig";
@@ -30,19 +31,19 @@ export class GameStateController extends BaseController {
 
     protected onInit(): void {
         this._subscriptions.add(
-            this._eventBus.on(BoardProcessResult, this.onBoardProcessed)
+            this._eventBus.on(GameStateSync, this.onBoardProcessed)
         );
     }
 
-    private onBoardProcessed = (event: BoardProcessResult): void => {
-        if (event.mutations.destroyed.length < 1) {
+    private onBoardProcessed = (event: GameStateSync): void => {
+        if (event.destroyed < 1) {
             return;
         }
 
-        this._gameStateModel.addScore(this._scoreService.calculate(event.mutations.destroyed.length));
+        this._gameStateModel.addScore(this._scoreService.calculate(event.destroyed));
         this._gameStateModel.useMove();
-        this._eventBus.emit(new ScoreUpdatedEvent(this._gameStateModel.currentScore));
-        this._eventBus.emit(new MovesUpdatedEvent(this._gameStateModel.movesLeft));
+        this._eventBus.emit(new ScoreUpdate(this._gameStateModel.currentScore));
+        this._eventBus.emit(new MovesUpdate(this._gameStateModel.movesLeft));
     };
 
     public dispose(): void {

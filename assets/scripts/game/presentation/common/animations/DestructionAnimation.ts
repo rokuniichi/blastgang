@@ -4,7 +4,7 @@ import { IAnimation } from "./IAnimation";
 
 export class DestructionAnimation implements IAnimation<DestructionSettings> {
 
-    public readonly type = AnimationType.DESTRUCTION;
+    public readonly type = AnimationType.DESTROY;
 
     play(settings: DestructionSettings): Promise<void> {
         return new Promise(resolve => {
