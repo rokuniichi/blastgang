@@ -54,51 +54,88 @@ presentation ───────▶ application ───────▶ domai
 
 ## 📐 Implementation
 
-This project emphasizes **deterministic** game logic, **asynchronous** animation orchestration, and **strict** separation between domain, application, and presentation layers.
+This project emphasizes **deterministic** game logic, **agent** driven animation pipeline, and **strict** separation between domain, application, and presentation layers.
 
 ### Board & Data Structures
 
-- The board is represented via a generic 2D ```Matrix<T>``` abstraction
-- **O(1)** access by position, reused across domain, runtime, and visual layers
-- Positions are modeled as explicit value objects (```TileType```)
+#### Logical model
+The **BoardLogicalModel** represents the pure logical structure of the board.
+- Internally based on a generic 2D Matrix<TileId>
+- Provides **O(1)** access by position
+- Acts as a spatial index
+- Contains no runtime or visual state
+- Used exclusively by domain algorithms
+- This model answers the question:
+  - ***"Who is where?"***
 
-### Cluster Search
+#### Tile repository
+The **TileRepository** is a registry of all tile entities.
+- Maps ```TileId → TileType```
+- Stores stable, identity-bound data
+- Decouples tile identity from board placement
+- Allows the same tile to:
+  - move across the board
+  - temporarily disappear
+  - be transformed
+- This repository answers:
+  - ***"What is this tile?"***
+
+#### Runtime model
+The BoardRuntimeModel (or TileRuntimeRegistry) tracks runtime-only state.
+- Implemented as ```Map<TileId, TileRuntimeState>```
+- Stores transient, frame-level information:
+  - stable / unstable
+  - busy / free
+- Exists only for gameplay execution
+- Is synced in runtime through visual agents
+- This model answers:
+  - ***"How is this tile behaving right now?"***
+
+#### Visual agent registry
+- The VisualAgentRegistry lives entirely in the presentation layer.
+- Maps ```TileId → TileVisualAgent```
+- Owns:
+  - animations
+  - tweens
+  - effects
+- Agents are self-driven
+  - they receive high-level instructions
+  - they decide how to execute them (retarget, cancel, blend, delay)
+- This registry answers:
+  - ***"How is this tile shown to the player?"***
+
+---
+
+### Logical base
+
+#### Cluster Search
 
 - Tile clusters are detected using a **Depth-First Search** (DFS)
 - Visited tiles are tracked via a ```boolean``` matrix
 
-### Board Processing
+#### Board Processing
 
 - Domain produces a ```BoardProcessResult``` containing:
   - ```mutations``` - **how** tiles were changed
   - ```commits``` - **what** was changed
 - This allows for asynchronous rendering for the present logical state while utilizing animations
 
-### Animation System
+---
 
-- Each tile position owns its own AnimationChain
-- Animations for the same tile are queued
-- Animations for different tiles run in parallel
+### Runtime and presentation
+
+#### Animation System
+
+- Agent-based decentralized animation system
+- Each tile holds ownership over it's own FX
 - No global animation barriers
 
-### Runtime Lock Model
-
-- Tile interaction is controlled via a bitmask-based **runtime model**
-- Multiple lock reasons can coexist per tile (```destroy```, ```move```, ```spawn```, etc.)
-- Locks are added and removed atomically, per tile
-
-### Visual Orchestration
-
-- ```BoardVisualOrchestrator``` coordinates animations and visual commits
-- Visual state updates happen only after animation chains resolve
-- No early or global board redraws (except initial state)
-
-### Event System
+#### Event System
 
 - A lightweight, typed EventBus decouples systems
 - No direct dependencies between domain and presentation
 
-### Initialization via Contexts
+#### Initialization via Contexts
 
 - Dependencies are grouped into explicit Contexts per layer
 - Contexts act as scoped composition roots
