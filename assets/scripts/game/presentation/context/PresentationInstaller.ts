@@ -27,7 +27,7 @@ export class PresentationInstaller extends ContextView<PresentationContext> {
         assertNotNull(this.scoreTextView, this, "ScoreTextView");
     }
 
-    protected preInit(): void {
+    protected override preInit(): void {
         assertNotNull(this.context, this, "viewContext");
     }
 

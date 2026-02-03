@@ -1,16 +1,14 @@
 import { assertNotNull } from "../../../../core/utils/assert";
-import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { VisualTileClicked } from "../events/VisualTileClicked";
-import { EventView } from "../../common/view/EventView";
-import { TileViewContext } from "../context/TileViewContext";
-import { TileAssets } from "../../common/assets/TileAssets";
 import { TileType } from "../../../domain/board/models/TileType";
+import { TileAssets } from "../../common/assets/TileAssets";
+import { ContextView } from "../../common/view/ContextView";
+import { TileViewContext } from "../context/TileViewContext";
 
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class TileView extends EventView<TileViewContext> {
+export class TileView extends ContextView<TileViewContext> {
 
     @property(cc.Sprite)
     private sprite: cc.Sprite = null!;
@@ -18,26 +16,10 @@ export class TileView extends EventView<TileViewContext> {
     @property(TileAssets)
     private tileAssets: TileAssets = null!;
 
-    public position!: TilePosition;
-
-    private _type!: TileType;
-
     public validate(): void {
         super.validate();
         assertNotNull(this.sprite, this, "Sprite");
-    }
-
-    protected onInit(): void {
-        this.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
-    }
-
-    protected onDispose(): void {
-        this.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
-    }
-
-    private onClick(): void {
-        this.emit(new VisualTileClicked(this.position));
-    }
+    }    
 
     public show(): void {
         this.node.active = true;
@@ -50,12 +32,7 @@ export class TileView extends EventView<TileViewContext> {
     }
 
     public set(type: TileType): void {
-        this._type = type;
         const spriteFrame = this.tileAssets.get(type);
         this.sprite.spriteFrame = spriteFrame;
-    }
-
-    public get(): TileType {
-        return this._type;
     }
 }

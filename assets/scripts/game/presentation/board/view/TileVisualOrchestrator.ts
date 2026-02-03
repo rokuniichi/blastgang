@@ -12,7 +12,6 @@ import { TileVisualAgentFactory } from "./TileVisualAgentFactory";
 
 export class TileVisualOrchestrator {
     private readonly _eventBus: EventBus;
-    private readonly _animationSystem: TweenHelper;
 
     private readonly _runtimeModel: BoardRuntimeModel;
     private readonly _visualModel: BoardVisualModel;
@@ -43,7 +42,7 @@ export class TileVisualOrchestrator {
         tilePrefab: cc.Prefab
     ) {
         this._eventBus = eventBus;
-        this._animationSystem = animationSystem;
+        this._tweenHelper = animationSystem;
         this._runtimeModel = runtimeModel;
         this._boardWidth = boardWidth;
         this._boardHeight = boardHeight;
@@ -117,7 +116,7 @@ export class TileVisualOrchestrator {
                     console.log(`[DISPATCH] rejected: ${mutation.reason}`);
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) break;
-                    console.log(`[DISPATCH] agent: ${agent.view.get()}; position: ${BoardKey.position(agent.view.position)}`);
+                    console.log(`[DISPATCH] agent: ${agent.id}; position: ${BoardKey.position(agent.position!)}`);
                     //agent.shake();
                     break;
                 }

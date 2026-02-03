@@ -9,7 +9,7 @@ export abstract class EventView<TContext extends EventViewContext> extends Conte
 
     private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
-    protected preInit(): void {
+    protected override preInit(): void {
         assertNotNull(this.context.eventBus, this, "eventBus");
     }
 

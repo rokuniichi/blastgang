@@ -30,8 +30,8 @@ export abstract class ContextView<TContext> extends cc.Component implements IIni
         this._initialized = true;
     }
 
-    protected abstract preInit(): void;
-    protected abstract onInit(): void;
+    protected preInit(): void { };
+    protected onInit(): void { };
     protected postInit(): void { }
 
     public dispose(): void {
