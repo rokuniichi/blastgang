@@ -5,7 +5,9 @@ export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig
     async load(): Promise<void> {
         this.config = {
             cellsPerSecond: 9,
-            spawnLineY: 900
+            spawnLineY: 900,
+            nodeWidth: 100,
+            nodeHeight: 112
         };
     }
 }

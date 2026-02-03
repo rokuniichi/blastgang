@@ -9,6 +9,9 @@ const { ccclass, property } = cc._decorator;
 export class BoardView extends EventView<BoardViewContext> {
 
     @property(cc.Node)
+    private backgroundNode: cc.Node = null!;
+
+    @property(cc.Node)
     private backgroundLayer: cc.Node = null!
 
     @property(cc.Node)
@@ -36,9 +39,9 @@ export class BoardView extends EventView<BoardViewContext> {
             this.tilePrefab
         );
 
-        
         this._visualOrchestrator.dispatch(new BoardMutationsBatch(this.context.initialBoard));
-
+        this.backgroundNode.width = this.context.boardWidth * this.context.visualConfig.nodeWidth;
+        this.backgroundNode.height = this.context.boardHeight * this.context.visualConfig.nodeHeight;
         this.on(BoardMutationsBatch, this.onBoardChanged);
     }
 

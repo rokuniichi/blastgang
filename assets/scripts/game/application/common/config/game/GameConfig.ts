@@ -2,8 +2,8 @@ import { IConfig } from "../../../../../core/config/IConfig";
 import { TileType } from "../../../../domain/board/models/TileType";
 
 export interface GameConfig extends IConfig {
-    readonly boardWidth: number;
-    readonly boardHeight: number;
+    readonly boardCols: number;
+    readonly boardRows: number;
     readonly allowedTypes: TileType[];
     readonly clusterSize: number;
     readonly targetScore: number;

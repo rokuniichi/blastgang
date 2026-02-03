@@ -9,8 +9,8 @@ export class GameConfigValidator implements IConfigValidator<GameConfig> {
     validate(raw: any): GameConfig {
         assertObject(raw, this, "raw");
 
-        const boardWidth = ensureNumber(raw.boardWidth, this, "boardWidth");
-        const boardHeight = ensureNumber(raw.boardHeight, this, "boardHeight");
+        const boardCols = ensureNumber(raw.boardCols, this, "boardCols");
+        const boardRows = ensureNumber(raw.boardRows, this, "boardRows");
         const clusterSize = ensureNumber(raw.clusterSize, this, "clusterSize");
         const targetScore = ensureNumber(raw.targetScore, this, "targetScore");
         const maxMoves = ensureNumber(raw.maxMoves, this, "maxMoves");
@@ -22,8 +22,8 @@ export class GameConfigValidator implements IConfigValidator<GameConfig> {
         );
 
         return {
-            boardWidth,
-            boardHeight,
+            boardCols,
+            boardRows,
             allowedTypes,
             clusterSize,
             targetScore,

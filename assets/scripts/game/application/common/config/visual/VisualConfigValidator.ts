@@ -8,11 +8,15 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
     validate(raw: any): VisualConfig {
         assertObject(raw, this, "raw");
         const cellsPerSecond = ensureNumber(raw.cellsPerSecond, this, "baseDropTime");
-        const spawnLineY = ensureNumber(raw.spawnLineY, this, "baseDropTime");
+        const spawnLineY = ensureNumber(raw.spawnLineY, this, "spawnLineY");
+        const nodeWidth = ensureNumber(raw.nodeWidth, this, "nodeWidth");
+        const nodeHeight = ensureNumber(raw.nodeHeight, this, "nodeHeight");
 
         return {
             cellsPerSecond,
-            spawnLineY
+            spawnLineY,
+            nodeWidth,
+            nodeHeight
         };
     }
 }

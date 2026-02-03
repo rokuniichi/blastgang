@@ -1,6 +1,6 @@
 {
-	"boardWidth": 9,
-	"boardHeight": 9,
+	"boardCols": 9,
+	"boardRows": 9,
 	"allowedTypes": [
 		"RED",
 		"GREEN",

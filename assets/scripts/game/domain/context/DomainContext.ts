@@ -41,7 +41,7 @@ export class DomainContext {
         this.scoreService = new ScoreService(config.scoreMultiplier);
         this.gameStateController = new GameStateController(this);
 
-        this.logicalModel = new BoardLogicalModel(config.boardWidth, config.boardHeight);
+        this.logicalModel = new BoardLogicalModel(config.boardCols, config.boardRows);
 
         this.runtimeModel = new BoardRuntimeModel();
         this.tileRepository = new TileRepository();
