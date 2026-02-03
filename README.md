@@ -115,10 +115,10 @@ The BoardRuntimeModel (or TileRuntimeRegistry) tracks runtime-only state.
 
 #### Board Processing
 
-- Domain produces a ```BoardProcessResult``` containing:
-  - ```mutations``` - **how** tiles were changed
-  - ```commits``` - **what** was changed
-- This allows for asynchronous rendering for the present logical state while utilizing animations
+- Domain produces ```BoardMutationsBatch``` containing ```mutations```
+  - a comprehensive history of "events" happened with the board in order
+  - ```TileDestroyed```, ```TileMoved```, ```TileRejected``` etc.
+- Mutations are then processed inside the ```VisualOrchestrator``` that dispatches commands accross agents
 
 ---
 
