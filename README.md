@@ -84,7 +84,7 @@ The **TileRepository** is a registry of all tile entities.
 The **BoardRuntimeModel** tracks runtime-only state.
 - Implemented as ```Map<TileId, number>```
 - Stores frame-level information regarding the state of tile's runtime
-- ```number``` value represents the amount of locks currently emplaced upon the tile
+- ```number``` value represents the lock state reason and is a bitmask value
 - Exists only for gameplay execution
 - Is synced in runtime through visual agents
 - This model answers:
