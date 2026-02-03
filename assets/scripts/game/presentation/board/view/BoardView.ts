@@ -1,8 +1,7 @@
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
-import { TileClickRejection, TileClickRejectionReason } from "../../../domain/board/events/TileRejected";
 import { EventView } from "../../common/view/EventView";
 import { BoardViewContext } from "../context/BoardViewContext";
-import { BoardVisualOrchestrator } from "./VisualOrchestrator";
+import { TileVisualOrchestrator } from "./TileVisualOrchestrator";
 
 const { ccclass, property } = cc._decorator;
 
@@ -21,10 +20,10 @@ export class BoardView extends EventView<BoardViewContext> {
     @property(cc.Prefab)
     private tilePrefab: cc.Prefab = null!;
 
-    private _visualOrchestrator!: BoardVisualOrchestrator;
+    private _visualOrchestrator!: TileVisualOrchestrator;
 
     protected onInit(): void {
-        this._visualOrchestrator = new BoardVisualOrchestrator(
+        this._visualOrchestrator = new TileVisualOrchestrator(
             this.context.eventBus,
             this.context.animationSystem,
             this.context.runtimeModel,

@@ -1,6 +1,6 @@
+import { IEvent } from "../../../../core/events/IEvent";
 import { TileId } from "../../../domain/board/models/BoardLogicalModel";
-import { IVisualEvent } from "./IVisualEvent";
 
-export class TileDestroyFinished implements IVisualEvent {
+export class VisualTileDestroyed implements IEvent {
     public constructor(public readonly id: TileId) { }
 }

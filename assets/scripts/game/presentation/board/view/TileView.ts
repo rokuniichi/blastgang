@@ -1,6 +1,6 @@
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { TileClicked } from "../events/TileClicked";
+import { VisualTileClicked } from "../events/VisualTileClicked";
 import { EventView } from "../../common/view/EventView";
 import { TileViewContext } from "../context/TileViewContext";
 import { TileAssets } from "../../common/assets/TileAssets";
@@ -36,7 +36,7 @@ export class TileView extends EventView<TileViewContext> {
     }
 
     private onClick(): void {
-        this.emit(new TileClicked(this.position));
+        this.emit(new VisualTileClicked(this.position));
     }
 
     public show(): void {

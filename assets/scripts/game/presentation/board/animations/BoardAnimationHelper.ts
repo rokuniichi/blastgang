@@ -1,24 +1,16 @@
-import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { TileType } from "../../../domain/board/models/TileType";
 import { AnimationSystem } from "../../common/animations/AnimationSystem";
 import { AnimationSettings } from "../../common/animations/settings/AnimationSettings";
-import { TileView } from "../view/TileView";
 
 export class AnimationHelper {
 
 
     public constructor(
-        private readonly _animationSystem: AnimationSystem,
-        private readonly _backgroundLayer: cc.Node,
-        private readonly _fxLayer: cc.Node,
-        private readonly _tilePrefab: cc.Prefab,
-        private readonly _boardWidth: number,
-        private readonly _boardHeight: number
+        private readonly _animationSystem: AnimationSystem
     ) { }
 
 
-    public destroy(target: cc.Node): Promise<void> {
-        return this._animationSystem.play(AnimationSettings.tileDestroy(target));
+    public async destroy(target: cc.Node): Promise<void> {
+        await this._animationSystem.play(AnimationSettings.tileDestroy(target));
     }
 
    /*  public drop(type: TileType, from: TilePosition, to: TilePosition): Promise<void> {

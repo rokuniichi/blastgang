@@ -13,7 +13,7 @@ import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { DomainContext } from "../../../domain/context/DomainContext";
 import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
-import { TileClicked } from "../../../presentation/board/events/TileClicked";
+import { VisualTileClicked } from "../../../presentation/board/events/VisualTileClicked";
 import { GameConfig } from "../../common/config/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
 import { BoardKey } from "../BoardKey";
@@ -51,11 +51,11 @@ export class BoardController extends BaseController {
 
     protected onInit(): void {
         this._subscriptions.add(
-            this._eventBus.on(TileClicked, this.onTileClicked)
+            this._eventBus.on(VisualTileClicked, this.onTileClicked)
         );
     }
 
-    private onTileClicked = (event: TileClicked): void => {
+    private onTileClicked = (event: VisualTileClicked): void => {
         const batch = this.build(event.position);
         this._eventBus.emit(batch);
     };

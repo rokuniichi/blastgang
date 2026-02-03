@@ -4,7 +4,9 @@
   "allowedTypes": [
     "RED",
     "GREEN",
-    "YELLOW"
+    "YELLOW",
+    "BLUE",
+    "PURPLE"
   ],
   "clusterSize": 2,
   "targetScore": 500,

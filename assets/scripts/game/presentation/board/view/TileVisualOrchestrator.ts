@@ -1,14 +1,17 @@
 import { EventBus } from "../../../../core/events/EventBus";
-import { BoardRuntimeModel } from "../../../application/board/runtime/BoardRuntimeModel";
+import { BoardKey } from "../../../application/board/BoardKey";
+import { BoardRuntimeModel, TileRuntimeState } from "../../../application/board/runtime/BoardRuntimeModel";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { AnimationSystem } from "../../common/animations/AnimationSystem";
 import { AnimationHelper } from "../animations/BoardAnimationHelper";
-import { TileDestroyFinished } from "../events/TileDestroyFinished";
+import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
+import { VisualTileMoved } from "../events/VisualTileMoved";
+import { VisualTileSpawned } from "../events/VisualTileSpawned";
 import { BoardVisualModel } from "./BoardVisualModel";
 import { TileViewPool } from "./TileViewPool";
 import { TileVisualAgentFactory } from "./TileVisualAgentFactory";
 
-export class BoardVisualOrchestrator {
+export class TileVisualOrchestrator {
     private readonly _eventBus: EventBus;
     private readonly _animationSystem: AnimationSystem;
 
@@ -54,31 +57,34 @@ export class BoardVisualOrchestrator {
 
         this._animationHelper = new AnimationHelper(
             this._animationSystem,
-            this._backgroundLayer,
-            this._fxLayer,
-            this._tilePrefab,
-            this._boardWidth,
-            this._boardHeight
+
+
         );
 
         this._viewPool = new TileViewPool(this._eventBus, this._tilePrefab, this._tileLayer);
 
         this._visualAgentFactory = new TileVisualAgentFactory(
-            this._runtimeModel,
+            this._eventBus,
             this._animationHelper,
             this._viewPool,
             this._boardWidth,
-            this._boardHeight
+            this._boardHeight,
+            this._backgroundLayer,
+            this._tileLayer,
+            this._fxLayer,
         );
 
-        this._eventBus.on(TileDestroyFinished, this.onTileDestroy)
+        this._eventBus.on(VisualTileSpawned, this.onTileSpawned);
+        this._eventBus.on(VisualTileMoved, this.onTileMoved);
+        this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed);
     }
 
     public dispatch(result: BoardMutationsBatch): void {
+        console.log(`[DISPATCH] mutations: ${result.mutations.length}`);
         for (const mutation of result.mutations) {
             switch (mutation.kind) {
-
                 case "tile.spawned": {
+                    console.log(`[DISPATCH] spawned at: ${BoardKey.position(mutation.at)}; id: ${mutation.id}`);
                     const agent = this._visualAgentFactory.create(mutation.id);
                     this._visualModel.register(agent);
 
@@ -87,25 +93,37 @@ export class BoardVisualOrchestrator {
                 }
 
                 case "tile.moved": {
+                    console.log(`[DISPATCH] moved from: ${BoardKey.position(mutation.from)}; to: ${BoardKey.position(mutation.to)}; id: ${mutation.id}`);
                     const agent = this._visualModel.get(mutation.id);
-                    if (!agent) return;
+                    if (!agent) break;
 
+                    agent.move(mutation.to);
                     //agent.retargetMove(mutation.to);
                     break;
                 }
 
                 case "tile.destroy": {
+                    console.log(`[DISPATCH] destroyed at: ${BoardKey.position(mutation.at)}; id: ${mutation.id}`);
                     const agent = this._visualModel.get(mutation.id);
-                    if (!agent) return;
+                    if (!agent) break;
+
                     agent.destroy();
                     break;
                 }
 
                 case "tile.transformed": {
                     const agent = this._visualModel.get(mutation.id);
-                    if (!agent) return;
+                    if (!agent) break;
 
                     //agent.transform(mutation.toType);
+                    break;
+                }
+                case "tile.rejected": {
+                    console.log(`[DISPATCH] rejected: ${mutation.reason}`);
+                    const agent = this._visualModel.get(mutation.id);
+                    if (!agent) break;
+                    console.log(`[DISPATCH] agent: ${agent.view.get()}; position: ${BoardKey.position(agent.view.position)}`);
+                    //agent.shake();
                     break;
                 }
 
@@ -115,12 +133,19 @@ export class BoardVisualOrchestrator {
         }
     }
 
-    private onTileDestroy = (event: TileDestroyFinished) => {
-        /* const agent = this._visualModel.get(event.id);
+    private onTileSpawned = (event: VisualTileSpawned) => {
+        this._runtimeModel.set(event.id, TileRuntimeState.IDLE);
+    }
+
+    private onTileMoved = (event: VisualTileMoved) => {
+        this._runtimeModel.set(event.id, TileRuntimeState.IDLE);
+    }
+
+    private onTileDestroyed = (event: VisualTileDestroyed) => {
+        this._runtimeModel.delete(event.id);
+        const agent = this._visualModel.get(event.id);
         if (!agent) return;
-
-        this._visualModel.remove(agent);
-        this._viewPool.release(agent.) */
+        this._visualModel.remove(agent.id);
+        this._viewPool.release(agent.view);
     };
-
 }
