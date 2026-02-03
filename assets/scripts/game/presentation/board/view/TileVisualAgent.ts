@@ -81,20 +81,18 @@ export class TileVisualAgent {
     }
 
     public spawn(type: TileType, at: TilePosition): void {
-
         this._position = at;
         this._view.set(type);
         this._view.node.setPosition(this.getLocal(this._position));
-        this._view.node.active = true;
         this._view.node.setParent(this._tileLayer);
+        this._view.show();
 
-        this._view.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
-
+        this.subscribe();
         this._eventBus.emit(new VisualTileSpawned(this._id));
     }
 
-    public move(to: TilePosition): void {
 
+    public move(to: TilePosition): void {
         // TODO tween move
         this._position = to;
         this._view.node.setPosition(this.getLocal(to));
@@ -110,10 +108,11 @@ export class TileVisualAgent {
         this._tween = this._tweenHelper
             .build(TweenSettings.tileDestroy(this._view.node))
             .call(() => {
-                this._tween = null;
+                this.clear();
+                this.hide();
+                this.unsubscribe();
+
                 this._eventBus.emit(new VisualTileDestroyed(this._id));
-                this._view.hide();
-                this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
             })
             .start();
     }
@@ -122,17 +121,21 @@ export class TileVisualAgent {
         this._view.node.setParent(this._fxLayer);
         this._tween = this._tweenHelper
             .build(TweenSettings.tileShake(this._view.node))
-            .call(() => {
-                this._tween = null;
-            })
+            .call(this.clear)
             .start();
+    }
+
+    private subscribe() {
+        this._view.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
+    }
+
+    private unsubscribe() {
+        this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 
     private onClick(): void {
         if (this._position) this._eventBus.emit(new VisualTileClicked(this._position));
     }
-
-    // ===== PRIVATE =====
 
     private retarget(to: TilePosition): void {
         this.clear();
@@ -157,8 +160,13 @@ export class TileVisualAgent {
     private clear() {
         if (this._tween) {
             this._tween.stop();
-            this._tween = null;
         }
+
+        this._tween = null;
+    }
+
+    private hide() {
+        this.view.hide();
     }
 
     private playDestroyFx() {
