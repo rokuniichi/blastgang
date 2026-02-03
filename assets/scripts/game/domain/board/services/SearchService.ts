@@ -73,7 +73,8 @@ export class SearchService extends BoardService {
                         kind: "tile.moved",
                         id,
                         from: source,
-                        to: target
+                        to: target,
+                        cause: "drop"
                     };
                     result.push(moved);
                 }

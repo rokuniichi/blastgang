@@ -24,6 +24,7 @@ export class BoardView extends EventView<BoardViewContext> {
 
     protected onInit(): void {
         this._visualOrchestrator = new TileVisualOrchestrator(
+            this.context.visualConfig,
             this.context.eventBus,
             this.context.animationSystem,
             this.context.runtimeModel,

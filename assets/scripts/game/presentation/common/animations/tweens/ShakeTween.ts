@@ -12,6 +12,6 @@ export class ShakeTween implements ITween<ShakeSettings> {
             .to(settings.duration, { angle: startAngle + settings.amplitude })
             .to(settings.duration * 2, { angle: startAngle - settings.amplitude })
             .to(settings.duration * 2, { angle: startAngle + settings.amplitude })
-            .to(settings.duration, { angle: startAngle })
+            .to(settings.duration, { angle: startAngle });
     }
 }

@@ -7,12 +7,12 @@ import { VisualConfig } from "./VisualConfig";
 export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
     validate(raw: any): VisualConfig {
         assertObject(raw, this, "raw");
-        const baseDropTime = ensureNumber(raw.baseDropTime, this, "baseDropTime");
-        const perTileTime = ensureNumber(raw.perTileTime, this, "baseDropTime");
+        const cellsPerSecond = ensureNumber(raw.cellsPerSecond, this, "baseDropTime");
+        const spawnLineY = ensureNumber(raw.spawnLineY, this, "baseDropTime");
 
         return {
-            baseDropTime,
-            perTileTime
+            cellsPerSecond,
+            spawnLineY
         };
     }
 }

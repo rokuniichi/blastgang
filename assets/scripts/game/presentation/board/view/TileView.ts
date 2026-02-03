@@ -23,16 +23,21 @@ export class TileView extends ContextView<TileViewContext> {
 
     public show(): void {
         this.node.active = true;
-        this.sprite.node.active = true;
     }
 
     public hide(): void {
         this.node.active = false;
-        this.sprite.node.active = false;
     }
 
     public set(type: TileType): void {
         const spriteFrame = this.tileAssets.get(type);
         this.sprite.spriteFrame = spriteFrame;
+    }
+
+    public stabilize(): void {
+        this.node.setScale(1, 1);
+        this.node.angle = 0;
+        this.node.opacity = 255;
+        this.node.active = true;
     }
 }

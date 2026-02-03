@@ -16,7 +16,7 @@ import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { VisualTileClicked } from "../../../presentation/board/events/VisualTileClicked";
 import { GameConfig } from "../../common/config/game/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
-import { BoardRuntimeModel } from "../runtime/BoardRuntimeModel";
+import { BoardRuntimeModel, TileLockReason } from "../runtime/BoardRuntimeModel";
 
 export class BoardController extends BaseController {
 
@@ -67,12 +67,13 @@ export class BoardController extends BaseController {
 
         const cluster = this._searchService.findCluster(position);
         if (cluster.length < this._gameConfig.clusterSize) {
+            this._boardRuntime.lock(id, TileLockReason.SHAKE);
             return new BoardMutationsBatch([TileMutations.rejected(id, TileRejectedReason.NO_MATCH)])
         }
 
         const destroyed = this._destroyService.destroy(cluster);
         const dropped = this._searchService.findDrops();
-        this._moveService.move(dropped);
+        this._moveService.move(dropped, TileLockReason.DROP);
         const spawned = this._spawnService.spawn();
         this._eventBus.emit(new GameStateSync(destroyed.length));
         return new BoardMutationsBatch([...destroyed, ...dropped, ...spawned]);

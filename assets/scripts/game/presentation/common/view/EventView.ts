@@ -1,4 +1,4 @@
-import { EventBus, EventConstructor, EventHandler } from "../../../../core/events/EventBus";
+import { EventConstructor, EventHandler } from "../../../../core/events/EventBus";
 import { IEvent } from "../../../../core/events/IEvent";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { assertNotNull } from "../../../../core/utils/assert";

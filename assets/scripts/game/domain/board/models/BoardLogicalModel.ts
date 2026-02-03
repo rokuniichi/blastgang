@@ -1,8 +1,5 @@
 import { Matrix } from "../../../../core/collections/Matrix";
-import { TileFactory } from "./TileFactory";
-import { TileModel } from "./TileModel";
 import { TilePosition } from "./TilePosition";
-import { TileType } from "./TileType";
 
 
 export type TileId = string;

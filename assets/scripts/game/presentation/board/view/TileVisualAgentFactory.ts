@@ -1,4 +1,5 @@
 import { EventBus } from "../../../../core/events/EventBus";
+import { VisualConfig } from "../../../application/common/config/visual/VisualConfig";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TileViewPool } from "./TileViewPool";
 import { TileVisualAgent } from "./TileVisualAgent";
@@ -6,6 +7,7 @@ import { TileVisualAgent } from "./TileVisualAgent";
 export class TileVisualAgentFactory {
 
     constructor(
+        private readonly _visualConfig: VisualConfig,
         private readonly _eventBus: EventBus,
         private readonly _tweenHelper: TweenHelper,
         private readonly _pool: TileViewPool,
@@ -19,6 +21,7 @@ export class TileVisualAgentFactory {
     public create(tileId: string): TileVisualAgent {
         const view = this._pool.pull();
         return new TileVisualAgent(
+            this._visualConfig,
             this._eventBus,
             this._tweenHelper,
             tileId,

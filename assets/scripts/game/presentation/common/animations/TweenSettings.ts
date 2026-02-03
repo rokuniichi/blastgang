@@ -1,8 +1,8 @@
-import { TweenType } from "../tweens/TweenType";
-import { DestructionSettings } from "./DestructionSettings";
-import { FadeSettings } from "./FadeSettings";
-import { GravityFallSettings } from "./GravityFallSettings";
-import { ShakeSettings } from "./ShakeSettings";
+import { TweenType } from "./tweens/TweenType";
+import { FadeSettings } from "./settings/FadeSettings";
+import { DropSettings } from "./settings/DropSettings";
+import { ShakeSettings } from "./settings/ShakeSettings";
+import { DestroySettings } from "./settings/DestructionSettings";
 
 
 export class TweenSettings {
@@ -17,21 +17,24 @@ export class TweenSettings {
         };
     }
 
-    static tileFall(node: cc.Node, targetY: number): GravityFallSettings {
+    static tileDrop(node: cc.Node, fromY: number, toY: number, speed: number): DropSettings {
         return {
             type: TweenType.DROP,
             node,
 
-            duration: 1,
-            targetY,
-            bounce: 15,
-            bounceDuration: 0.12,
-            settleDuration: 0.12,
-            easing: "quadIn"
+            fromY,
+            toY,
+            speed,
+
+            easing: "quadIn",
+            bounce: 10,
+            bounceDuration: 0.08,
+            settleDuration: 0.08,
         };
     }
 
-    static tileDestroy(node: cc.Node): DestructionSettings {
+
+    static tileDestroy(node: cc.Node): DestroySettings {
         return {
             type: TweenType.DESTROY,
             node,

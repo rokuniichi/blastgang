@@ -1,6 +1,6 @@
 import { ITweenSettings } from "./ITweenSettings";
 
-export interface DestructionSettings extends ITweenSettings {
+export interface DestroySettings extends ITweenSettings {
     squashDuration: number;
     squashScale: number;
     popDuration: number;

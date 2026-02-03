@@ -1,9 +1,10 @@
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TweenType } from "./tweens/TweenType";
-import { DestructionTween } from "./tweens/DestructionTween";
+import { DestroyTween } from "./tweens/DestructionTween";
 import { ITween } from "./tweens/ITween";
 import { ITweenSettings } from "./settings/ITweenSettings";
 import { ShakeTween } from "./tweens/ShakeTween";
+import { DropTween } from "./tweens/DropTween";
 
 export class TweenHelper {
 
@@ -14,9 +15,9 @@ export class TweenHelper {
     }
 
     private register(): void {
-        this.add(new DestructionTween());
+        this.add(new DestroyTween());
         //this.add(new FadeTween());
-        //this.add(new GravityFallTween());
+        this.add(new DropTween());
         this.add(new ShakeTween());
     }
 

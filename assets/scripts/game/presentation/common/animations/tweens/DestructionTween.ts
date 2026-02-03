@@ -1,12 +1,12 @@
-import { DestructionSettings } from "../settings/DestructionSettings";
+import { DestroySettings } from "../settings/DestructionSettings";
 import { ITween } from "./ITween";
 import { TweenType } from "./TweenType";
 
-export class DestructionTween implements ITween<DestructionSettings> {
+export class DestroyTween implements ITween<DestroySettings> {
 
     public readonly type = TweenType.DESTROY;
 
-    build(settings: DestructionSettings): cc.Tween {
+    build(settings: DestroySettings): cc.Tween {
         const node = settings.node;
 
         const originalScale = node.scale as number;
@@ -22,7 +22,6 @@ export class DestructionTween implements ITween<DestructionSettings> {
             .call(() => {
                 node.scale = originalScale;
                 node.opacity = originalOpacity;
-                node.active = false;
             });
     }
 }

@@ -1,10 +1,10 @@
 import { assertNotNull } from "../../../core/utils/assert";
 import { BoardView } from "../board/view/BoardView";
-import { PresentationContext } from "./PresentationContext";
-import { MovesTextView } from "../state/view/MovesTextView";
-import { ScoreTextView } from "../state/view/ScoreTextView";
 import { TweenHelper } from "../common/animations/TweenHelper";
 import { ContextView } from "../common/view/ContextView";
+import { MovesTextView } from "../state/view/MovesTextView";
+import { ScoreTextView } from "../state/view/ScoreTextView";
+import { PresentationContext } from "./PresentationContext";
 
 const { ccclass, property } = cc._decorator;
 
@@ -35,6 +35,7 @@ export class PresentationInstaller extends ContextView<PresentationContext> {
         this.animationSystem = new TweenHelper();
 
         this.boardView.init({
+            visualConfig: this.context.visualConfig,
             eventBus: this.context.eventBus,
             runtimeModel: this.context.boardRuntime,
             animationSystem: this.animationSystem,

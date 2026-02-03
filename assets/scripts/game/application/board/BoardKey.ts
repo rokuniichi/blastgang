@@ -1,4 +1,5 @@
 import { TilePosition } from "../../domain/board/models/TilePosition";
+import { TileType } from "../../domain/board/models/TileType";
 
 export class BoardKey {
 
@@ -6,15 +7,7 @@ export class BoardKey {
         return `${position.x}:${position.y}`
     }
 
-    public static column(x: number): string {
-        return `col:${x}`
-    }
-
-    public static row(y: number): string {
-        return `row:${y}`
-    }
-
-    public static board(): string {
-        return "board";
+    public static type(type: TileType): string {
+        return `${TileType[type]}`
     }
 }

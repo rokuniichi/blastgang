@@ -1,4 +1,4 @@
 {
-  "baseDropTime": 0.28,
-  "perTileTime": 0.02
+	"cellsPerSecond": 9,
+	"spawnLineY": 900
 }
