@@ -39,20 +39,20 @@ export class PresentationInstaller extends ContextView<PresentationContext> {
             eventBus: this.context.eventBus,
             runtimeModel: this.context.boardRuntime,
             animationSystem: this.animationSystem,
-            boardWidth: this.context.boardWidth,
-            boardHeight: this.context.boardHeight,
+            boardCols: this.context.boardCols,
+            boardRows: this.context.boardRows,
             initialBoard: this.context.initialBoard
+        });
+
+        this.movesTextView.init({
+            eventBus: this.context.eventBus,
+            initialValue: this.context.movesLeft
         });
 
         this.scoreTextView.init({
             eventBus: this.context.eventBus,
             initialValue: this.context.currentScore,
             targetScore: this.context.targetScore
-        });
-
-        this.movesTextView.init({
-            eventBus: this.context.eventBus,
-            initialValue: this.context.movesLeft
         });
     }
 

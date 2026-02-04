@@ -11,8 +11,8 @@ export class PresentationContext {
     public readonly movesLeft: number;
     public readonly targetScore: number;
     public readonly currentScore: number;
-    public readonly boardWidth: number;
-    public readonly boardHeight: number;
+    public readonly boardCols: number;
+    public readonly boardRows: number;
     public readonly initialBoard: TileSpawned[];
 
     public constructor(visualConfig: VisualConfig, domainContext: DomainContext, initialBoard: TileSpawned[]) {
@@ -22,8 +22,8 @@ export class PresentationContext {
         this.movesLeft = domainContext.gameStateModel.movesLeft;
         this.targetScore = domainContext.gameStateModel.targetScore;
         this.currentScore = domainContext.gameStateModel.currentScore;
-        this.boardWidth = domainContext.logicalModel.width;
-        this.boardHeight = domainContext.logicalModel.height;
+        this.boardCols = domainContext.logicalModel.width;
+        this.boardRows = domainContext.logicalModel.height;
         this.initialBoard = initialBoard;
     }
 }

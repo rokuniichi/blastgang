@@ -7,6 +7,7 @@ import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TweenSettings } from "../../common/animations/TweenSettings";
+import { getLocal, getSpeed } from "../../utils/calc";
 import { VisualTileClicked } from "../events/VisualTileClicked";
 import { VisualTileUnlocked } from "../events/VisualTileUnlocked";
 import { TileView } from "./TileView";
@@ -16,8 +17,8 @@ export class TileVisualAgent {
     private readonly _visualConfig: VisualConfig;
     private readonly _eventBus: EventBus;
     private readonly _tweenHelper: TweenHelper;
-    private readonly _boardWidth: number;
-    private readonly _boardHeight: number;
+    private readonly _boardCols: number;
+    private readonly _boardRows: number;
     private readonly _nodeWidth: number;
     private readonly _nodeHeight: number;
     private readonly _backgroundLayer: cc.Node;
@@ -40,8 +41,8 @@ export class TileVisualAgent {
         tweenHelper: TweenHelper,
         tileId: string,
         view: TileView,
-        boardWidth: number,
-        boardHeight: number,
+        boardCols: number,
+        boardRows: number,
         backgroundLayer: cc.Node,
         tileLayer: cc.Node,
         fxLayer: cc.Node
@@ -53,8 +54,8 @@ export class TileVisualAgent {
         this._id = tileId;
         this._view = view;
 
-        this._boardWidth = boardWidth;
-        this._boardHeight = boardHeight;
+        this._boardCols = boardCols;
+        this._boardRows = boardRows;
         this._nodeWidth = view.node.width;
         this._nodeHeight = view.node.height;
         this._backgroundLayer = backgroundLayer;
@@ -88,18 +89,17 @@ export class TileVisualAgent {
         return this._tween !== null;
     }
 
-    public spawn(type: TileType, at: TilePosition, offset: number): void {
+    public spawn(type: TileType, at: TilePosition, source: cc.Vec2): void {
         this.relock(TileLockReason.SPAWN);
 
-        console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(at)} with offset ${offset}`);
-        const target = this.getLocal(at);
-        const source = this.getLocal({ x: at.x, y: at.y - offset });
+        console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(at)} with offset ${source}`);
+        const target = this.local(at);
 
         this.prepare(type, source);
         this.subscribe();
 
         this._tween = this._tweenHelper
-            .build(TweenSettings.tileDrop(this._view.node, source.y + this._visualConfig.spawnLineY, target.y, this.getSpeed()))
+            .build(TweenSettings.tileDrop(this._view.node, source.y, target.y, this.speed()))
             .call(() => {
                 this.clear();
                 this._position = at;
@@ -124,10 +124,10 @@ export class TileVisualAgent {
 
         console.log(`[AGENT] ${this.id} is startng to move`);
         this._target = to;
-        const targetY = this.getLocal(this._target).y;
+        const targetY = this.local(this._target).y;
 
         this._tween = this._tweenHelper
-            .build(TweenSettings.tileDrop(this._view.node, this._view.node.y, targetY, this.getSpeed()))
+            .build(TweenSettings.tileDrop(this._view.node, this._view.node.y, targetY, this.speed()))
             .call(() => {
                 this.clear();
                 this._position = to;
@@ -213,18 +213,11 @@ export class TileVisualAgent {
         this._lock = reason;
     }
 
-    private getLocal(position: TilePosition): cc.Vec2 {
-        const origin = this.getOrigin();
-        return cc.v2(origin.x + position.x * this._nodeWidth, origin.y - position.y * this._nodeHeight);
+    private local(position: TilePosition): cc.Vec2 {
+        return getLocal(position, this._boardCols, this._boardRows, this._nodeWidth, this._nodeHeight);
     }
 
-    private getOrigin(): cc.Vec2 {
-        const originX = -((this._boardWidth - 1) * this._nodeWidth) / 2;
-        const originY = ((this._boardHeight - 1) * this._nodeHeight) / 2;
-        return cc.v2(originX, originY);
-    }
-
-    private getSpeed(): number {
-        return this._view.node.height * this._visualConfig.cellsPerSecond;
+    private speed(): number {
+        return getSpeed(this._nodeHeight, this._visualConfig.cellsPerSecond)
     }
 }

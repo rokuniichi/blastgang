@@ -8,7 +8,7 @@ export interface BoardViewContext extends EventViewContext {
     readonly visualConfig: VisualConfig;
     readonly animationSystem: TweenHelper;
     readonly runtimeModel: BoardRuntimeModel;
-    readonly boardWidth: number;
-    readonly boardHeight: number;
+    readonly boardCols: number;
+    readonly boardRows: number;
     readonly initialBoard: TileSpawned[];
 }

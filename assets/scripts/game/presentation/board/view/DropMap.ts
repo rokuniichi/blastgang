@@ -1,5 +1,10 @@
 export class DropMap {
-    private readonly _map = new Map<number, number>();
+
+    private readonly _map: Map<number, number>;
+
+    public constructor() {
+        this._map = new Map<number, number>();
+    }
 
     public add(column: number) {
         this._map.set(column, (this._map.get(column) ?? 0) + 1);

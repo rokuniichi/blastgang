@@ -31,8 +31,8 @@ export class BoardView extends EventView<BoardViewContext> {
             this.context.eventBus,
             this.context.animationSystem,
             this.context.runtimeModel,
-            this.context.boardWidth,
-            this.context.boardHeight,
+            this.context.boardCols,
+            this.context.boardRows,
             this.backgroundLayer,
             this.tileLayer,
             this.fxLayer,
@@ -40,8 +40,8 @@ export class BoardView extends EventView<BoardViewContext> {
         );
 
         this._visualOrchestrator.dispatch(new BoardMutationsBatch(this.context.initialBoard));
-        this.backgroundNode.width = this.context.boardWidth * this.context.visualConfig.nodeWidth;
-        this.backgroundNode.height = this.context.boardHeight * this.context.visualConfig.nodeHeight;
+        this.backgroundNode.width = this.context.boardCols * this.context.visualConfig.nodeWidth;
+        this.backgroundNode.height = this.context.boardRows * this.context.visualConfig.nodeHeight;
         this.on(BoardMutationsBatch, this.onBoardChanged);
     }
 

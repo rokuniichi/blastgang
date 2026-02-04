@@ -1,6 +1,6 @@
 {
-	"boardCols": 9,
-	"boardRows": 9,
+	"boardCols": 8,
+	"boardRows": 8,
 	"allowedTypes": [
 		"RED",
 		"GREEN",
