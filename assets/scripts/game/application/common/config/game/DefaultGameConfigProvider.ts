@@ -5,19 +5,28 @@ import { GameConfig } from "./GameConfig";
 export class DefaultGameConfigProvider extends BaseConfigProvider<GameConfig> {
     async load(): Promise<void> {
         this.config = {
-            boardCols: 9,
-            boardRows: 9,
-            allowedTypes: [
-                TileType.RED,
-                TileType.GREEN,
-                TileType.BLUE,
-                TileType.PURPLE,
-                TileType.YELLOW
-            ],
-            clusterSize: 3,
-            targetScore: 500,
-            maxMoves: 20,
-            scoreMultiplier: 5
+            board: {
+                cols: 8,
+                rows: 8,
+                allowedTypes: [
+                    TileType.RED,
+                    TileType.GREEN,
+                    TileType.BLUE,
+                    TileType.PURPLE,
+                    TileType.YELLOW
+                ],
+                clusterSize: 3,
+            },
+
+            gameState: {
+                targetScore: 500,
+                maxMoves: 20,
+                scoreMultiplier: 5,
+                boosters: {
+                    swap: 3,
+                    bomb: 3
+                }
+            }
         };
     }
 }

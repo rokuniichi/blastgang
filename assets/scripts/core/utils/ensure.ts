@@ -1,11 +1,11 @@
-import { assertNotNull, assertNumber } from "./assert";
+import { assertNonEmptyArray, assertNotNull, assertNumber, assertObject } from "./assert";
 
 export function ensureNumber(
     value: unknown,
     source: object | Function,
-    name: string
+    identifier: string
 ): number {
-    assertNumber(value, source, name);
+    assertNumber(value, source, identifier);
     return value;
 }
 
@@ -15,5 +15,24 @@ export function ensureNotNull<T>(
     identifier: string
 ): T {
     assertNotNull(value, source, identifier);
+    return value;
+}
+
+export function ensureObject<T>(
+    value: T | null | undefined,
+    source: object | Function,
+    identifier: string
+): T {
+    assertObject(value, source, identifier);
+    return value;
+}
+
+export function ensureNonEmptyArray<T>(
+    value: T | null | undefined,
+    source: object | Function,
+    identifier: string
+): Array<T> {
+    assertNotNull<T>(value, source, identifier);
+    assertNonEmptyArray<T>(value, source, identifier);
     return value;
 }

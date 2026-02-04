@@ -33,22 +33,25 @@ export class DomainContext {
     public readonly moveService: MoveService;
     public readonly boardController: BoardController;
 
-    public constructor(config: GameConfig) {
-        this.gameConfig = config;
+    public constructor(gameConfig: GameConfig) {
+        this.gameConfig = gameConfig;
+        const boardInfo = this.gameConfig.board;
+        const stateInfo = this.gameConfig.gameState;
+
         this.eventBus = new EventBus();
 
-        this.gameStateModel = new GameStateModel(config.maxMoves, config.targetScore, 0, GameStateType.PLAYING);
-        this.scoreService = new ScoreService(config.scoreMultiplier);
+        this.gameStateModel = new GameStateModel(stateInfo.maxMoves, stateInfo.targetScore, 0, GameStateType.PLAYING);
+        this.scoreService = new ScoreService(stateInfo.scoreMultiplier);
         this.gameStateController = new GameStateController(this);
 
-        this.logicalModel = new BoardLogicalModel(config.boardCols, config.boardRows);
+        this.logicalModel = new BoardLogicalModel(boardInfo.cols, boardInfo.rows);
 
         this.runtimeModel = new BoardRuntimeModel();
         this.tileRepository = new TileRepository();
 
         this.tileFactory = new TileFactory();
 
-        this.spawnService = new SpawnService(this.logicalModel, this.runtimeModel, this.tileRepository, this.tileFactory, config.allowedTypes);
+        this.spawnService = new SpawnService(this.logicalModel, this.runtimeModel, this.tileRepository, this.tileFactory, boardInfo.allowedTypes);
         this.searchService = new SearchService(this.logicalModel, this.runtimeModel, this.tileRepository);
         this.destroyService = new DestroyService(this.logicalModel, this.runtimeModel, this.tileRepository);
         this.moveService = new MoveService(this.logicalModel, this.runtimeModel, this.tileRepository);

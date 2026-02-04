@@ -32,6 +32,7 @@ export class GameStateController extends BaseController {
 
     protected onInit(): void {
         this._gameStateModel.setState(GameStateType.PLAYING);
+        this._gameStateModel.setBoosters(this._gameConfig.gameState.boosters);
         this._subscriptions.add(
             this._eventBus.on(GameStateSync, this.onBoardProcessed)
         );

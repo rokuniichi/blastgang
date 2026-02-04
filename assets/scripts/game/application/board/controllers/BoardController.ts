@@ -71,7 +71,7 @@ export class BoardController extends BaseController {
             return new BoardMutationsBatch([TileMutations.rejected(id, TileRejectedReason.UNSTABLE)]);
 
         const cluster = this._searchService.findCluster(position);
-        if (cluster.length < this._gameConfig.clusterSize) {
+        if (cluster.length < this._gameConfig.board.clusterSize) {
             this._boardRuntime.lockTile(id, TileLock.SHAKE);
             return new BoardMutationsBatch([TileMutations.rejected(id, TileRejectedReason.NO_MATCH)])
         }

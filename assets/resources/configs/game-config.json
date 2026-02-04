@@ -1,15 +1,21 @@
 {
-	"boardCols": 8,
-	"boardRows": 8,
-	"allowedTypes": [
-		"RED",
-		"GREEN",
-		"YELLOW"
-	],
-	"clusterSize": 2,
-	"targetScore": 10000,
-	"maxMoves": 20,
-	"scoreMultiplier": 5,
-	"maxTeleport": 3,
-	"maxBomb": 3
+	"board": {
+		"cols": 8,
+		"rows": 8,
+		"allowedTypes": [
+			"RED",
+			"GREEN",
+			"YELLOW"
+		],
+		"clusterSize": 2
+	},
+	"gameState": {
+		"targetScore": 10000,
+		"maxMoves": 20,
+		"scoreMultiplier": 5,
+		"boosters": {
+			"swap": 3,
+			"bomb": 3
+		}
+	}
 }

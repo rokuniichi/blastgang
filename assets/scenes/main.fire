@@ -224,8 +224,8 @@
     "screen": {
       "__id__": 6
     },
-    "screenDelay": 2,
-    "screenFadeOutDuration": 1,
+    "screenDelay": 0,
+    "screenFadeOutDuration": 0,
     "dots": [
       {
         "__id__": 97
