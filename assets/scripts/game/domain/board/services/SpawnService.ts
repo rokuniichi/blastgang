@@ -1,4 +1,4 @@
-import { BoardRuntimeModel, TileLockReason } from "../../../application/board/runtime/BoardRuntimeModel";
+import { BoardRuntimeModel, TileLock } from "../../../application/board/runtime/BoardRuntimeModel";
 import { TileSpawned } from "../events/mutations/TileSpawned";
 import { BoardLogicalModel } from "../models/BoardLogicalModel";
 import { TileFactory } from "../models/TileFactory";
@@ -26,7 +26,7 @@ export class SpawnService extends BoardService {
                 const type = this.randomType();
                 const tile = this.factory.create(type);
                 this.logicalModel.register(position, tile.id);
-                this.runtimeModel.lock(tile.id, TileLockReason.SPAWN);
+                this.runtimeModel.lockTile(tile.id, TileLock.SPAWN);
                 this.tileRepository.register(tile.id, type);
 
                 const spawned: TileSpawned = {

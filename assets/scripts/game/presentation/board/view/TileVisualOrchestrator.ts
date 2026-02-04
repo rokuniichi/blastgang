@@ -1,6 +1,6 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { BoardKey } from "../../../application/board/BoardKey";
-import { BoardRuntimeModel, TileLockReason } from "../../../application/board/runtime/BoardRuntimeModel";
+import { BoardRuntimeModel, TileLock } from "../../../application/board/runtime/BoardRuntimeModel";
 import { VisualConfig } from "../../../application/common/config/visual/VisualConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
@@ -114,7 +114,7 @@ export class TileVisualOrchestrator {
                     console.log(`[DISPATCH] dispatching move from: ${BoardKey.position(mutation.from)}; to: ${BoardKey.position(mutation.to)}; id: ${mutation.id}`);
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) break;
-                    if (this._runtimeModel.stable(agent.id)) console.log(`[DISPATCH] MOVE !STABILITY CONFLICT!`);
+                    if (this._runtimeModel.stableTile(agent.id)) console.log(`[DISPATCH] MOVE !STABILITY CONFLICT!`);
                     console.log(`[DISPATCH] MOVE DISPATCHED`);
                     agent.move(mutation.to);
                     break;
@@ -124,7 +124,7 @@ export class TileVisualOrchestrator {
                     console.log(`[DISPATCH] dispatching destroy at: ${BoardKey.position(mutation.at)}; id: ${mutation.id}`);
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) break;
-                    if (this._runtimeModel.stable(agent.id)) console.log(`[DISPATCH] ${mutation.id} DESTROY STABILITY CONFLICT at ${BoardKey.position(mutation.at)}`)
+                    if (this._runtimeModel.stableTile(agent.id)) console.log(`[DISPATCH] ${mutation.id} DESTROY STABILITY CONFLICT at ${BoardKey.position(mutation.at)}`)
                     console.log(`[DISPATCH] DISPATCHED`);
                     agent.destroy();
                     break;
@@ -153,12 +153,13 @@ export class TileVisualOrchestrator {
     }
 
     private onTileUnlocked = (event: VisualTileUnlocked) => {
+        this._runtimeModel.unlockBoard();
         const agent = this._visualModel.get(event.id);
         if (!agent) return;
         this._safeDropMap.subtract(agent.position!.x);
-        this._runtimeModel.unlock(agent.id, event.reason);
-        if (event.reason === TileLockReason.DESTROY) {
-            this._runtimeModel.delete(agent.id);
+        this._runtimeModel.unlockTile(agent.id, event.reason);
+        if (event.reason === TileLock.DESTROY) {
+            this._runtimeModel.deleteTile(agent.id);
             this._viewPool.release(agent.view);
             this._visualModel.remove(agent.id);
         }

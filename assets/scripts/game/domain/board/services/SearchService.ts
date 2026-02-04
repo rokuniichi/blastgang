@@ -25,7 +25,7 @@ export class SearchService extends BoardService {
             const targetId = this.logicalModel.get(position);
             if (!targetId) continue;
 
-            if (!this.runtimeModel.stable(targetId) || this.tileRepository.get(targetId) !== startType) {
+            if (!this.runtimeModel.stableTile(targetId) || this.tileRepository.get(targetId) !== startType) {
                 continue;
             }
 

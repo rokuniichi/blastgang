@@ -16,7 +16,7 @@ import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { VisualTileClicked } from "../../../presentation/board/events/VisualTileClicked";
 import { GameConfig } from "../../common/config/game/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
-import { BoardRuntimeModel, TileLockReason } from "../runtime/BoardRuntimeModel";
+import { BoardRuntimeModel, TileLock } from "../runtime/BoardRuntimeModel";
 
 export class BoardController extends BaseController {
 
@@ -55,6 +55,9 @@ export class BoardController extends BaseController {
     }
 
     private onTileClicked = (event: VisualTileClicked): void => {
+        const stable = this._boardRuntime.stableBoard();
+        console.log(`[CONTROL] board stability: ${stable}`);
+        if (!stable) return;
         const batch = this.build(event.position);
         this._eventBus.emit(batch);
     };
@@ -62,18 +65,18 @@ export class BoardController extends BaseController {
     private build(position: TilePosition): BoardMutationsBatch {
         const id = this._logicalModel.get(position);
         if (!id) return new BoardMutationsBatch([TileMutations.rejected("_", TileRejectedReason.NON_EXISTANT)]);
-        if (!this._boardRuntime.stable(id))
+        if (!this._boardRuntime.stableTile(id))
             return new BoardMutationsBatch([TileMutations.rejected(id, TileRejectedReason.UNSTABLE)]);
 
         const cluster = this._searchService.findCluster(position);
         if (cluster.length < this._gameConfig.clusterSize) {
-            this._boardRuntime.lock(id, TileLockReason.SHAKE);
+            this._boardRuntime.lockTile(id, TileLock.SHAKE);
             return new BoardMutationsBatch([TileMutations.rejected(id, TileRejectedReason.NO_MATCH)])
         }
 
         const destroyed = this._destroyService.destroy(cluster);
         const dropped = this._searchService.findDrops();
-        this._moveService.move(dropped, TileLockReason.DROP);
+        this._moveService.move(dropped, TileLock.DROP);
         const spawned = this._spawnService.spawn();
         this._eventBus.emit(new GameStateSync(destroyed.length));
         return new BoardMutationsBatch([...destroyed, ...dropped, ...spawned]);

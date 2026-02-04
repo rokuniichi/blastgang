@@ -1,6 +1,6 @@
 import { TileId } from "../../../domain/board/models/BoardLogicalModel";
 
-export enum TileLockReason {
+export enum TileLock {
     NONE = 0,
     DESTROY = 1 << 0,
     DROP = 1 << 1,
@@ -11,41 +11,57 @@ export enum TileLockReason {
 
 export class BoardRuntimeModel {
 
-    private readonly _locks: Map<TileId, TileLockReason>;
+    private readonly _tileLocks: Map<TileId, TileLock>;
+    private _boardLocks: number;
 
     public constructor() {
-        this._locks = new Map<TileId, TileLockReason>();
+        this._tileLocks = new Map<TileId, TileLock>();
+        this._boardLocks = 0;
     }
 
-    public stable(id: TileId): boolean {
-        return this._locks.get(id) === TileLockReason.NONE;
+    public stableTile(id: TileId): boolean {
+        return this._tileLocks.get(id) === TileLock.NONE;
     }
 
-    public lock(id: TileId, reason: TileLockReason): void {
-        const value = this._locks.get(id);
+    public lockTile(id: TileId, reason: TileLock): void {
+        const value = this._tileLocks.get(id);
         if (!value) {
-            this.register(id, reason);
+            this.registerTile(id, reason);
             return;
         }
 
-        this._locks.set(id, value! | reason);
+        this._tileLocks.set(id, value! | reason);
     }
 
-    public unlock(id: TileId, reason: TileLockReason): void {
-        const value = this._locks.get(id);
+    public unlockTile(id: TileId, reason: TileLock): void {
+        const value = this._tileLocks.get(id);
         if (!value) {
-            this.register(id, TileLockReason.NONE);
+            this.registerTile(id, TileLock.NONE);
             return;
         }
 
-        this._locks.set(id, value! & ~reason);
+        this._tileLocks.set(id, value! & ~reason);
     }
 
-    private register(id: TileId, reason: TileLockReason): void {
-        this._locks.set(id, reason);
+    private registerTile(id: TileId, reason: TileLock): void {
+        this._tileLocks.set(id, reason);
     }
 
-    public delete(id: TileId): void {
-        this._locks.delete(id);
+    public deleteTile(id: TileId): void {
+        this._tileLocks.delete(id);
+    }
+
+    public stableBoard(): boolean {
+        return this._boardLocks === 0;
+    }
+
+    public lockBoard(): void {
+        this._boardLocks++;
+        console.log(`[LOCKS] incremented ${this._boardLocks}`);
+    }
+
+    public unlockBoard(): void {
+        this._boardLocks = Math.max(0, this._boardLocks - 1);
+        console.log(`[LOCKS] decremented ${this._boardLocks}`);
     }
 }
