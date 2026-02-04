@@ -1,1 +1,0 @@
-{"__type__":"cc.JsonAsset","_name":"game-config","json":{"boardWidth":9,"boardHeight":9,"allowedTypes":["RED","GREEN","BLUE","PURPLE","YELLOW"],"clusterSize":2,"targetScore":500,"maxMoves":20,"scoreMultiplier":5,"maxTeleport":3,"maxBomb":3}}

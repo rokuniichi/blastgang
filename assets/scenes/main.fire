@@ -224,8 +224,8 @@
     "screen": {
       "__id__": 6
     },
-    "delay": 5,
-    "duration": 0.2,
+    "delay": 1,
+    "duration": 1,
     "_id": "d3LslPqBtDJ6gkpHEoq7to"
   },
   {
