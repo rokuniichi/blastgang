@@ -149,7 +149,7 @@ The **BoardRuntimeModel** tracks runtime-only state.
 - Private fields are prefixed with ```_```
 - ```protected``` and ```public``` members have **no** prefix
 - Constants and enum types use ```SCREAMING_SNAKE_CASE```
-- Strict "**no** ```any```" policy unless absolutely required for abstractions
+- Strict "**no** ```any```" policy unless absolutely necessary
 
 ---
 
