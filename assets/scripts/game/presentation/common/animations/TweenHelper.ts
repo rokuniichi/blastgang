@@ -1,6 +1,6 @@
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TweenType } from "./tweens/TweenType";
-import { DestroyTween } from "./tweens/DestructionTween";
+import { DestroyTween } from "./tweens/DestroyTween";
 import { ITween } from "./tweens/ITween";
 import { ITweenSettings } from "./settings/ITweenSettings";
 import { ShakeTween } from "./tweens/ShakeTween";
