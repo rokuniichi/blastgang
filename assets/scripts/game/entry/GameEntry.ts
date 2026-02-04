@@ -1,5 +1,5 @@
-import { PresentationInstaller } from "../presentation/context/PresentationInstaller";
 import { GameStartup } from "../application/startup/GameStartup";
+import { PresentationInstaller } from "../presentation/context/PresentationInstaller";
 
 const { ccclass, property } = cc._decorator;
 

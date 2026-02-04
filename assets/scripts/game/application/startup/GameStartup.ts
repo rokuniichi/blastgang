@@ -10,7 +10,7 @@ export class GameStartup {
     private _domainContext!: DomainContext;
     private _presentationContext!: PresentationContext;
 
-    public constructor(private readonly presentationInstaller: PresentationInstaller) { }
+    public constructor(private readonly _presentationInstaller: PresentationInstaller) { }
 
     public async start(): Promise<void> {
         const configMode = GameSettings.CONFIG_MODE;
@@ -26,7 +26,7 @@ export class GameStartup {
 
         this._presentationContext = new PresentationContext(visualConfig, this._domainContext, initialBoard);
 
-        this.presentationInstaller.init(this._presentationContext);
+        this._presentationInstaller.init(this._presentationContext);
     }
 
     public dispose(): void {

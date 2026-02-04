@@ -4,6 +4,7 @@ import { BoardRuntimeModel, TileLockReason } from "../../../application/board/ru
 import { VisualConfig } from "../../../application/common/config/visual/VisualConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
+import { TileSpawned } from "../../../domain/board/events/mutations/TileSpawned";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { VisualTileUnlocked } from "../events/VisualTileUnlocked";
 import { BoardVisualModel } from "./BoardVisualModel";
@@ -38,8 +39,8 @@ export class TileVisualOrchestrator {
     public constructor(
         visualConfig: VisualConfig,
         eventBus: EventBus,
-        animationSystem: TweenHelper,
         runtimeModel: BoardRuntimeModel,
+        tweenHelper: TweenHelper,
         boardCols: number,
         boardRows: number,
         backgroundLayer: cc.Node,
@@ -49,8 +50,8 @@ export class TileVisualOrchestrator {
     ) {
         this._visualConfig = visualConfig;
         this._eventBus = eventBus;
-        this._tweenHelper = animationSystem;
         this._runtimeModel = runtimeModel;
+        this._tweenHelper = tweenHelper;
         this._boardCols = boardCols;
         this._boardRows = boardRows;
         this._backgroundLayer = backgroundLayer;
@@ -59,8 +60,6 @@ export class TileVisualOrchestrator {
         this._tilePrefab = tilePrefab;
 
         this._visualModel = new BoardVisualModel();
-
-        this._tweenHelper = new TweenHelper();
 
         this._viewPool = new TileViewPool(this._eventBus, this._tilePrefab, this._tileLayer);
 
@@ -81,6 +80,14 @@ export class TileVisualOrchestrator {
         this._eventBus.on(VisualTileUnlocked, this.onTileUnlocked);
     }
 
+    public init(spawned: TileSpawned[]) {
+        spawned.forEach((mutation) => {
+            const agent = this._visualAgentFactory.create(mutation.id);
+            this._visualModel.register(agent);
+            agent.spawnInverted(mutation.type, mutation.at);
+        });
+    }
+
     public dispatch(result: BoardMutationsBatch): void {
         for (const mutation of result.mutations) {
             if (mutation.kind === "tile.spawned") {
@@ -99,7 +106,7 @@ export class TileVisualOrchestrator {
                     this._visualModel.register(agent);
 
                     const offset = this._safeDropMap.get(mutation.at.x);
-                    agent.spawn(mutation.type, mutation.at, offset);
+                    agent.spawnNormal(mutation.type, mutation.at, offset - this._visualConfig.spawnLineY);
                     break;
                 }
 

@@ -1,6 +1,7 @@
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { EventView } from "../../common/view/EventView";
 import { BoardViewContext } from "../context/BoardViewContext";
+import { LoadingScreenFaded } from "../events/LoadingScreenFaded";
 import { TileVisualOrchestrator } from "./TileVisualOrchestrator";
 
 const { ccclass, property } = cc._decorator;
@@ -29,8 +30,8 @@ export class BoardView extends EventView<BoardViewContext> {
         this._visualOrchestrator = new TileVisualOrchestrator(
             this.context.visualConfig,
             this.context.eventBus,
-            this.context.animationSystem,
             this.context.runtimeModel,
+            this.context.tweenHelper,
             this.context.boardCols,
             this.context.boardRows,
             this.backgroundLayer,
@@ -39,13 +40,17 @@ export class BoardView extends EventView<BoardViewContext> {
             this.tilePrefab
         );
 
-        this._visualOrchestrator.dispatch(new BoardMutationsBatch(this.context.initialBoard));
         this.backgroundNode.width = this.context.boardCols * this.context.visualConfig.nodeWidth;
         this.backgroundNode.height = this.context.boardRows * this.context.visualConfig.nodeHeight;
         this.on(BoardMutationsBatch, this.onBoardChanged);
+        this.on(LoadingScreenFaded, this.onLoadingScreenFaded)
     }
 
     private onBoardChanged = (result: BoardMutationsBatch) => {
         this._visualOrchestrator.dispatch(result);
     };
+
+    private onLoadingScreenFaded = (event: LoadingScreenFaded) => {
+        this._visualOrchestrator.init(this.context.initialBoard);
+    }
 }

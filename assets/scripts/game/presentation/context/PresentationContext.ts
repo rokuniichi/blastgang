@@ -18,7 +18,7 @@ export class PresentationContext {
     public constructor(visualConfig: VisualConfig, domainContext: DomainContext, initialBoard: TileSpawned[]) {
         this.visualConfig = visualConfig;
         this.eventBus = domainContext.eventBus;
-        this.boardRuntime = domainContext.runtimeModel;
+        this.boardRuntime = domainContext.runtimeModel;        
         this.movesLeft = domainContext.gameStateModel.movesLeft;
         this.targetScore = domainContext.gameStateModel.targetScore;
         this.currentScore = domainContext.gameStateModel.currentScore;

@@ -7,17 +7,18 @@ import { DestroySettings } from "./settings/DestructionSettings";
 
 export class TweenSettings {
 
-    static fadeOverlay(node: cc.Node): FadeSettings {
+    static fade(node: cc.Node, delay: number, duration: number, opacity: number): FadeSettings {
         return {
             type: TweenType.FADE,
             node,
-
-            duration: 0.25,
-            targetOpacity: 140
+            
+            delay,
+            duration,
+            opacity
         };
     }
 
-    static tileDrop(node: cc.Node, fromY: number, toY: number, speed: number): DropSettings {
+    static drop(node: cc.Node, fromY: number, toY: number, speed: number): DropSettings {
         return {
             type: TweenType.DROP,
             node,
@@ -34,7 +35,7 @@ export class TweenSettings {
     }
 
 
-    static tileDestroy(node: cc.Node): DestroySettings {
+    static destroy(node: cc.Node): DestroySettings {
         return {
             type: TweenType.DESTROY,
             node,
@@ -49,10 +50,11 @@ export class TweenSettings {
         };
     }
 
-    static tileShake(node: cc.Node): ShakeSettings {
+    static shake(node: cc.Node): ShakeSettings {
         return {
             type: TweenType.SHAKE,
             node,
+
             duration: 0.05,
             amplitude: 8
         }

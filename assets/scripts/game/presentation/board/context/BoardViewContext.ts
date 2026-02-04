@@ -6,8 +6,8 @@ import { EventViewContext } from "../../common/context/EventViewContext";
 
 export interface BoardViewContext extends EventViewContext {
     readonly visualConfig: VisualConfig;
-    readonly animationSystem: TweenHelper;
     readonly runtimeModel: BoardRuntimeModel;
+    readonly tweenHelper: TweenHelper;
     readonly boardCols: number;
     readonly boardRows: number;
     readonly initialBoard: TileSpawned[];

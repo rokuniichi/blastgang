@@ -1,3 +1,4 @@
+import { IEvent } from "../../../../core/events/IEvent";
 import { TileDestroyed } from "./mutations/TileDestroyed";
 import { TileMoved } from "./mutations/TileMoved";
 import { TileRejected } from "./mutations/TileRejected";
@@ -11,6 +12,6 @@ type BoardMutation =
     | TileTransformed
     | TileRejected;
 
-export class BoardMutationsBatch {
+export class BoardMutationsBatch implements IEvent {
     public constructor(public readonly mutations: BoardMutation[]) { }
 }

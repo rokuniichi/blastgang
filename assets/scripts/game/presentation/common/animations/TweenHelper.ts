@@ -5,6 +5,7 @@ import { ITween } from "./tweens/ITween";
 import { ITweenSettings } from "./settings/ITweenSettings";
 import { ShakeTween } from "./tweens/ShakeTween";
 import { DropTween } from "./tweens/DropTween";
+import { FadeTween } from "./tweens/FadeTween";
 
 export class TweenHelper {
 
@@ -16,7 +17,7 @@ export class TweenHelper {
 
     private register(): void {
         this.add(new DestroyTween());
-        //this.add(new FadeTween());
+        this.add(new FadeTween());
         this.add(new DropTween());
         this.add(new ShakeTween());
     }
