@@ -1,4 +1,4 @@
-export class DropMap {
+export class SafeDropMap {
 
     private readonly _map: Map<number, number>;
 
@@ -6,8 +6,14 @@ export class DropMap {
         this._map = new Map<number, number>();
     }
 
-    public add(column: number) {
+    public add(column: number): void {
         this._map.set(column, (this._map.get(column) ?? 0) + 1);
+    }
+    
+    public subtract(column: number): void {
+        const value = this._map.get(column);
+        if (!value || value === 0) return;
+        this._map.set(column, value - 1)
     }
 
     public get(column: number): number {

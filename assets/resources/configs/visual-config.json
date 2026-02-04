@@ -1,6 +1,6 @@
 {
 	"cellsPerSecond": 9,
-	"spawnLineY": 900,
+	"spawnLineY": 1,
 	"nodeWidth": 100,
 	"nodeHeight": 112
 }

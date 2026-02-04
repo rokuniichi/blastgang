@@ -5,11 +5,9 @@ import { VisualConfig } from "../../../application/common/config/visual/VisualCo
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { TweenHelper } from "../../common/animations/TweenHelper";
-import { getLocal } from "../../utils/calc";
 import { VisualTileUnlocked } from "../events/VisualTileUnlocked";
-import { AltitudeMap } from "./AltitudeMap";
 import { BoardVisualModel } from "./BoardVisualModel";
-import { DropMap } from "./DropMap";
+import { SafeDropMap } from "./SafeDropMap";
 import { TileViewPool } from "./TileViewPool";
 import { TileVisualAgentFactory } from "./TileVisualAgentFactory";
 
@@ -35,8 +33,7 @@ export class TileVisualOrchestrator {
 
     private readonly _tilePrefab: cc.Prefab;
 
-    private readonly _dropMap: DropMap;
-    private readonly _altitudeMap: AltitudeMap;
+    private readonly _safeDropMap: SafeDropMap;
 
     public constructor(
         visualConfig: VisualConfig,
@@ -79,24 +76,19 @@ export class TileVisualOrchestrator {
             this._fxLayer,
         );
 
-        this._dropMap = new DropMap();
-        this._altitudeMap = new AltitudeMap();
+        this._safeDropMap = new SafeDropMap();
 
         this._eventBus.on(VisualTileUnlocked, this.onTileUnlocked);
     }
 
     public dispatch(result: BoardMutationsBatch): void {
-        this._dropMap.reset();
-        this._altitudeMap.reset();
-
         for (const mutation of result.mutations) {
             if (mutation.kind === "tile.spawned") {
-                this._dropMap.add(mutation.at.x);
+                this._safeDropMap.add(mutation.at.x);
             }
         }
 
-        this._altitudeMap.forEach((v, k) => console.log(`[altitude] top altitude: ${v} : ${k}`));
-        this._dropMap.forEach((v, k) => console.log(`[DISPATCH] spawning ${v} nodes in ${k} column`));
+        this._safeDropMap.forEach((v, k) => console.log(`[DISPATCH] spawning ${v} nodes in ${k} column`));
 
         console.log(`[DISPATCH] mutations: ${result.mutations.length}`);
         for (const mutation of result.mutations) {
@@ -105,25 +97,9 @@ export class TileVisualOrchestrator {
                     console.log(`[DISPATCH] dispatching spawn at: ${BoardKey.position(mutation.at)}; id: ${mutation.id}`);
                     const agent = this._visualAgentFactory.create(mutation.id);
                     this._visualModel.register(agent);
-                    const highest = this._altitudeMap.get(mutation.at.x);
-                    let source: cc.Vec2;
-                    if (highest && false) {
-                        source = cc.v2(0, 0);
-                    } else {
-                        const offset = this._dropMap.get(mutation.at.x);
-                        const temp = getLocal(
-                            { x: mutation.at.x, y: mutation.at.y - offset },
-                            this._boardCols,
-                            this._boardRows,
-                            this._visualConfig.nodeWidth,
-                            this._visualConfig.nodeHeight
-                        );
-                        temp.y += this._visualConfig.spawnLineY;
-                        source = temp;
-                    }
 
-                    if (mutation.at.y === 0) this._altitudeMap.add(mutation.at.x, agent.id);
-                    agent.spawn(mutation.type, mutation.at, source);
+                    const offset = this._safeDropMap.get(mutation.at.x);
+                    agent.spawn(mutation.type, mutation.at, offset);
                     break;
                 }
 
@@ -132,7 +108,7 @@ export class TileVisualOrchestrator {
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) break;
                     if (this._runtimeModel.stable(agent.id)) console.log(`[DISPATCH] MOVE !STABILITY CONFLICT!`);
-                    console.log(`[DISPATCH] DISPATCHED`);
+                    console.log(`[DISPATCH] MOVE DISPATCHED`);
                     agent.move(mutation.to);
                     break;
                 }
@@ -170,13 +146,14 @@ export class TileVisualOrchestrator {
     }
 
     private onTileUnlocked = (event: VisualTileUnlocked) => {
-        this._runtimeModel.unlock(event.id, event.reason);
+        const agent = this._visualModel.get(event.id);
+        if (!agent) return;
+        this._safeDropMap.subtract(agent.position!.x);
+        this._runtimeModel.unlock(agent.id, event.reason);
         if (event.reason === TileLockReason.DESTROY) {
-            this._runtimeModel.delete(event.id);
-            const agent = this._visualModel.get(event.id);
-            if (!agent) return;
-            this._visualModel.remove(agent.id);
+            this._runtimeModel.delete(agent.id);
             this._viewPool.release(agent.view);
+            this._visualModel.remove(agent.id);
         }
     }
 }

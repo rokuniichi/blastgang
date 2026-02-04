@@ -89,8 +89,16 @@ export class TileVisualAgent {
         return this._tween !== null;
     }
 
-    public spawn(type: TileType, at: TilePosition, source: cc.Vec2): void {
-        this.relock(TileLockReason.SPAWN);
+    public spawn(type: TileType, at: TilePosition, offset: number): void {
+        this.lock(TileLockReason.SPAWN);
+
+        const source = getLocal(
+            { x: at.x, y: at.y - offset - this._visualConfig.spawnLineY },
+            this._boardCols,
+            this._boardRows,
+            this._visualConfig.nodeWidth,
+            this._visualConfig.nodeHeight
+        );
 
         console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(at)} with offset ${source}`);
         const target = this.local(at);
@@ -111,7 +119,7 @@ export class TileVisualAgent {
     }
 
     public move(to: TilePosition): void {
-        this.relock(TileLockReason.DROP);
+        this.lock(TileLockReason.DROP);
 
         if (this._position === to) return;
 
@@ -140,7 +148,7 @@ export class TileVisualAgent {
     }
 
     public destroy(): void {
-        this.relock(TileLockReason.DESTROY);
+        this.lock(TileLockReason.DESTROY);
 
         this._view.node.setParent(this._backgroundLayer);
         this._tween = this._tweenHelper
@@ -155,13 +163,14 @@ export class TileVisualAgent {
     }
 
     public shake(): void {
-        this.relock(TileLockReason.SHAKE);
+        this.lock(TileLockReason.SHAKE);
+
         this._view.node.setParent(this._fxLayer);
         this._tween = this._tweenHelper
             .build(TweenSettings.tileShake(this._view.node))
             .call(() => {
                 this.clear();
-                this.relock(TileLockReason.NONE);
+                this.unlock();
             })
             .start();
     }
@@ -204,13 +213,13 @@ export class TileVisualAgent {
         this.view.hide();
     }
 
-    private unlock() {
-        this.relock(TileLockReason.NONE);
+    private lock(reason: TileLockReason) {
+        this._lock |= reason;
     }
 
-    private relock(reason: TileLockReason) {
+    private unlock() {
         this._eventBus.emit(new VisualTileUnlocked(this._id, this._lock));
-        this._lock = reason;
+        this._lock = TileLockReason.NONE;
     }
 
     private local(position: TilePosition): cc.Vec2 {
