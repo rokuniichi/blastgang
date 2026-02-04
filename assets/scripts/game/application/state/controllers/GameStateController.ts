@@ -1,6 +1,7 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
-import { DomainContext } from "../../../domain/context/DomainContext";
+import { GameConfig, GameStateInfo } from "../../../config/game/GameConfig";
+import { DomainGraph } from "../../../domain/DomainGraph";
 import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { MovesUpdate } from "../../../domain/state/events/MovesUpdate";
 import { ScoreUpdate } from "../../../domain/state/events/ScoreUpdate";
@@ -8,31 +9,29 @@ import { StateUpdate } from "../../../domain/state/events/StateUpdate";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
-import { GameConfig } from "../../common/config/game/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
-
 
 export class GameStateController extends BaseController {
 
     private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
-    private readonly _gameConfig: GameConfig;
     private readonly _eventBus: EventBus;
+
+    private readonly _stateInfo: GameStateInfo;
     private readonly _gameStateModel: GameStateModel;
     private readonly _scoreService: ScoreService;
 
-    public constructor(context: DomainContext) {
+    public constructor(eventBus: EventBus, domain: DomainGraph) {
         super();
-
-        this._gameConfig = context.gameConfig;
-        this._eventBus = context.eventBus;
-        this._gameStateModel = context.gameStateModel;
-        this._scoreService = context.scoreService;
+        this._eventBus = eventBus;
+        
+        this._stateInfo = domain.stateInfo;
+        this._gameStateModel = domain.gameStateModel;
+        this._scoreService = domain.scoreService;
     }
 
     protected onInit(): void {
         this._gameStateModel.setState(GameStateType.PLAYING);
-        this._gameStateModel.setBoosters(this._gameConfig.gameState.boosters);
         this._subscriptions.add(
             this._eventBus.on(GameStateSync, this.onBoardProcessed)
         );
@@ -46,6 +45,8 @@ export class GameStateController extends BaseController {
         const state = this._gameStateModel.state;
         const score = this._gameStateModel.currentScore;
         const moves = this._gameStateModel.movesLeft;
+
+        console.log(`[GAME STATE] BEFORE ${GameStateType[state]}, ${score}, ${moves}`)
 
         this._gameStateModel.addScore(this._scoreService.calculate(event.destroyed));
         if (this._gameStateModel.currentScore >= this._gameStateModel.targetScore)
@@ -63,6 +64,8 @@ export class GameStateController extends BaseController {
 
         if (state !== this._gameStateModel.state)
             this._eventBus.emit(new StateUpdate(this._gameStateModel.state));
+
+        console.log(`[GAME STATE] AFTER ${GameStateType[this._gameStateModel.state]}, ${this._gameStateModel.currentScore}, ${this._gameStateModel.movesLeft}`)
     };
 
     public dispose(): void {

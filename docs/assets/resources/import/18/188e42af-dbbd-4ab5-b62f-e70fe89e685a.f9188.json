@@ -1,1 +1,1 @@
-{"__type__":"cc.JsonAsset","_name":"visual-config","json":{"cellsPerSecond":8,"spawnLineY":5,"nodeWidth":100,"nodeHeight":112}}
+{"__type__":"cc.JsonAsset","_name":"visual-config","json":{"gravity":8,"spawnLineY":5,"nodeWidth":100,"nodeHeight":112}}

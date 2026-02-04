@@ -18,14 +18,15 @@ export class TweenSettings {
         };
     }
 
-    static drop(node: cc.Node, fromY: number, toY: number, speed: number): DropSettings {
+    static drop(node: cc.Node, fromY: number, toY: number, gravity: number, delay: number): DropSettings {
         return {
             type: TweenType.DROP,
             node,
 
             fromY,
             toY,
-            speed,
+            gravity,
+            delay,
 
             easing: "quadIn",
             bounce: 10,

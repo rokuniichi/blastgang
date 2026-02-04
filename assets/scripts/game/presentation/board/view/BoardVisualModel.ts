@@ -1,4 +1,4 @@
-import { TileId } from "../../../domain/board/models/BoardLogicalModel";
+import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TileVisualAgent } from "./TileVisualAgent";
 
 export class BoardVisualModel {

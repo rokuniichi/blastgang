@@ -1,6 +1,5 @@
-import { BoardRuntimeModel, TileLock } from "../../../application/board/runtime/BoardRuntimeModel";
 import { TileSpawned } from "../events/mutations/TileSpawned";
-import { BoardLogicalModel } from "../models/BoardLogicalModel";
+import { BoardLogicModel } from "../models/BoardLogicModel";
 import { TileFactory } from "../models/TileFactory";
 import { TileRepository } from "../models/TileRepository";
 import { TileType } from "../models/TileType";
@@ -10,23 +9,27 @@ export class SpawnService extends BoardService {
     protected readonly factory: TileFactory;
     protected readonly types: TileType[];
 
-    public constructor(logicalModel: BoardLogicalModel, runtimeModel: BoardRuntimeModel, repository: TileRepository, factory: TileFactory, types: TileType[]) {
-        super(logicalModel, runtimeModel, repository);
+    public constructor(
+        logicModel: BoardLogicModel,
+        repository: TileRepository,
+        factory: TileFactory,
+        types: TileType[]
+    ) {
+        super(logicModel, repository);
         this.factory = factory;
         this.types = types;
     }
 
     public spawn(): TileSpawned[] {
         const result = [];
-        for (let x = 0; x < this.logicalModel.width; x++) {
-            for (let y = 0; y < this.logicalModel.height; y++) {
+        for (let x = 0; x < this.logicModel.width; x++) {
+            for (let y = 0; y < this.logicModel.height; y++) {
                 const position = { x, y };
-                const id = this.logicalModel.get(position);
+                const id = this.logicModel.get(position);
                 if (id) continue;
                 const type = this.randomType();
                 const tile = this.factory.create(type);
-                this.logicalModel.register(position, tile.id);
-                this.runtimeModel.lockTile(tile.id, TileLock.SPAWN);
+                this.logicModel.register(position, tile.id);
                 this.tileRepository.register(tile.id, type);
 
                 const spawned: TileSpawned = {

@@ -1,16 +1,15 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { BoardKey } from "../../../application/board/BoardKey";
-import { TileLock } from "../../../application/board/runtime/BoardRuntimeModel";
-import { VisualConfig } from "../../../application/common/config/visual/VisualConfig";
-import { TileId } from "../../../domain/board/models/BoardLogicalModel";
+import { VisualConfig } from "../../../config/visual/VisualConfig";
+import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { getLocal, getSpeed } from "../../utils/calc";
-import { BoardUnlocked } from "../events/BoardUnlocked";
 import { TileViewClicked } from "../events/TileViewClicked";
-import { TileViewUnlocked } from "../events/TileViewUnlocked";
+import { VisualTileDestroyed } from "../events/TileViewDestroyed";
+import { VisualTileStabilized } from "../events/VisualTileStabilized";
 import { TileView } from "./TileView";
 
 export class TileVisualAgent {
@@ -33,10 +32,6 @@ export class TileVisualAgent {
     private _position: TilePosition | null = null;
     private _target: TilePosition | null = null;
     private _tween: cc.Tween | null = null;
-
-    private _tileLock: TileLock;
-
-    private _boardLock: boolean;
 
     constructor(
         visualConfig: VisualConfig,
@@ -64,9 +59,6 @@ export class TileVisualAgent {
         this._backgroundLayer = backgroundLayer;
         this._tileLayer = tileLayer;
         this._fxLayer = fxLayer;
-
-        this._tileLock = TileLock.NONE;
-        this._boardLock = false;
     }
 
     public get id(): string {
@@ -94,34 +86,33 @@ export class TileVisualAgent {
     }
 
     public spawnInverted(type: TileType, at: TilePosition): void {
-        this._boardLock = true;
-
+        this._position = { x: at.x, y: -at.y - this._visualConfig.initialSpawnLine };
         const source = getLocal(
-            { x: at.x, y: -at.y - this._visualConfig.spawnLineY },
+            this._position,
             this._boardCols,
             this._boardRows,
             this._visualConfig.nodeWidth,
             this._visualConfig.nodeHeight
         );
 
-        this.spawn(type, at, source);
+        this.spawn(type, at, source, 0);
     }
 
     public spawnNormal(type: TileType, at: TilePosition, offset: number): void {
+        this._position = { x: at.x, y: at.y - offset - this._visualConfig.normalSpawnLine };
+
         const source = getLocal(
-            { x: at.x, y: at.y - offset - this._visualConfig.spawnLineY },
+            this._position,
             this._boardCols,
             this._boardRows,
             this._visualConfig.nodeWidth,
             this._visualConfig.nodeHeight
         );
 
-        this.spawn(type, at, source);
+        this.spawn(type, at, source, this.getDropDelay());
     }
 
-    private spawn(type: TileType, at: TilePosition, source: cc.Vec2) {
-        this.lock(TileLock.SPAWN);
-
+    private spawn(type: TileType, at: TilePosition, source: cc.Vec2, delay: number) {
         console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(at)} with offset ${source}`);
         const target = this.local(at);
 
@@ -129,21 +120,19 @@ export class TileVisualAgent {
         this.subscribe();
 
         this._tween = this._tweenHelper
-            .build(TweenSettings.drop(this._view.node, source.y, target.y, this.speed()))
+            .build(TweenSettings.drop(this._view.node, source.y, target.y, this._visualConfig.gravity, delay))
             .call(() => {
                 this.clear();
                 this._position = at;
                 this._target = null;
+                this._eventBus.emit(new VisualTileStabilized(this._id, this._position));
                 console.log(`[AGENT] ${this.id} SPAWN FINISHED!`);
-                this.unlock();
             })
             .start();
     }
 
 
-    public move(to: TilePosition): void {
-        this.lock(TileLock.DROP);
-
+    public drop(to: TilePosition): void {
         if (this._position === to) return;
 
         if (this.busy) {
@@ -159,21 +148,19 @@ export class TileVisualAgent {
         const targetY = this.local(this._target).y;
 
         this._tween = this._tweenHelper
-            .build(TweenSettings.drop(this._view.node, this._view.node.y, targetY, this.speed()))
+            .build(TweenSettings.drop(this._view.node, this._view.node.y, targetY, this._visualConfig.gravity, this.getDropDelay()))
             .call(() => {
                 this.clear();
                 this._position = to;
                 this._target = null;
                 this.view.node.setParent(this._tileLayer);
+                this._eventBus.emit(new VisualTileStabilized(this._id, this._position));
                 console.log(`[AGENT] ${this.id} MOVE FINISHED!`);
-                this.unlock();
             })
             .start();
     }
 
     public destroy(): void {
-        this.lock(TileLock.DESTROY);
-
         this._view.node.setParent(this._backgroundLayer);
         this._tween = this._tweenHelper
             .build(TweenSettings.destroy(this._view.node))
@@ -181,20 +168,18 @@ export class TileVisualAgent {
                 this.clear();
                 this.hide();
                 this.unsubscribe();
-                this.unlock();
+                this._eventBus.emit(new VisualTileDestroyed(this._id));
             })
             .start();
     }
 
     public shake(): void {
-        this.lock(TileLock.SHAKE);
-
         this._view.node.setParent(this._fxLayer);
         this._tween = this._tweenHelper
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
                 this.clear();
-                this.unlock();
+                this._eventBus.emit(new VisualTileStabilized(this._id, this._position!));
             })
             .start();
     }
@@ -219,22 +204,6 @@ export class TileVisualAgent {
         this.view.hide();
     }
 
-    private lock(reason: TileLock) {
-        this._tileLock |= reason;
-    }
-
-    private unlock() {
-        if (this._boardLock === true) {
-            this._boardLock = false;
-            this._eventBus.emit(new BoardUnlocked(this.id));
-        }
-
-        if (this._tileLock !== TileLock.NONE) {
-            this._eventBus.emit(new TileViewUnlocked(this._id, this._tileLock));
-            this._tileLock = TileLock.NONE;
-        }
-    }
-
     private onClick(): void {
         if (!this.busy && this._position) this._eventBus.emit(new TileViewClicked(this._position));
     }
@@ -247,12 +216,11 @@ export class TileVisualAgent {
         this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 
+    private getDropDelay() {
+        return (this._boardRows - this._position!.y) * this._visualConfig.dropDelayParameter;
+    }
 
     private local(position: TilePosition): cc.Vec2 {
         return getLocal(position, this._boardCols, this._boardRows, this._nodeWidth, this._nodeHeight);
-    }
-
-    private speed(): number {
-        return getSpeed(this._nodeHeight, this._visualConfig.cellsPerSecond)
     }
 }

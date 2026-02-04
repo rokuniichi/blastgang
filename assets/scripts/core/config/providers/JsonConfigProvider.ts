@@ -1,4 +1,4 @@
-import { BaseConfigProvider } from "../BaseConfigProvider";
+import { BaseConfigProvider } from "./BaseConfigProvider";
 import { IConfig } from "../IConfig";
 import { IConfigValidator } from "../IConfigValidator";
 

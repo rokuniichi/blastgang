@@ -11,6 +11,6 @@ export function getOrigin(boardCols: number, boardRows: number, nodeWidth: numbe
     return cc.v2(originX, originY);
 }
 
-export function getSpeed(nodeHeight: number, cellsPerSecond: number): number {
-    return nodeHeight * cellsPerSecond;
+export function getSpeed(nodeHeight: number, gravity: number): number {
+    return nodeHeight * gravity;
 }

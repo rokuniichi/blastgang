@@ -5,7 +5,9 @@ export interface DropSettings {
     node: cc.Node;
     fromY: number;
     toY: number;
-    speed: number; // units per second (или tileHeight * cps)
+    gravity: number;
+    delay: number;
+
     easing: string;
 
     bounce: number;

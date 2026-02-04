@@ -30,8 +30,12 @@ export abstract class DynamicTextView<TContext extends DynamicTextViewContext> e
         this.render(this.context.initialValue);
     }
 
+    protected accept(event: ValueChangedEvent): boolean {
+        return true;
+    }
+
     private onValueChanged = (event: ValueChangedEvent): void => {
-        this.render(event.value);
+        if (this.accept(event)) this.render(event.value);
     }
 
     private render(value: number) {

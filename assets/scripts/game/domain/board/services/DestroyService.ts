@@ -1,4 +1,3 @@
-import { TileLock } from "../../../application/board/runtime/BoardRuntimeModel";
 import { TileDestroyed } from "../events/mutations/TileDestroyed";
 import { TilePosition } from "../models/TilePosition";
 import { BoardService } from "./BoardService";
@@ -8,11 +7,10 @@ export class DestroyService extends BoardService {
         const result: TileDestroyed[] = [];
 
         for (const position of cluster) {
-            const id = this.logicalModel.get(position);
+            const id = this.logicModel.get(position);
             if (!id) continue;
-            this.logicalModel.destroy(position);
+            this.logicModel.destroy(position);
             console.log(`[DESTROY SERVICE] destroying: ${id}`);
-            this.runtimeModel.lockTile(id, TileLock.DESTROY);
             this.tileRepository.remove(id);
 
             const destroyed: TileDestroyed = {

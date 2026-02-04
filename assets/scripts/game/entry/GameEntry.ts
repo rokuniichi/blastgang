@@ -1,4 +1,4 @@
-import { GameStartup } from "../application/startup/GameStartup";
+import { GameStartup } from "../bootstrap/GameStartup";
 import { PresentationInstaller } from "../presentation/context/PresentationInstaller";
 
 const { ccclass, property } = cc._decorator;

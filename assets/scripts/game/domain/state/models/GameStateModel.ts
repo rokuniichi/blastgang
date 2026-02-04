@@ -1,28 +1,30 @@
-import { BoostersInfo } from "../../../application/common/config/game/GameConfig";
+import { GameStateInfo } from "../../../config/game/GameConfig";
 import { BoosterType } from "./BoosterType";
 import { GameStateType } from "./GameStateType";
 
-
-
 export class GameStateModel {
-
+    public readonly targetScore: number;
+    public readonly maxMoves: number;
+    
     private readonly _boosters: Map<BoosterType, number>;
 
-    public constructor(
-        private _movesLeft: number,
-        private _targetScore: number,
-        private _currentScore: number,
-        private _stateType: GameStateType
-    ) { 
-        this._boosters = new Map<BoosterType, number>();
+    private _movesLeft: number;
+    private _currentScore: number;
+    private _stateType: GameStateType;
+
+    public constructor(stateInfo: GameStateInfo) {
+        this.targetScore = stateInfo.targetScore;
+        this.maxMoves = stateInfo.maxMoves;
+
+        this._movesLeft = this.maxMoves;
+        this._currentScore = 0;
+        this._stateType = GameStateType.NONE;
+
+        this._boosters = new Map<BoosterType, number>(stateInfo.boosters);
     }
 
     public get movesLeft() {
         return this._movesLeft;
-    }
-
-    public get targetScore() {
-        return this._targetScore;
     }
 
     public get currentScore() {
@@ -43,11 +45,6 @@ export class GameStateModel {
 
     public setState(state: GameStateType) {
         this._stateType = state;
-    }
-
-    public setBoosters(boosters: BoostersInfo) {
-        this._boosters.set(BoosterType.SWAP, boosters.swap);
-        this._boosters.set(BoosterType.BOMB, boosters.bomb);
     }
 
     public useBooster(booster: BoosterType) {

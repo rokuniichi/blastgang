@@ -50,17 +50,6 @@ export function assertString(
     assert(typeof value === "string", source, `${identifier} must be string`);
 }
 
-export function assertEnumValue<T extends object>(
-    enumObj: T,
-    value: string,
-    source: object | Function, 
-    identifier: string
-): T[keyof T] {
-    const enumValue = (enumObj as any)[value];
-    assert(enumValue !== undefined, source, `Unknown ${identifier}: "${value}"`);
-    return enumValue;
-}
-
 export function assertObject(
     value: unknown,
     source: object | Function,

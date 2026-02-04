@@ -1,4 +1,4 @@
-import { TileId } from "./BoardLogicalModel";
+import { TileId } from "./BoardLogicModel";
 import { TileType } from "./TileType";
 
 export class TileRepository {

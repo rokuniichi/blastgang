@@ -1,6 +1,8 @@
 {
-	"cellsPerSecond": 8,
-	"spawnLineY": 5,
+	"gravity": 3000,
+	"dropDelayParameter": 0.010,
+	"initialSpawnLine": 6,
+	"normalSpawnLine": 5,
 	"nodeWidth": 100,
 	"nodeHeight": 112
 }

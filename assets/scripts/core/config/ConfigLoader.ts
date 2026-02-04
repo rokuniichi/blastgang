@@ -1,7 +1,7 @@
+import { ConfigMode } from "../../game/config/ConfigMode";
 import { IConfig } from "./IConfig";
-import { IConfigProvider } from "./IConfigProvider";
+import { IConfigProvider } from "./providers/IConfigProvider";
 import { IConfigValidator } from "./IConfigValidator";
-import { ConfigMode } from "../../game/application/common/config/ConfigMode";
 
 export abstract class ConfigLoader<T extends IConfig> {
     public async load(mode: ConfigMode): Promise<T> {

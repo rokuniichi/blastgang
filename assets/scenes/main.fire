@@ -131,7 +131,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "ViewInstaller",
+    "_name": "PresentationInstaller",
     "_objFlags": 0,
     "_parent": {
       "__id__": 2
@@ -211,6 +211,8 @@
     "scoreTextView": {
       "__id__": 69
     },
+    "bombBoosterTextView": null,
+    "swapBoosterTextView": null,
     "_id": "88xcD+fiNJ67W/c/qXoSQ2"
   },
   {
@@ -224,8 +226,8 @@
     "screen": {
       "__id__": 6
     },
-    "screenDelay": 0,
-    "screenFadeOutDuration": 0,
+    "screenDelay": 2,
+    "screenFadeOutDuration": 1,
     "dots": [
       {
         "__id__": 97
@@ -444,7 +446,7 @@
       "array": [
         0,
         0,
-        503.1607595987589,
+        501.42870879119,
         0,
         0,
         0,

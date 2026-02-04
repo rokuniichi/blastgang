@@ -1,17 +1,18 @@
 import { Matrix } from "../../../../core/collections/Matrix";
 import { TileMoved } from "../events/mutations/TileMoved";
+import { TileId } from "../models/BoardLogicModel";
 import { TilePosition } from "../models/TilePosition";
 import { TileType } from "../models/TileType";
 import { BoardService } from "./BoardService";
 
 export class SearchService extends BoardService {
-    public findCluster(start: TilePosition): TilePosition[] {
-        const startId = this.logicalModel.get(start);
+    public findCluster(start: TilePosition, unstable: Set<TileId>): TilePosition[] {
+        const startId = this.logicModel.get(start);
         if (!startId) return [];
         const startType = this.tileRepository.get(startId);
 
         const result = [];
-        const visited = new Matrix<boolean>(this.logicalModel.width, this.logicalModel.height, () => false);
+        const visited = new Matrix<boolean>(this.logicModel.width, this.logicModel.height, () => false);
         const stack = [start];
 
         while (stack.length > 0 && startType !== TileType.EMPTY) {
@@ -22,10 +23,10 @@ export class SearchService extends BoardService {
 
             visited.set(position.x, position.y, true);
 
-            const targetId = this.logicalModel.get(position);
+            const targetId = this.logicModel.get(position);
             if (!targetId) continue;
 
-            if (!this.runtimeModel.stableTile(targetId) || this.tileRepository.get(targetId) !== startType) {
+            if (unstable.has(targetId) || this.tileRepository.get(targetId) !== startType) {
                 continue;
             }
 
@@ -48,7 +49,7 @@ export class SearchService extends BoardService {
         const result: TilePosition[] = [];
 
         for (const position of neighbors) {
-            if (position.x < 0 || position.y < 0 || position.x >= this.logicalModel.width || position.y >= this.logicalModel.height) {
+            if (position.x < 0 || position.y < 0 || position.x >= this.logicModel.width || position.y >= this.logicModel.height) {
                 continue;
             }
             result.push(position);
@@ -59,14 +60,14 @@ export class SearchService extends BoardService {
 
     public findDrops(): TileMoved[] {
         const result: TileMoved[] = [];
-        for (let x = this.logicalModel.width - 1; x >= 0; x--) {
+        for (let x = this.logicModel.width - 1; x >= 0; x--) {
             let drop = 0;
-            for (let y = this.logicalModel.height - 1; y >= 0; y--) {
+            for (let y = this.logicModel.height - 1; y >= 0; y--) {
                 const source = { x, y };
-                if (this.logicalModel.empty(source)) {
+                if (this.logicModel.empty(source)) {
                     drop++;
                 } else if (drop > 0) {
-                    const id = this.logicalModel.get(source);
+                    const id = this.logicModel.get(source);
                     if (!id) continue;
                     const target = { x: x, y: y + drop };
                     const moved: TileMoved = {

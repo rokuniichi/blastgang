@@ -2,20 +2,20 @@
 	"board": {
 		"cols": 8,
 		"rows": 8,
+		"clusterSize": 2,
 		"allowedTypes": [
 			"RED",
 			"GREEN",
 			"YELLOW"
-		],
-		"clusterSize": 2
+		]
 	},
 	"gameState": {
 		"targetScore": 10000,
 		"maxMoves": 20,
 		"scoreMultiplier": 5,
 		"boosters": {
-			"swap": 3,
-			"bomb": 3
+			"SWAP": 3,
+			"BOMB": 3
 		}
 	}
 }

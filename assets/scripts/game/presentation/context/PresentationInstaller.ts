@@ -3,7 +3,8 @@ import { PresentationReady } from "../board/events/PresentationReady";
 import { BoardView } from "../board/view/BoardView";
 import { TweenHelper } from "../common/animations/TweenHelper";
 import { EventView } from "../common/view/EventView";
-import { LoadingScreen } from "../loading/LoadingScreen";
+import { BoosterTextView } from "../state/view/BombBoosterTextView";
+import { LoadingScreen } from "../state/view/LoadingScreen";
 import { MovesTextView } from "../state/view/MovesTextView";
 import { ScoreTextView } from "../state/view/ScoreTextView";
 import { PresentationContext } from "./PresentationContext";
@@ -22,9 +23,13 @@ export class PresentationInstaller extends EventView<PresentationContext> {
     private movesTextView: MovesTextView = null!;
 
     @property(ScoreTextView)
-    private scoreTextView: ScoreTextView = null!;    
+    private scoreTextView: ScoreTextView = null!;
 
-    private tweenHelper!: TweenHelper;
+    @property(BoosterTextView)
+    private bombBoosterTextView: BoosterTextView = null!;
+
+    @property(BoosterTextView)
+    private swapBoosterTextView: BoosterTextView = null!
 
     protected onLoad(): void {
         assertNotNull(this.boardView, this, "BoardView");
@@ -37,18 +42,18 @@ export class PresentationInstaller extends EventView<PresentationContext> {
     }
 
     protected onInit(): void {
-        this.tweenHelper = new TweenHelper();
+
+        const tweenHelper = new TweenHelper();
 
         this.loadingScreen.init({
             eventBus: this.context.eventBus,
-            tweenHelper: this.tweenHelper
+            tweenHelper: tweenHelper
         });
 
         this.boardView.init({
-            visualConfig: this.context.visualConfig,
             eventBus: this.context.eventBus,
-            runtimeModel: this.context.boardRuntime,
-            tweenHelper: this.tweenHelper,
+            visualConfig: this.context.visualConfig,
+            tweenHelper: tweenHelper,
             boardCols: this.context.boardCols,
             boardRows: this.context.boardRows,
             initialBoard: this.context.initialBoard

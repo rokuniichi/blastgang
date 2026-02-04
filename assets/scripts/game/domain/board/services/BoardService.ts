@@ -1,11 +1,9 @@
-import { BoardRuntimeModel } from "../../../application/board/runtime/BoardRuntimeModel";
-import { BoardLogicalModel } from "../models/BoardLogicalModel";
+import { BoardLogicModel } from "../models/BoardLogicModel";
 import { TileRepository } from "../models/TileRepository";
 
 export abstract class BoardService {
     public constructor(
-        protected readonly logicalModel: BoardLogicalModel, 
-        protected readonly runtimeModel: BoardRuntimeModel,
+        protected readonly logicModel: BoardLogicModel, 
         protected readonly tileRepository: TileRepository
     ) { }
 }
