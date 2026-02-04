@@ -8,8 +8,9 @@ import { TileType } from "../../../domain/board/models/TileType";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { getLocal, getSpeed } from "../../utils/calc";
-import { VisualTileClicked } from "../events/VisualTileClicked";
-import { VisualTileUnlocked } from "../events/VisualTileUnlocked";
+import { BoardUnlocked } from "../events/BoardUnlocked";
+import { TileViewClicked } from "../events/TileViewClicked";
+import { TileViewUnlocked } from "../events/TileViewUnlocked";
 import { TileView } from "./TileView";
 
 export class TileVisualAgent {
@@ -33,7 +34,9 @@ export class TileVisualAgent {
     private _target: TilePosition | null = null;
     private _tween: cc.Tween | null = null;
 
-    private _lock: TileLock;
+    private _tileLock: TileLock;
+
+    private _boardLock: boolean;
 
     constructor(
         visualConfig: VisualConfig,
@@ -62,7 +65,8 @@ export class TileVisualAgent {
         this._tileLayer = tileLayer;
         this._fxLayer = fxLayer;
 
-        this._lock = TileLock.NONE;
+        this._tileLock = TileLock.NONE;
+        this._boardLock = false;
     }
 
     public get id(): string {
@@ -90,6 +94,8 @@ export class TileVisualAgent {
     }
 
     public spawnInverted(type: TileType, at: TilePosition): void {
+        this._boardLock = true;
+
         const source = getLocal(
             { x: at.x, y: -at.y - this._visualConfig.spawnLineY },
             this._boardCols,
@@ -113,6 +119,28 @@ export class TileVisualAgent {
         this.spawn(type, at, source);
     }
 
+    private spawn(type: TileType, at: TilePosition, source: cc.Vec2) {
+        this.lock(TileLock.SPAWN);
+
+        console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(at)} with offset ${source}`);
+        const target = this.local(at);
+
+        this.prepare(type, source);
+        this.subscribe();
+
+        this._tween = this._tweenHelper
+            .build(TweenSettings.drop(this._view.node, source.y, target.y, this.speed()))
+            .call(() => {
+                this.clear();
+                this._position = at;
+                this._target = null;
+                console.log(`[AGENT] ${this.id} SPAWN FINISHED!`);
+                this.unlock();
+            })
+            .start();
+    }
+
+
     public move(to: TilePosition): void {
         this.lock(TileLock.DROP);
 
@@ -120,7 +148,8 @@ export class TileVisualAgent {
 
         if (this.busy) {
             this.clear();
-            this.stabilize();
+            this._view.node.setParent(this._fxLayer);
+            this._view.stabilize();
         }
 
         this.view.node.setParent(this._fxLayer);
@@ -170,38 +199,12 @@ export class TileVisualAgent {
             .start();
     }
 
-    private spawn(type: TileType, at: TilePosition, source: cc.Vec2) {
-        this.lock(TileLock.SPAWN);
-
-        console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(at)} with offset ${source}`);
-        const target = this.local(at);
-
-        this.prepare(type, source);
-        this.subscribe();
-
-        this._tween = this._tweenHelper
-            .build(TweenSettings.drop(this._view.node, source.y, target.y, this.speed()))
-            .call(() => {
-                this.clear();
-                this._position = at;
-                this._target = null;
-                console.log(`[AGENT] ${this.id} SPAWN FINISHED!`);
-                this.unlock();
-            })
-            .start();
-    }
-
     private prepare(type: TileType, local: cc.Vec2): void {
         this._view.set(type);
         this._view.stabilize();
         this._view.node.setParent(this._tileLayer);
         this._view.node.setPosition(local);
         this._view.show();
-    }
-
-    private stabilize(): void {
-        this._view.node.setParent(this._fxLayer);
-        this._view.stabilize();
     }
 
     private clear() {
@@ -217,16 +220,23 @@ export class TileVisualAgent {
     }
 
     private lock(reason: TileLock) {
-        this._lock |= reason;
+        this._tileLock |= reason;
     }
 
     private unlock() {
-        this._eventBus.emit(new VisualTileUnlocked(this._id, this._lock));
-        this._lock = TileLock.NONE;
+        if (this._boardLock === true) {
+            this._boardLock = false;
+            this._eventBus.emit(new BoardUnlocked(this.id));
+        }
+
+        if (this._tileLock !== TileLock.NONE) {
+            this._eventBus.emit(new TileViewUnlocked(this._id, this._tileLock));
+            this._tileLock = TileLock.NONE;
+        }
     }
 
     private onClick(): void {
-        if (!this.busy && this._position) this._eventBus.emit(new VisualTileClicked(this._position));
+        if (!this.busy && this._position) this._eventBus.emit(new TileViewClicked(this._position));
     }
 
     private subscribe() {

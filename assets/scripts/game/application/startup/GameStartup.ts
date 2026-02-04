@@ -23,7 +23,6 @@ export class GameStartup {
         this._domainContext.boardController.init();
 
         const initialBoard = this._domainContext.spawnService.spawn();
-        initialBoard.forEach((_) => this._domainContext.runtimeModel.lockBoard());
 
         this._presentationContext = new PresentationContext(visualConfig, this._domainContext, initialBoard);
         this._presentationInstaller.init(this._presentationContext);

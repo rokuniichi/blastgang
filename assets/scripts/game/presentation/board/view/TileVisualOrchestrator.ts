@@ -6,7 +6,8 @@ import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutations
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { TileSpawned } from "../../../domain/board/events/mutations/TileSpawned";
 import { TweenHelper } from "../../common/animations/TweenHelper";
-import { VisualTileUnlocked } from "../events/VisualTileUnlocked";
+import { BoardUnlocked as BoardUnlocked } from "../events/BoardUnlocked";
+import { TileViewUnlocked } from "../events/TileViewUnlocked";
 import { BoardVisualModel } from "./BoardVisualModel";
 import { SafeDropMap } from "./SafeDropMap";
 import { TileViewPool } from "./TileViewPool";
@@ -77,11 +78,13 @@ export class TileVisualOrchestrator {
 
         this._safeDropMap = new SafeDropMap();
 
-        this._eventBus.on(VisualTileUnlocked, this.onTileUnlocked);
+        this._eventBus.on(TileViewUnlocked, this.onTileUnlocked);
+        this._eventBus.on(BoardUnlocked, this.onBoardUnlocked);
     }
 
     public init(spawned: TileSpawned[]) {
         spawned.forEach((mutation) => {
+            this._runtimeModel.lockBoard();
             const agent = this._visualAgentFactory.create(mutation.id);
             this._visualModel.register(agent);
             agent.spawnInverted(mutation.type, mutation.at);
@@ -152,8 +155,11 @@ export class TileVisualOrchestrator {
         }
     }
 
-    private onTileUnlocked = (event: VisualTileUnlocked) => {
+    private onBoardUnlocked = (event: BoardUnlocked) => {
         this._runtimeModel.unlockBoard();
+    }
+
+    private onTileUnlocked = (event: TileViewUnlocked) => {
         const agent = this._visualModel.get(event.id);
         if (!agent) return;
         this._safeDropMap.subtract(agent.position!.x);
