@@ -7,7 +7,7 @@
 		"YELLOW"
 	],
 	"clusterSize": 2,
-	"targetScore": 500,
+	"targetScore": 10000,
 	"maxMoves": 20,
 	"scoreMultiplier": 5,
 	"maxTeleport": 3,

@@ -13,6 +13,7 @@ import { SpawnService } from "../../../domain/board/services/SpawnService";
 import { DomainContext } from "../../../domain/context/DomainContext";
 import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
+import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { TileViewClicked } from "../../../presentation/board/events/TileViewClicked";
 import { GameConfig } from "../../common/config/game/GameConfig";
 import { BaseController } from "../../common/controllers/BaseController";
@@ -55,6 +56,7 @@ export class BoardController extends BaseController {
     }
 
     private onTileClicked = (event: TileViewClicked): void => {
+        if (this._gameStateModel.state !== GameStateType.PLAYING) return;
         const stable = this._boardRuntime.stableBoard();
         console.log(`[CONTROL] board stability: ${stable}`);
         if (!stable) return;
