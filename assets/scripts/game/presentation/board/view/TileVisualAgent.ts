@@ -6,10 +6,12 @@ import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TweenSettings } from "../../common/animations/TweenSettings";
-import { getLocal, getSpeed } from "../../utils/calc";
+import { getLocal } from "../../utils/calc";
 import { TileViewClicked } from "../events/TileViewClicked";
 import { VisualTileDestroyed } from "../events/TileViewDestroyed";
 import { VisualTileStabilized } from "../events/VisualTileStabilized";
+import { TileDestructionFx } from "../fx/TileDestructionFx";
+import { TileFlashFx } from "../fx/TileFlashFx";
 import { TileView } from "./TileView";
 
 export class TileVisualAgent {
@@ -25,10 +27,13 @@ export class TileVisualAgent {
     private readonly _tileLayer: cc.Node;
     private readonly _fxLayer: cc.Node;
 
+    private readonly _destructionFx: TileDestructionFx;
+    private readonly _flashFx: TileFlashFx;
+
     private readonly _id: TileId;
     private readonly _view: TileView;
+    private readonly _type: TileType;
 
-    private _type: TileType | null = null;
     private _position: TilePosition | null = null;
     private _target: TilePosition | null = null;
     private _tween: cc.Tween | null = null;
@@ -39,11 +44,14 @@ export class TileVisualAgent {
         tweenHelper: TweenHelper,
         tileId: string,
         view: TileView,
+        type: TileType,
         boardCols: number,
         boardRows: number,
         backgroundLayer: cc.Node,
         tileLayer: cc.Node,
-        fxLayer: cc.Node
+        fxLayer: cc.Node,
+        destructionFx: TileDestructionFx,
+        flashFx: TileFlashFx
     ) {
         this._visualConfig = visualConfig;
         this._eventBus = eventBus;
@@ -51,6 +59,7 @@ export class TileVisualAgent {
 
         this._id = tileId;
         this._view = view;
+        this._type = type;
 
         this._boardCols = boardCols;
         this._boardRows = boardRows;
@@ -59,6 +68,9 @@ export class TileVisualAgent {
         this._backgroundLayer = backgroundLayer;
         this._tileLayer = tileLayer;
         this._fxLayer = fxLayer;
+
+        this._destructionFx = destructionFx;
+        this._flashFx = flashFx;
     }
 
     public get id(): string {
@@ -85,45 +97,20 @@ export class TileVisualAgent {
         return this._tween !== null;
     }
 
-    public spawnInverted(type: TileType, at: TilePosition): void {
-        this._position = { x: at.x, y: -at.y - this._visualConfig.initialSpawnLine };
-        const source = getLocal(
-            this._position,
-            this._boardCols,
-            this._boardRows,
-            this._visualConfig.nodeWidth,
-            this._visualConfig.nodeHeight
-        );
+    public spawn(type: TileType, from: TilePosition, to: TilePosition, delay: number) {
+        this._position = from;
+        const source = this.local(from);
+        console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(to)} with offset ${from}`);
+        const target = this.local(to);
 
-        this.spawn(type, at, source, 0);
-    }
-
-    public spawnNormal(type: TileType, at: TilePosition, offset: number): void {
-        this._position = { x: at.x, y: at.y - offset - this._visualConfig.normalSpawnLine };
-
-        const source = getLocal(
-            this._position,
-            this._boardCols,
-            this._boardRows,
-            this._visualConfig.nodeWidth,
-            this._visualConfig.nodeHeight
-        );
-
-        this.spawn(type, at, source, this.getDropDelay());
-    }
-
-    private spawn(type: TileType, at: TilePosition, source: cc.Vec2, delay: number) {
-        console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(at)} with offset ${source}`);
-        const target = this.local(at);
-
-        this.prepare(type, source);
+        this.prepare(source);
         this.subscribe();
 
         this._tween = this._tweenHelper
             .build(TweenSettings.drop(this._view.node, source.y, target.y, this._visualConfig.gravity, delay))
             .call(() => {
                 this.clear();
-                this._position = at;
+                this._position = to;
                 this._target = null;
                 this._eventBus.emit(new VisualTileStabilized(this._id, this._position));
                 console.log(`[AGENT] ${this.id} SPAWN FINISHED!`);
@@ -132,23 +119,23 @@ export class TileVisualAgent {
     }
 
 
-    public drop(to: TilePosition): void {
+    public drop(to: TilePosition, delay: number): void {
         if (this._position === to) return;
 
         if (this.busy) {
             this.clear();
-            this._view.node.setParent(this._fxLayer);
+            this._view.node.setParent(this._tileLayer);
             this._view.stabilize();
         }
 
-        this.view.node.setParent(this._fxLayer);
+        this.view.node.setParent(this._tileLayer);
 
         console.log(`[AGENT] ${this.id} is startng to move`);
         this._target = to;
         const targetY = this.local(this._target).y;
 
         this._tween = this._tweenHelper
-            .build(TweenSettings.drop(this._view.node, this._view.node.y, targetY, this._visualConfig.gravity, this.getDropDelay()))
+            .build(TweenSettings.drop(this._view.node, this._view.node.y, targetY, this._visualConfig.gravity, delay))
             .call(() => {
                 this.clear();
                 this._position = to;
@@ -161,20 +148,41 @@ export class TileVisualAgent {
     }
 
     public destroy(): void {
+        const local = this._view.node.position;
+        this._destructionFx.play(local, this._type, this._visualConfig.burst);
+        this._flashFx.play(local);
         this._view.node.setParent(this._backgroundLayer);
-        this._tween = this._tweenHelper
-            .build(TweenSettings.destroy(this._view.node))
-            .call(() => {
-                this.clear();
-                this.hide();
-                this.unsubscribe();
-                this._eventBus.emit(new VisualTileDestroyed(this._id));
-            })
-            .start();
+        this.clear();
+        this.hide();
+        this.unsubscribe();
+        this._eventBus.emit(new VisualTileDestroyed(this._id));
     }
 
+    /* public destroy(): void {
+        const count = shardPrefabs.length;
+        const step = 360 / count;
+
+        for (let i = 0; i < count; i++) {
+
+            const angle = step * i + Math.random() * 20;
+            const rad = angle * Math.PI / 180;
+
+            const speed = 500 + Math.random() * 300;
+
+            const vx = Math.cos(rad) * speed;
+            const vy = Math.sin(rad) * speed;
+
+            const shard = cc.instantiate(shardPrefabs[i]);
+            shard.setPosition(tileWorldPos);
+
+            tweenHelper
+                .build(TweenSettings.shard(shard, vx, vy))
+                .start();
+        }
+    } */
+
     public shake(): void {
-        this._view.node.setParent(this._fxLayer);
+        this._view.node.setParent(this._tileLayer);
         this._tween = this._tweenHelper
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
@@ -184,8 +192,7 @@ export class TileVisualAgent {
             .start();
     }
 
-    private prepare(type: TileType, local: cc.Vec2): void {
-        this._view.set(type);
+    private prepare(local: cc.Vec2): void {
         this._view.stabilize();
         this._view.node.setParent(this._tileLayer);
         this._view.node.setPosition(local);
@@ -214,10 +221,6 @@ export class TileVisualAgent {
 
     private unsubscribe() {
         this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
-    }
-
-    private getDropDelay() {
-        return (this._boardRows - this._position!.y) * this._visualConfig.dropDelayParameter;
     }
 
     private local(position: TilePosition): cc.Vec2 {

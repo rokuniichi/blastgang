@@ -1,6 +1,4 @@
 import { assertNotNull } from "../../../../core/utils/assert";
-import { TileType } from "../../../domain/board/models/TileType";
-import { TileAssets } from "../../common/assets/TileAssets";
 import { ContextView } from "../../common/view/ContextView";
 import { TileViewContext } from "../context/TileViewContext";
 
@@ -12,9 +10,6 @@ export class TileView extends ContextView<TileViewContext> {
 
     @property(cc.Sprite)
     private sprite: cc.Sprite = null!;
-
-    @property(TileAssets)
-    private tileAssets: TileAssets = null!;
 
     public validate(): void {
         super.validate();
@@ -29,8 +24,7 @@ export class TileView extends ContextView<TileViewContext> {
         this.node.active = false;
     }
 
-    public set(type: TileType): void {
-        const spriteFrame = this.tileAssets.get(type);
+    public set(spriteFrame: cc.SpriteFrame): void {
         this.sprite.spriteFrame = spriteFrame;
     }
 

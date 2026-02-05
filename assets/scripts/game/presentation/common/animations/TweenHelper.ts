@@ -6,6 +6,8 @@ import { ITweenSettings } from "./settings/ITweenSettings";
 import { ShakeTween } from "./tweens/ShakeTween";
 import { DropTween } from "./tweens/DropTween";
 import { FadeTween } from "./tweens/FadeTween";
+import { BurstTween } from "./tweens/BurstTween";
+import { FlashTween } from "./tweens/FlashTween";
 
 export class TweenHelper {
 
@@ -20,6 +22,8 @@ export class TweenHelper {
         this.add(new FadeTween());
         this.add(new DropTween());
         this.add(new ShakeTween());
+        this.add(new BurstTween());
+        this.add(new FlashTween());
     }
 
     private add(tween: ITween<any>): void {

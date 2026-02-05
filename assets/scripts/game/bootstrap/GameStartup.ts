@@ -21,7 +21,9 @@ export class GameStartup {
         this._gameContext.app.logicController.init();
         this._gameContext.app.runtimeController.init();
 
+        // move to separate service
         const initialBoard = this._gameContext.domain.spawnService.spawn();
+        initialBoard.forEach((tile) => this._gameContext.app.runtimeModel.addBlocker(tile.id));
 
         const presentationContext = new PresentationContext(
             visualConfig,

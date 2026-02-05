@@ -7,6 +7,9 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class TileAssets extends cc.Component implements IValidatable {
+    @property(cc.Prefab)
+    private tile: cc.Prefab = null!
+
     @property(cc.SpriteFrame)
     private empty: cc.SpriteFrame = null!;
 
@@ -46,7 +49,11 @@ export class TileAssets extends cc.Component implements IValidatable {
         ]);
     }
 
-    public get(type: TileType): cc.SpriteFrame {
+    public getPrefab() {
+        return this.tile;
+    }
+
+    public getSprite(type: TileType): cc.SpriteFrame {
         const sprite = this._map.get(type);
         assertNotNull(sprite, this, `Sprite for type ${TileType[type]}`);
         return sprite;

@@ -60,7 +60,7 @@ export class BoardLogicController extends BaseController {
     }
 
     private onTileClicked = (event: TileViewClicked): void => {
-        console.log(`[BOARD CONTROL] click allowed: ${this.clickAllowed()}, state: ${this._gameStateModel.state}, board is locked: ${this._boardRuntime.lockedBoard()}`);
+        console.log(`[BOARD CONTROL] click allowed: ${this.clickAllowed()}, state: ${GameStateType[this._gameStateModel.state]}, board is locked: ${this._boardRuntime.lockedBoard()}`);
         if (!this.clickAllowed()) return;
         const batch = this.build(event.position);
         this._eventBus.emit(batch);

@@ -22,7 +22,6 @@ export class BoardRuntimeModel {
         this._blockers.add(id);
     }
 
-
     public addUnstable(id: TileId): void {
         this._unstables.add(id);
     }

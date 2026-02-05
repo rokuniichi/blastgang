@@ -1,6 +1,8 @@
 import { EventBus } from "../../../../core/events/EventBus";
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
+import { TileType } from "../../../domain/board/models/TileType";
+import { TileAssets } from "../../common/assets/TileAssets";
 import { TileView } from "./TileView";
 
 export class TileViewPool {
@@ -9,17 +11,17 @@ export class TileViewPool {
 
     constructor(
         private readonly _eventBus: EventBus,
-        private readonly _prefab: cc.Prefab,
+        private readonly _tiles: TileAssets,
         private readonly _parent: cc.Node
     ) { 
         this._pool = [];
         this._map = new Map();
     }
 
-    public pull(id: TileId): TileView {
+    public pull(id: TileId, type: TileType): TileView {
         let view = this._pool.pop();
         if (!view || !cc.isValid(view) || cc.isValid(view.node)) {
-            const node = cc.instantiate(this._prefab);
+            const node = cc.instantiate(this._tiles.getPrefab());
             view = node.getComponent(TileView)!;
         }
 
@@ -30,6 +32,7 @@ export class TileViewPool {
         view.node.angle = 0;
         view.node.opacity = 255;
         view.node.active = true;
+        view.set(this._tiles.getSprite(type));
         view.init({ eventBus: this._eventBus });
 
         this._map.set(id, view);

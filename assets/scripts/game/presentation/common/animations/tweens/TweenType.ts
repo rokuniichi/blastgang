@@ -3,5 +3,7 @@ export enum TweenType {
     DESTROY,
     DROP,
     SPAWN,
-    SHAKE
+    SHAKE,
+    BURST,
+    FLASH
 }   

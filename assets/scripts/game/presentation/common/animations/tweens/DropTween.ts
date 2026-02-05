@@ -8,7 +8,7 @@ export class DropTween implements ITween<DropSettings> {
 
     build(settings: DropSettings): cc.Tween {
         const distance = Math.abs(settings.toY - settings.fromY);
-        const duration = Math.sqrt((2 * distance) / settings.gravity); // s = 1/2 * g * t²
+        const duration = Math.sqrt((2 * distance) / settings.gravity); // s = 1/2 * g * t^2
 
         return cc.tween(settings.node)
             .set({ y: settings.fromY }).delay(settings.delay)

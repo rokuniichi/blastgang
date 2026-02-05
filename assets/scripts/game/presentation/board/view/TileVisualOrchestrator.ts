@@ -6,8 +6,12 @@ import { TileRejectedReason } from "../../../domain/board/events/mutations/TileR
 import { TileSpawned } from "../../../domain/board/events/mutations/TileSpawned";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TweenHelper } from "../../common/animations/TweenHelper";
+import { ShardAssets } from "../../common/assets/ShardAssets";
+import { TileAssets } from "../../common/assets/TileAssets";
 import { VisualTileDestroyed } from "../events/TileViewDestroyed";
 import { VisualTileStabilized } from "../events/VisualTileStabilized";
+import { TileDestructionFx } from "../fx/TileDestructionFx";
+import { TileFlashFx } from "../fx/TileFlashFx";
 import { BoardVisualModel } from "./BoardVisualModel";
 import { SafeDropMap } from "./SafeDropMap";
 import { TileViewPool } from "./TileViewPool";
@@ -23,7 +27,7 @@ export class TileVisualOrchestrator {
 
     private readonly _visualAgentFactory: TileVisualAgentFactory;
     private readonly _visualModel: BoardVisualModel;
-    private readonly _viewPool: TileViewPool;
+    private readonly _tilePool: TileViewPool;
 
     private readonly _boardCols: number;
     private readonly _boardRows: number;
@@ -32,9 +36,14 @@ export class TileVisualOrchestrator {
     private readonly _tileLayer: cc.Node;
     private readonly _fxLayer: cc.Node;
 
-    private readonly _tilePrefab: cc.Prefab;
+    private readonly _tiles: TileAssets;
+    private readonly _shards: ShardAssets;
+    private readonly _flash: cc.Prefab;
 
     private readonly _safeDropMap: SafeDropMap;
+
+    private readonly _destructionFx: TileDestructionFx;
+    private readonly _flashFx: TileFlashFx;
 
     public constructor(
         eventBus: EventBus,
@@ -45,7 +54,9 @@ export class TileVisualOrchestrator {
         backgroundLayer: cc.Node,
         tileLayer: cc.Node,
         fxLayer: cc.Node,
-        tilePrefab: cc.Prefab
+        tiles: TileAssets,
+        shards: ShardAssets,
+        flash: cc.Prefab
     ) {
         this._eventBus = eventBus;
         this._visualConfig = visualConfig;
@@ -55,25 +66,33 @@ export class TileVisualOrchestrator {
         this._backgroundLayer = backgroundLayer;
         this._tileLayer = tileLayer;
         this._fxLayer = fxLayer;
-        this._tilePrefab = tilePrefab;
+        this._tiles = tiles;
+        this._shards = shards;
+        this._flash = flash;
 
         this._visualModel = new BoardVisualModel();
 
-        this._viewPool = new TileViewPool(this._eventBus, this._tilePrefab, this._tileLayer);
+        this._tilePool = new TileViewPool(this._eventBus, this._tiles, this._tileLayer);
+
+        this._destructionFx = new TileDestructionFx(this._tweenHelper, this._fxLayer, this._shards, this._visualConfig.gravity);
+        this._flashFx = new TileFlashFx(this._tweenHelper, this._fxLayer, this._flash)
 
         this._visualAgentFactory = new TileVisualAgentFactory(
             this._visualConfig,
             this._eventBus,
             this._tweenHelper,
-            this._viewPool,
+            this._tilePool,
             this._boardCols,
             this._boardRows,
             this._backgroundLayer,
             this._tileLayer,
             this._fxLayer,
+            this._destructionFx,
+            this._flashFx
         );
 
         this._safeDropMap = new SafeDropMap();
+
 
         this._eventBus.on(VisualTileStabilized, this.onTileStabilized);
         this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed);
@@ -81,16 +100,17 @@ export class TileVisualOrchestrator {
 
     public init(spawned: TileSpawned[]) {
         spawned.forEach((mutation) => {
-            const agent = this._visualAgentFactory.create(mutation.id);
+            const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
             this._visualModel.register(agent);
-            agent.spawnInverted(mutation.type, mutation.at);
+            const from = { x: mutation.at.x, y: -mutation.at.y - this._visualConfig.initialSpawnLine };
+            agent.spawn(mutation.type, from, mutation.at, this.getDropDelay(from));
         });
     }
 
     public dispatch(result: BoardMutationsBatch): void {
         for (const mutation of result.mutations) {
             if (mutation.kind === "tile.spawned") {
-                const agent = this._visualAgentFactory.create(mutation.id);
+                const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
                 this._visualModel.register(agent);
                 this._safeDropMap.add(mutation.at.x, agent.id);
             }
@@ -108,7 +128,8 @@ export class TileVisualOrchestrator {
                     console.log(`[OFFSET CALCULCATED] ${offset} for ${mutation.at.x}`)
                     if (!agent) continue;
                     console.log(`[DISPATCH] SPAWN DISPATCHED`);
-                    agent.spawnNormal(mutation.type, mutation.at, offset);
+                    const from = { x: mutation.at.x, y: mutation.at.y - offset - this._visualConfig.normalSpawnLine };
+                    agent.spawn(mutation.type, from, mutation.at, this.getDropDelay(from));
                     break;
                 }
 
@@ -117,7 +138,7 @@ export class TileVisualOrchestrator {
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) continue;
                     console.log(`[DISPATCH] MOVE DISPATCHED`);
-                    agent.drop(mutation.to);
+                    agent.drop(mutation.to, this.getDropDelay(agent.position!));
                     break;
                 }
 
@@ -157,7 +178,11 @@ export class TileVisualOrchestrator {
     }
 
     private onTileDestroyed = (event: VisualTileDestroyed) => {
-        this._viewPool.release(event.id);
+        this._tilePool.release(event.id);
         this._visualModel.remove(event.id);
+    }
+
+    private getDropDelay(position: TilePosition) {
+        return (this._boardRows - position.y) * this._visualConfig.dropDelayParameter;
     }
 }

@@ -1,4 +1,6 @@
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
+import { ShardAssets } from "../../common/assets/ShardAssets";
+import { TileAssets } from "../../common/assets/TileAssets";
 import { EventView } from "../../common/view/EventView";
 import { BoardViewContext } from "../context/BoardViewContext";
 import { LoadingScreenFaded } from "../events/LoadingScreenFaded";
@@ -21,8 +23,14 @@ export class BoardView extends EventView<BoardViewContext> {
     @property(cc.Node)
     private fxLayer: cc.Node = null!;
 
+    @property(TileAssets)
+    private tiles: TileAssets = null!;
+
+    @property(ShardAssets)
+    private shardAssets: ShardAssets = null!;
+
     @property(cc.Prefab)
-    private tilePrefab: cc.Prefab = null!;
+    private flash: cc.Prefab = null!;
 
     private _visualOrchestrator!: TileVisualOrchestrator;
 
@@ -36,7 +44,9 @@ export class BoardView extends EventView<BoardViewContext> {
             this.backgroundLayer,
             this.tileLayer,
             this.fxLayer,
-            this.tilePrefab
+            this.tiles,
+            this.shardAssets,
+            this.flash
         );
 
         this.backgroundNode.width = this.context.boardCols * this.context.visualConfig.nodeWidth;

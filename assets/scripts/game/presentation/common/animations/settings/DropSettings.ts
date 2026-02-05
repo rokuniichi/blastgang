@@ -1,7 +1,6 @@
-import { TweenType } from "../tweens/TweenType";
+import { ITweenSettings } from "./ITweenSettings";
 
-export interface DropSettings {
-    type: TweenType.DROP;
+export interface DropSettings extends ITweenSettings {
     node: cc.Node;
     fromY: number;
     toY: number;
