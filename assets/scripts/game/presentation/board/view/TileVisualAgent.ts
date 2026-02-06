@@ -5,6 +5,7 @@ import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TweenHelper } from "../../common/animations/TweenHelper";
+import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { getLocal } from "../../utils/calc";
 import { TileViewClicked } from "../events/TileViewClicked";
@@ -18,14 +19,12 @@ export class TileVisualAgent {
 
     private readonly _visualConfig: VisualConfig;
     private readonly _eventBus: EventBus;
-    private readonly _tweenHelper: TweenHelper;
+    private readonly _tweenSystem: TweenSystem;
     private readonly _boardCols: number;
     private readonly _boardRows: number;
     private readonly _nodeWidth: number;
     private readonly _nodeHeight: number;
-    private readonly _backgroundLayer: cc.Node;
     private readonly _tileLayer: cc.Node;
-    private readonly _fxLayer: cc.Node;
 
     private readonly _destructionFx: TileDestructionFx;
     private readonly _flashFx: TileFlashFx;
@@ -41,21 +40,19 @@ export class TileVisualAgent {
     constructor(
         visualConfig: VisualConfig,
         eventBus: EventBus,
-        tweenHelper: TweenHelper,
+        tweenSystem: TweenSystem,
         tileId: string,
         view: TileView,
         type: TileType,
         boardCols: number,
         boardRows: number,
-        backgroundLayer: cc.Node,
         tileLayer: cc.Node,
-        fxLayer: cc.Node,
         destructionFx: TileDestructionFx,
         flashFx: TileFlashFx
     ) {
         this._visualConfig = visualConfig;
         this._eventBus = eventBus;
-        this._tweenHelper = tweenHelper;
+        this._tweenSystem = tweenSystem;
 
         this._id = tileId;
         this._view = view;
@@ -65,9 +62,7 @@ export class TileVisualAgent {
         this._boardRows = boardRows;
         this._nodeWidth = view.node.width;
         this._nodeHeight = view.node.height;
-        this._backgroundLayer = backgroundLayer;
         this._tileLayer = tileLayer;
-        this._fxLayer = fxLayer;
 
         this._destructionFx = destructionFx;
         this._flashFx = flashFx;
@@ -106,7 +101,7 @@ export class TileVisualAgent {
         this.prepare(source);
         this.subscribe();
 
-        this._tween = this._tweenHelper
+        this._tween = this._tweenSystem
             .build(TweenSettings.drop(this._view.node, source.y, target.y, this._visualConfig.gravity, delay))
             .call(() => {
                 this.clear();
@@ -134,7 +129,7 @@ export class TileVisualAgent {
         this._target = to;
         const targetY = this.local(this._target).y;
 
-        this._tween = this._tweenHelper
+        this._tween = this._tweenSystem
             .build(TweenSettings.drop(this._view.node, this._view.node.y, targetY, this._visualConfig.gravity, delay))
             .call(() => {
                 this.clear();
@@ -149,41 +144,17 @@ export class TileVisualAgent {
 
     public destroy(): void {
         const local = this._view.node.position;
-        this._destructionFx.play(local, this._type, this._visualConfig.burst);
+        this._destructionFx.play(local, this._type);
         this._flashFx.play(local);
-        this._view.node.setParent(this._backgroundLayer);
         this.clear();
         this.hide();
         this.unsubscribe();
         this._eventBus.emit(new VisualTileDestroyed(this._id));
     }
 
-    /* public destroy(): void {
-        const count = shardPrefabs.length;
-        const step = 360 / count;
-
-        for (let i = 0; i < count; i++) {
-
-            const angle = step * i + Math.random() * 20;
-            const rad = angle * Math.PI / 180;
-
-            const speed = 500 + Math.random() * 300;
-
-            const vx = Math.cos(rad) * speed;
-            const vy = Math.sin(rad) * speed;
-
-            const shard = cc.instantiate(shardPrefabs[i]);
-            shard.setPosition(tileWorldPos);
-
-            tweenHelper
-                .build(TweenSettings.shard(shard, vx, vy))
-                .start();
-        }
-    } */
-
     public shake(): void {
         this._view.node.setParent(this._tileLayer);
-        this._tween = this._tweenHelper
+        this._tween = this._tweenSystem
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
                 this.clear();
@@ -197,6 +168,14 @@ export class TileVisualAgent {
         this._view.node.setParent(this._tileLayer);
         this._view.node.setPosition(local);
         this._view.show();
+    }
+
+    private subscribe() {
+        this._view.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
+    }
+
+    private unsubscribe() {
+        this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 
     private clear() {
@@ -214,14 +193,6 @@ export class TileVisualAgent {
     private onClick(): void {
         if (!this.busy && this._position) this._eventBus.emit(new TileViewClicked(this._position));
     };
-
-    private subscribe() {
-        this._view.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
-    }
-
-    private unsubscribe() {
-        this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
-    }
 
     private local(position: TilePosition): cc.Vec2 {
         return getLocal(position, this._boardCols, this._boardRows, this._nodeWidth, this._nodeHeight);

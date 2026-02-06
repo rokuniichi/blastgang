@@ -5,6 +5,7 @@ import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutations
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TweenHelper } from "../../common/animations/TweenHelper";
+import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
 import { VisualTileDestroyed } from "../events/TileViewDestroyed";
@@ -13,7 +14,7 @@ import { TileDestructionFx } from "../fx/TileDestructionFx";
 import { TileFlashFx } from "../fx/TileFlashFx";
 import { BoardVisualModel } from "./BoardVisualModel";
 import { SafeDropMap } from "./SafeDropMap";
-import { TileViewPool } from "./TileViewPool";
+import { TileViewHolder } from "./TileViewHolder";
 import { TileVisualAgentFactory } from "./TileVisualAgentFactory";
 
 export class TileVisualOrchestrator {
@@ -22,11 +23,11 @@ export class TileVisualOrchestrator {
     private readonly _visualConfig: VisualConfig;
 
 
-    private readonly _tweenHelper: TweenHelper;
+    private readonly _tweenSystem: TweenSystem;
 
     private readonly _visualAgentFactory: TileVisualAgentFactory;
     private readonly _visualModel: BoardVisualModel;
-    private readonly _tilePool: TileViewPool;
+    private readonly _tilePool: TileViewHolder;
 
     private readonly _boardCols: number;
     private readonly _boardRows: number;
@@ -47,7 +48,7 @@ export class TileVisualOrchestrator {
     public constructor(
         eventBus: EventBus,
         visualConfig: VisualConfig,
-        tweenHelper: TweenHelper,
+        tweenSystem: TweenSystem,
         boardCols: number,
         boardRows: number,
         backgroundLayer: cc.Node,
@@ -59,7 +60,7 @@ export class TileVisualOrchestrator {
     ) {
         this._eventBus = eventBus;
         this._visualConfig = visualConfig;
-        this._tweenHelper = tweenHelper;
+        this._tweenSystem = tweenSystem;
         this._boardCols = boardCols;
         this._boardRows = boardRows;
         this._backgroundLayer = backgroundLayer;
@@ -71,21 +72,19 @@ export class TileVisualOrchestrator {
 
         this._visualModel = new BoardVisualModel();
 
-        this._tilePool = new TileViewPool(this._eventBus, this._tiles, this._tileLayer);
-
-        this._destructionFx = new TileDestructionFx(this._tweenHelper, this._fxLayer, this._shards, this._visualConfig.gravity);
-        this._flashFx = new TileFlashFx(this._tweenHelper, this._fxLayer, this._flash)
+        const boardSize = this._boardCols * this._boardRows;
+        this._tilePool = new TileViewHolder(this._tiles, this._tileLayer, boardSize);
+        this._destructionFx = new TileDestructionFx(this._visualConfig.burst, this._tweenSystem, this._shards, this._fxLayer, boardSize);
+        this._flashFx = new TileFlashFx(this._tweenSystem, this._flash, this._fxLayer, boardSize)
 
         this._visualAgentFactory = new TileVisualAgentFactory(
             this._visualConfig,
             this._eventBus,
-            this._tweenHelper,
+            this._tweenSystem,
             this._tilePool,
             this._boardCols,
             this._boardRows,
-            this._backgroundLayer,
             this._tileLayer,
-            this._fxLayer,
             this._destructionFx,
             this._flashFx
         );

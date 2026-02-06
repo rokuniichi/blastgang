@@ -2,10 +2,10 @@ import { EventBus } from "../../../../core/eventbus/EventBus";
 import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TileType } from "../../../domain/board/models/TileType";
-import { TweenHelper } from "../../common/animations/TweenHelper";
+import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { TileDestructionFx } from "../fx/TileDestructionFx";
 import { TileFlashFx } from "../fx/TileFlashFx";
-import { TileViewPool } from "./TileViewPool";
+import { TileViewHolder } from "./TileViewHolder";
 import { TileVisualAgent } from "./TileVisualAgent";
 
 export class TileVisualAgentFactory {
@@ -13,13 +13,11 @@ export class TileVisualAgentFactory {
     constructor(
         private readonly _visualConfig: VisualConfig,
         private readonly _eventBus: EventBus,
-        private readonly _tweenHelper: TweenHelper,
-        private readonly _pool: TileViewPool,
+        private readonly _tweenSystem: TweenSystem,
+        private readonly _pool: TileViewHolder,
         private readonly _boardCols: number,
         private readonly _boardRows: number,
-        private readonly _backgroundLayer: cc.Node,
         private readonly _tileLayer: cc.Node,
-        private readonly _fxLayer: cc.Node,
         private readonly _destructionFx: TileDestructionFx,
         private readonly _flashFx: TileFlashFx
     ) { }
@@ -29,15 +27,13 @@ export class TileVisualAgentFactory {
         return new TileVisualAgent(
             this._visualConfig,
             this._eventBus,
-            this._tweenHelper,
+            this._tweenSystem,
             id,
             view,
             type,
             this._boardCols,
             this._boardRows,
-            this._backgroundLayer,
             this._tileLayer,
-            this._fxLayer,
             this._destructionFx,
             this._flashFx
         );

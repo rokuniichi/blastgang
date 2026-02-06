@@ -7,6 +7,6 @@ export class LoadingScreenContext extends EventViewContext {
 
     public constructor(presentation: PresentationGraph) {
         super(presentation);
-        this.tweenHelper = presentation.tweenHelper;
+        this.tweenHelper = presentation.tweenSystem;
     }
 }

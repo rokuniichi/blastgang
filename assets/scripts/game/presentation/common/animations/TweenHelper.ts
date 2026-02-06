@@ -11,7 +11,7 @@ import { FlashTween } from "./tweens/FlashTween";
 
 export class TweenHelper {
 
-    private readonly tweens = new Map<TweenType, ITween<any>>();
+    private readonly _tweens = new Map<TweenType, ITween<any>>();
 
     public constructor() {
         this.register();
@@ -27,11 +27,11 @@ export class TweenHelper {
     }
 
     private add(tween: ITween<any>): void {
-        this.tweens.set(tween.type, tween);
+        this._tweens.set(tween.type, tween);
     }
 
     public build<T extends ITweenSettings>(settings: T): cc.Tween {
-        const tween = this.tweens.get(settings.type);
+        const tween = this._tweens.get(settings.type);
         assertNotNull(tween, this, "tween");
         return tween.build(settings);
     }

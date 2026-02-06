@@ -28,7 +28,7 @@ export class BoardView extends EventView<BoardViewContext> {
     private tiles: TileAssets = null!;
 
     @property(ShardAssets)
-    private shardAssets: ShardAssets = null!;
+    private shards: ShardAssets = null!;
 
     @property(cc.Prefab)
     private flash: cc.Prefab = null!;
@@ -44,14 +44,14 @@ export class BoardView extends EventView<BoardViewContext> {
         this._visualOrchestrator = new TileVisualOrchestrator(
             this.context.eventBus,
             this.context.visualConfig,
-            this.context.tweenHelper,
+            this.context.tweenSystem,
             this.context.boardCols,
             this.context.boardRows,
             this.backgroundLayer,
             this.tileLayer,
             this.fxLayer,
             this.tiles,
-            this.shardAssets,
+            this.shards,
             this.flash
         );
 
