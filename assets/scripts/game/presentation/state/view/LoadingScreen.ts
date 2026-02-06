@@ -2,14 +2,14 @@ import { GameLoaded } from "../../board/events/GameLoaded";
 import { GameRestartRequset } from "../../board/events/GameRestartRequest";
 import { PresentationReady } from "../../board/events/PresentationReady";
 import { TweenSettings } from "../../common/animations/TweenSettings";
-import { EventPresentationView } from "../../common/view/EventView";
+import { EventView } from "../../common/view/EventView";
 import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
 import { LoadingScreenContext } from "../context/LoadingScreenContext";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class LoadingScreen extends EventPresentationView<LoadingScreenContext> {
+export class LoadingScreen extends EventView<LoadingScreenContext> {
     @property(cc.Node)
     private screen: cc.Node = null!;
 

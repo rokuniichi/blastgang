@@ -1,7 +1,7 @@
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
-import { EventPresentationView } from "../../common/view/EventView";
+import { EventView } from "../../common/view/EventView";
 import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
 import { BoardViewContext } from "../context/BoardViewContext";
 import { GameLoaded } from "../events/GameLoaded";
@@ -11,7 +11,7 @@ import { TileVisualOrchestrator } from "./TileVisualOrchestrator";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class BoardView extends EventPresentationView<BoardViewContext> {
+export class BoardView extends EventView<BoardViewContext> {
     @property(cc.Node)
     private backgroundNode: cc.Node = null!;
 

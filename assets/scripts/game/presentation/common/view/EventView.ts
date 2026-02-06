@@ -5,7 +5,7 @@ import { assertNotNull } from "../../../../core/utils/assert";
 import { EventViewContext } from "../context/EventViewContext";
 import { PresentationView } from "./PresentationView";
 
-export abstract class EventPresentationView<TContext extends EventViewContext> extends PresentationView<TContext> {
+export abstract class EventView<TContext extends EventViewContext> extends PresentationView<TContext> {
 
     private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
