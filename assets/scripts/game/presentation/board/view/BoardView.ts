@@ -77,4 +77,8 @@ export class BoardView extends EventView<BoardViewContext> {
         console.log("[BOARD VIEW] LOADED RECIEVED");
         this._startupGate.proceed();
     };
+
+    protected onDispose(): void {
+        this._visualOrchestrator.dispose();
+    }
 }

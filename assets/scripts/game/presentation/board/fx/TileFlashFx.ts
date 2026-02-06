@@ -1,8 +1,9 @@
+import { IDisposable } from "../../../../core/lifecycle/IDisposable";
 import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { NodePool } from "../../common/view/NodePool";
 
-export class TileFlashFx {
+export class TileFlashFx implements IDisposable {
     private readonly _tweenSystem: TweenSystem;
     private readonly _parent: cc.Node;
     private readonly _prefab: cc.Prefab;
@@ -15,6 +16,10 @@ export class TileFlashFx {
         this._parent = parent;
 
         this._flashPool = new NodePool(this._prefab, this._parent, size);
+    }
+
+    public dispose(): void {
+        this._flashPool.dispose();
     }
 
     public play(local: cc.Vec3): void {

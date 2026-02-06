@@ -1,6 +1,7 @@
+import { IDisposable } from "../../../../core/lifecycle/IDisposable";
 import { BasePool } from "./BasePool";
 
-export class NodePool extends BasePool<cc.Node> {
+export class NodePool extends BasePool<cc.Node> implements IDisposable {
     private readonly _prefab: cc.Prefab;
     private readonly _parent: cc.Node;
 
@@ -14,6 +15,11 @@ export class NodePool extends BasePool<cc.Node> {
             node.active = false;
             this._pool[i] = this.create();
         }
+    }
+
+    public dispose(): void {
+        this._pool.forEach((node) => node.destroy());
+        this._pool = [];
     }
 
     public pull(): cc.Node {

@@ -3432,7 +3432,9 @@
     "tiles": {
       "__id__": 84
     },
-    "shards": null,
+    "shards": {
+      "__id__": 86
+    },
     "flash": {
       "__uuid__": "d253fcaf-4d3b-4771-94d4-58cf3a97dd89"
     },

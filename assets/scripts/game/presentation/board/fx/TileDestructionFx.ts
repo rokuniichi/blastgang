@@ -1,3 +1,4 @@
+import { IDisposable } from "../../../../core/lifecycle/IDisposable";
 import { assertNotNull } from "../../../../core/utils/assert";
 import { Random } from "../../../../core/utils/random";
 import { BurstFxInfo } from "../../../config/visual/VisualConfig";
@@ -8,7 +9,7 @@ import { ShardAssets } from "../../common/assets/ShardAssets";
 import { NodePool } from "../../common/view/NodePool";
 import { BurstMotion } from "./components/BurstMotion";
 
-export class TileDestructionFx {
+export class TileDestructionFx implements IDisposable {
     private readonly _burstInfo: BurstFxInfo;
     private readonly _tweenSystem: TweenSystem;
     private readonly _shards: ShardAssets;
@@ -21,6 +22,10 @@ export class TileDestructionFx {
         this._shards = shards;
         this._parent = parent;
         this._shardPool = new NodePool(shards.getPrefab(), parent, boardSize * burstInfo.maxCount);
+    }
+
+    public dispose(): void {
+        this._shardPool.dispose();
     }
 
     public play(local: cc.Vec3, type: TileType): void {

@@ -1,4 +1,5 @@
 import { EventBus } from "../../../../core/eventbus/EventBus";
+import { IDisposable } from "../../../../core/lifecycle/IDisposable";
 import { BoardKey } from "../../../application/board/BoardKey";
 import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
@@ -17,7 +18,7 @@ import { SafeDropMap } from "./SafeDropMap";
 import { TileViewHolder } from "./TileViewHolder";
 import { TileVisualAgentFactory } from "./TileVisualAgentFactory";
 
-export class TileVisualOrchestrator {
+export class TileVisualOrchestrator implements IDisposable {
 
     private readonly _eventBus: EventBus;
     private readonly _visualConfig: VisualConfig;
@@ -44,6 +45,8 @@ export class TileVisualOrchestrator {
 
     private readonly _destructionFx: TileDestructionFx;
     private readonly _flashFx: TileFlashFx;
+
+    private readonly _disposables: IDisposable[];
 
     public constructor(
         eventBus: EventBus,
@@ -91,8 +94,20 @@ export class TileVisualOrchestrator {
 
         this._safeDropMap = new SafeDropMap();
 
+        this._disposables = [
+            this._tilePool,
+            this._destructionFx,
+            this._flashFx
+        ];
+
         this._eventBus.on(VisualTileStabilized, this.onTileStabilized);
         this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed);
+    }
+
+    public dispose(): void {
+        this._eventBus.off(VisualTileStabilized, this.onTileStabilized);
+        this._eventBus.off(VisualTileDestroyed, this.onTileDestroyed);
+        this._disposables.forEach((entity) => entity.dispose());
     }
 
     public init(result: BoardMutationsBatch) {
@@ -174,6 +189,7 @@ export class TileVisualOrchestrator {
                     throw new Error(`Unsupported mutation kind: ${(mutation as any).kind}`);
             }
         }
+
     }
 
     private onTileStabilized = (event: VisualTileStabilized) => {

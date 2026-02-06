@@ -1,3 +1,4 @@
+import { IDisposable } from "../../../../core/lifecycle/IDisposable";
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TileType } from "../../../domain/board/models/TileType";
@@ -5,7 +6,7 @@ import { TileAssets } from "../../common/assets/TileAssets";
 import { NodePool } from "../../common/view/NodePool";
 import { TileView } from "./TileView";
 
-export class TileViewHolder {
+export class TileViewHolder implements IDisposable {
     private readonly _tiles: TileAssets;
 
     private readonly _map: Map<TileId, TileView>;
@@ -16,6 +17,10 @@ export class TileViewHolder {
 
         this._map = new Map<TileId, TileView>;
         this._pool = new NodePool(this._tiles.getPrefab(), parent, size);
+    }
+
+    public dispose(): void {
+        this._pool.dispose();
     }
 
     public pull(id: TileId, type: TileType): TileView {

@@ -24,7 +24,7 @@ export class TileVisualAgent {
     private readonly _boardRows: number;
     private readonly _nodeWidth: number;
     private readonly _nodeHeight: number;
-    private readonly _tileLayer: cc.Node;
+    private readonly _parent: cc.Node;
 
     private readonly _destructionFx: TileDestructionFx;
     private readonly _flashFx: TileFlashFx;
@@ -46,7 +46,7 @@ export class TileVisualAgent {
         type: TileType,
         boardCols: number,
         boardRows: number,
-        tileLayer: cc.Node,
+        parent: cc.Node,
         destructionFx: TileDestructionFx,
         flashFx: TileFlashFx
     ) {
@@ -62,7 +62,7 @@ export class TileVisualAgent {
         this._boardRows = boardRows;
         this._nodeWidth = view.node.width;
         this._nodeHeight = view.node.height;
-        this._tileLayer = tileLayer;
+        this._parent = parent;
 
         this._destructionFx = destructionFx;
         this._flashFx = flashFx;
@@ -94,6 +94,7 @@ export class TileVisualAgent {
 
     public spawn(type: TileType, from: TilePosition, to: TilePosition, delay: number) {
         this._position = from;
+        this._target = to;
         const source = this.local(from);
         console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(to)} with offset ${from}`);
         const target = this.local(to);
@@ -119,11 +120,11 @@ export class TileVisualAgent {
 
         if (this.busy) {
             this.clear();
-            this._view.node.setParent(this._tileLayer);
+            this._view.node.setParent(this._parent);
             this._view.stabilize();
         }
 
-        this.view.node.setParent(this._tileLayer);
+        this.view.node.setParent(this._parent);
 
         console.log(`[AGENT] ${this.id} is startng to move`);
         this._target = to;
@@ -135,7 +136,7 @@ export class TileVisualAgent {
                 this.clear();
                 this._position = to;
                 this._target = null;
-                this.view.node.setParent(this._tileLayer);
+                this.view.node.setParent(this._parent);
                 this._eventBus.emit(new VisualTileStabilized(this._id, this._position));
                 console.log(`[AGENT] ${this.id} MOVE FINISHED!`);
             })
@@ -153,7 +154,7 @@ export class TileVisualAgent {
     }
 
     public shake(): void {
-        this._view.node.setParent(this._tileLayer);
+        this._view.node.setParent(this._parent);
         this._tween = this._tweenSystem
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
@@ -165,8 +166,9 @@ export class TileVisualAgent {
 
     private prepare(local: cc.Vec2): void {
         this._view.stabilize();
-        this._view.node.setParent(this._tileLayer);
+        this._view.node.setParent(this._parent);
         this._view.node.setPosition(local);
+        this._view.node.setSiblingIndex(this._target!.y * this._boardCols + this._target!.x)
         this._view.show();
     }
 
