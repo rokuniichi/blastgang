@@ -1,11 +1,10 @@
 import { EventBus } from "../../../../core/events/EventBus";
-import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { BoardInfo } from "../../../config/game/GameConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileMutation } from "../../../domain/board/events/mutations/TileMutation";
 import { TileMutationHelper } from "../../../domain/board/events/mutations/TileMutationHelper";
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
-import { BoardLogicModel, TileId } from "../../../domain/board/models/BoardLogicModel";
+import { BoardLogicModel } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileRepository } from "../../../domain/board/models/TileRepository";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
