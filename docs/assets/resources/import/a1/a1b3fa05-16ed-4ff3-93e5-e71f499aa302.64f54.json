@@ -1,0 +1,1 @@
+{"__type__":"cc.JsonAsset","_name":"game-config","json":{"board":{"cols":8,"rows":8,"clusterSize":2,"allowedTypes":["RED","GREEN","YELLOW","BLUE","PURPLE"]},"gameState":{"targetScore":2500,"maxMoves":20,"scoreMultiplier":5,"boosters":{"SWAP":3,"BOMB":3}}}}
