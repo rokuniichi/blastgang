@@ -1,8 +1,8 @@
-import { ILifecycle } from "../../../core/lifecycle/ILifecycle";
-import { PresentationReady } from "../board/events/PresentationReady";
-import { BaseView } from "../common/view/BaseView";
-import { PresentationView } from "../common/view/PresentationView";
-import { PresentationGraph } from "../PresentationGraph";
+import { ILifecycle } from "../../core/lifecycle/ILifecycle";
+import { PresentationReady } from "./board/events/PresentationReady";
+import { BaseView } from "./common/view/BaseView";
+import { PresentationView } from "./common/view/PresentationView";
+import { PresentationGraph } from "./PresentationGraph";
 
 const { ccclass } = cc._decorator;
 

@@ -1,5 +1,5 @@
 import { GameSession } from "../bootstrap/GameSession";
-import { PresentationInstaller } from "../presentation/context/PresentationInstaller";
+import { PresentationInstaller } from "../presentation/PresentationInstaller";
 
 const { ccclass, property } = cc._decorator;
 

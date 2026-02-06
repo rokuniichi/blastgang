@@ -2,7 +2,7 @@ import { ILifecycle } from "../../core/lifecycle/ILifecycle";
 import { GameConfigLoader } from "../config/game/GameConfigLoader";
 import { VisualConfigLoader } from "../config/visual/VisualConfigLoader";
 import { GameRestartRequset } from "../presentation/board/events/GameRestartRequest";
-import { PresentationInstaller } from "../presentation/context/PresentationInstaller";
+import { PresentationInstaller } from "../presentation/PresentationInstaller";
 import { GameSettings } from "../settings/GameSettings";
 import { GameContext } from "./GameContext";
 
