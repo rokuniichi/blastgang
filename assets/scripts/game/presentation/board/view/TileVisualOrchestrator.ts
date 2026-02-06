@@ -22,7 +22,6 @@ export class TileVisualOrchestrator implements IDisposable {
     private readonly _eventBus: EventBus;
     private readonly _visualConfig: VisualConfig;
 
-
     private readonly _tweenSystem: TweenSystem;
 
     private readonly _visualAgentFactory: TileVisualAgentFactory;
