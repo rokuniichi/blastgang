@@ -1,7 +1,7 @@
 # 💥 BlastGang
 
 **Blast-puzzle game** built with **Cocos Creator**, focused on clean architecture, separation of concerns, future-proof design.   
-The project explores a hybrid of different philosophies and design dogmas such as **DDD + MVCS + event-driven** approach.
+The project explores a hybrid of different philosophies and design dogmas such as **DDD**, **MVCS**, **event-driven**.
 
 🎮 Play online:  
 https://rokuniichi.github.io/blastgang
@@ -76,7 +76,7 @@ This project emphasizes **deterministic** game logic, **agent** driven animation
 The **BoardLogicalModel** represents the pure logical structure of the board.
 - Internally based on a generic 2D Matrix<TileId>
 - Provides **O(1)** access by position
-- Acts as a spatial index
+- Acts as a spatial index registry
 - Contains no runtime or visual state
 - Used exclusively by domain algorithms
 - This model answers the question:
@@ -164,6 +164,8 @@ The **BoardRuntimeModel** tracks runtime-only state.
 - ```protected``` and ```public``` members have **no** prefix
 - Constants and enum types use ```SCREAMING_SNAKE_CASE```
 - Strict "**no** ```any```" policy unless absolutely necessary
+- ```const``` and ```let``` variables can be used without explicit type notation
+- ```var``` is not allowed
 
 ---
 
