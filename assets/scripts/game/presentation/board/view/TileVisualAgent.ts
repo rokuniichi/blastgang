@@ -213,7 +213,7 @@ export class TileVisualAgent {
 
     private onClick(): void {
         if (!this.busy && this._position) this._eventBus.emit(new TileViewClicked(this._position));
-    }
+    };
 
     private subscribe() {
         this._view.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);

@@ -1,3 +1,3 @@
-export interface IInitializable<TArgs = void> {
-    init(args: TArgs): void;
+export interface IInitializable<T = void> {
+    init(args: T): void;
 }

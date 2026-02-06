@@ -1,12 +1,19 @@
 import { VisualConfig } from "../../../config/visual/VisualConfig";
-import { TileSpawned } from "../../../domain/board/events/mutations/TileSpawned";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { EventViewContext } from "../../common/context/EventViewContext";
+import { PresentationGraph } from "../../PresentationGraph";
 
-export interface BoardViewContext extends EventViewContext {
+export class BoardViewContext extends EventViewContext {
     readonly visualConfig: VisualConfig;
     readonly tweenHelper: TweenHelper;
     readonly boardCols: number;
     readonly boardRows: number;
-    readonly initialBoard: TileSpawned[];
+
+    public constructor(presentation: PresentationGraph) {
+        super(presentation);
+        this.visualConfig = presentation.visualConfig;
+        this.tweenHelper = presentation.tweenHelper;
+        this.boardCols = presentation.boardCols;
+        this.boardRows = presentation.boardRows;
+    }
 }

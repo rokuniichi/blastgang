@@ -33,7 +33,6 @@ export class TileViewPool {
         view.node.opacity = 255;
         view.node.active = true;
         view.set(this._tiles.getSprite(type));
-        view.init({ eventBus: this._eventBus });
 
         this._map.set(id, view);
         return view;

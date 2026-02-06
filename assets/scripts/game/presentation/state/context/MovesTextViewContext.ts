@@ -1,3 +1,7 @@
 import { DynamicTextViewContext } from "../../common/context/DynamicTextViewContext";
 
-export interface MovesTextViewContext extends DynamicTextViewContext { }
+export class MovesTextViewContext extends DynamicTextViewContext {
+    protected initialValue(): number {
+        return this.presentation.movesLeft;
+    }
+}

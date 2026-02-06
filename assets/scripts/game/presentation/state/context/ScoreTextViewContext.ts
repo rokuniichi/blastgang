@@ -1,5 +1,15 @@
 import { DynamicTextViewContext } from "../../common/context/DynamicTextViewContext";
+import { PresentationGraph } from "../../PresentationGraph";
 
-export interface ScoreTextViewContext extends DynamicTextViewContext {
+export class ScoreTextViewContext extends DynamicTextViewContext {
     readonly targetScore: number;
- }
+
+    public constructor(presentation: PresentationGraph) {
+        super(presentation);
+        this.targetScore = presentation.targetScore;
+    }
+
+    protected initialValue(): number {
+        return this.presentation.currentScore;
+    }
+}

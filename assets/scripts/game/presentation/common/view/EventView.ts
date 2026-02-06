@@ -3,18 +3,17 @@ import { IEvent } from "../../../../core/events/IEvent";
 import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
 import { assertNotNull } from "../../../../core/utils/assert";
 import { EventViewContext } from "../context/EventViewContext";
-import { ContextView } from "./ContextView";
+import { PresentationView } from "./PresentationView";
 
-export abstract class EventView<TContext extends EventViewContext> extends ContextView<TContext> {
+export abstract class EventPresentationView<TContext extends EventViewContext> extends PresentationView<TContext> {
 
     private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
 
-    protected override preInit(): void {
+    protected preInit(): void {
         assertNotNull(this.context.eventBus, this, "eventBus");
     }
 
     protected onDispose(): void {
-        super.onDispose();
         this._subscriptions.clear();
     }
 

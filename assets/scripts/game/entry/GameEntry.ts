@@ -1,4 +1,4 @@
-import { GameStartup } from "../bootstrap/GameStartup";
+import { GameSession } from "../bootstrap/GameSession";
 import { PresentationInstaller } from "../presentation/context/PresentationInstaller";
 
 const { ccclass, property } = cc._decorator;
@@ -9,14 +9,14 @@ export class GameEntry extends cc.Component {
     @property(PresentationInstaller)
     private presentationInstaller: PresentationInstaller = null!;
 
-    private startup!: GameStartup;
+    private session!: GameSession;
 
     protected start(): void {
-        this.startup = new GameStartup(this.presentationInstaller);
-        this.startup.start();
+        this.session = new GameSession(this.presentationInstaller);
+        this.session.start();
     }
 
     protected onDestroy(): void {
-        this.startup?.dispose();
+        this.session?.dispose();
     }
 }

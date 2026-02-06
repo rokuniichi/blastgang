@@ -1,28 +1,15 @@
-import { IDisposable } from "../../../../core/lifecycle/IDisposable";
-import { IInitializable } from "../../../../core/lifecycle/IInitializable";
-import { IValidatable } from "../../../../core/lifecycle/IValidatable";
+import { ILifecycle } from "../../../../core/lifecycle/ILifecycle";
 import { assertNotNull } from "../../../../core/utils/assert";
+import { BaseView } from "./BaseView";
 
-
-export abstract class ContextView<TContext> extends cc.Component implements IInitializable<TContext>, IDisposable, IValidatable {
-    
+export abstract class ContextView<TContext> extends BaseView implements ILifecycle<TContext> {
     protected context!: TContext;
 
     private _initialized: boolean = false;
 
-    protected onLoad(): void {
-        this.validate();
-    }
-
-    protected onDestroy(): void {
-        this.dispose();
-    }
-
-    public validate(): void { }
-
     public init(context: TContext): void {
         if (this._initialized) return;
-        assertNotNull(context, this, "context");    
+        assertNotNull(context, this, "context");
         this.context = context;
         this.preInit();
         this.onInit();
@@ -38,6 +25,10 @@ export abstract class ContextView<TContext> extends cc.Component implements IIni
         if (!this._initialized) return;
         this.onDispose();
         this._initialized = false;
+    }
+
+    protected onDestroy(): void {
+        this.dispose();
     }
 
     protected onDispose(): void { }

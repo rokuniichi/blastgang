@@ -3,7 +3,6 @@ import { BoardKey } from "../../../application/board/BoardKey";
 import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
-import { TileSpawned } from "../../../domain/board/events/mutations/TileSpawned";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TweenHelper } from "../../common/animations/TweenHelper";
 import { ShardAssets } from "../../common/assets/ShardAssets";
@@ -93,21 +92,26 @@ export class TileVisualOrchestrator {
 
         this._safeDropMap = new SafeDropMap();
 
-
         this._eventBus.on(VisualTileStabilized, this.onTileStabilized);
         this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed);
     }
 
-    public init(spawned: TileSpawned[]) {
-        spawned.forEach((mutation) => {
-            const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
-            this._visualModel.register(agent);
-            const from = { x: mutation.at.x, y: -mutation.at.y - this._visualConfig.initialSpawnLine };
-            agent.spawn(mutation.type, from, mutation.at, this.getDropDelay(from));
+    public init(result: BoardMutationsBatch) {
+        console.log(`[DISPATCH] INIT COMMAND: ${result.mutations.length}`);
+
+        result.mutations.forEach((mutation) => {
+            if (mutation.kind === "tile.spawned") {
+                const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
+                this._visualModel.register(agent);
+                const from = { x: mutation.at.x, y: -mutation.at.y - this._visualConfig.initialSpawnLine };
+                agent.spawn(mutation.type, from, mutation.at, this.getDropDelay(from));
+            }
         });
     }
 
     public dispatch(result: BoardMutationsBatch): void {
+        console.log(`[DISPATCH] DISPATCH COMMAND: ${result.mutations.length}`);
+
         for (const mutation of result.mutations) {
             if (mutation.kind === "tile.spawned") {
                 const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
@@ -175,12 +179,12 @@ export class TileVisualOrchestrator {
 
     private onTileStabilized = (event: VisualTileStabilized) => {
         this._safeDropMap.subtract(event.position.x, event.id);
-    }
+    };
 
     private onTileDestroyed = (event: VisualTileDestroyed) => {
         this._tilePool.release(event.id);
         this._visualModel.remove(event.id);
-    }
+    };
 
     private getDropDelay(position: TilePosition) {
         return (this._boardRows - position.y) * this._visualConfig.dropDelayParameter;

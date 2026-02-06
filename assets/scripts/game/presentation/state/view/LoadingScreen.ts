@@ -1,14 +1,15 @@
-import { LoadingScreenFaded } from "../../board/events/LoadingScreenFaded";
+import { GameLoaded } from "../../board/events/GameLoaded";
+import { GameRestartRequset } from "../../board/events/GameRestartRequest";
 import { PresentationReady } from "../../board/events/PresentationReady";
 import { TweenSettings } from "../../common/animations/TweenSettings";
-import { EventView } from "../../common/view/EventView";
+import { EventPresentationView } from "../../common/view/EventView";
+import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
 import { LoadingScreenContext } from "../context/LoadingScreenContext";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class LoadingScreen extends EventView<LoadingScreenContext> {
-
+export class LoadingScreen extends EventPresentationView<LoadingScreenContext> {
     @property(cc.Node)
     private screen: cc.Node = null!;
 
@@ -33,16 +34,25 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
     @property
     dotPauseBetweenLoops: number = 0.2;
 
-    private _tween?: cc.Tween;
+    private _tween?: cc.Tween | null;
+
+    public contextConstructor(): PresentationViewContextConstructor<LoadingScreenContext> {
+        return LoadingScreenContext;
+    }
 
     protected onInit(): void {
         this.resetDots();
         this.startAnimation();
         this.on(PresentationReady, this.onPresentationReady);
+        this.on(GameRestartRequset, this.onGameRestart);
     }
 
     private onPresentationReady = () => {
         this.fadeScreen();
+    };
+
+    private onGameRestart() {
+
     };
 
     private resetDots() {
@@ -77,8 +87,9 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
     private fadeScreen() {
         this.context.tweenHelper.build(TweenSettings.fade(this.screen, this.screenDelay, this.screenFadeOutDuration, 0))
             .call(() => {
-                this.emit(new LoadingScreenFaded())
                 cc.Tween.stopAllByTarget(this.screen);
+                this._tween = null;
+                this.emit(new GameLoaded());
             })
             .start();
     }

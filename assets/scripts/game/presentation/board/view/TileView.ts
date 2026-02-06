@@ -1,12 +1,10 @@
 import { assertNotNull } from "../../../../core/utils/assert";
-import { ContextView } from "../../common/view/ContextView";
-import { TileViewContext } from "../context/TileViewContext";
-
+import { BaseView } from "../../common/view/BaseView";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class TileView extends ContextView<TileViewContext> {
+export class TileView extends BaseView {
 
     @property(cc.Sprite)
     private sprite: cc.Sprite = null!;
@@ -14,7 +12,7 @@ export class TileView extends ContextView<TileViewContext> {
     public validate(): void {
         super.validate();
         assertNotNull(this.sprite, this, "Sprite");
-    }    
+    }
 
     public show(): void {
         this.node.active = true;

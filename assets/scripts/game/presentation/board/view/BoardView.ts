@@ -1,16 +1,17 @@
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
-import { EventView } from "../../common/view/EventView";
+import { EventPresentationView } from "../../common/view/EventView";
+import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
 import { BoardViewContext } from "../context/BoardViewContext";
-import { LoadingScreenFaded } from "../events/LoadingScreenFaded";
+import { GameLoaded } from "../events/GameLoaded";
+import { InitialBatchGate } from "./InitialBatchGate";
 import { TileVisualOrchestrator } from "./TileVisualOrchestrator";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class BoardView extends EventView<BoardViewContext> {
-
+export class BoardView extends EventPresentationView<BoardViewContext> {
     @property(cc.Node)
     private backgroundNode: cc.Node = null!;
 
@@ -32,7 +33,12 @@ export class BoardView extends EventView<BoardViewContext> {
     @property(cc.Prefab)
     private flash: cc.Prefab = null!;
 
+    private _startupGate!: InitialBatchGate;
     private _visualOrchestrator!: TileVisualOrchestrator;
+
+    public contextConstructor(): PresentationViewContextConstructor<BoardViewContext> {
+        return BoardViewContext;
+    }
 
     protected onInit(): void {
         this._visualOrchestrator = new TileVisualOrchestrator(
@@ -49,17 +55,26 @@ export class BoardView extends EventView<BoardViewContext> {
             this.flash
         );
 
+        this._startupGate = new InitialBatchGate((batch) => this._visualOrchestrator.init(batch));
+
         this.backgroundNode.width = this.context.boardCols * this.context.visualConfig.nodeWidth;
         this.backgroundNode.height = this.context.boardRows * this.context.visualConfig.nodeHeight;
-        this.on(BoardMutationsBatch, this.onBoardChanged);
-        this.on(LoadingScreenFaded, this.onLoadingScreenFaded)
+
+        console.log("[BOARD VIEW] SUBSCRIBED");
+        this.on(BoardMutationsBatch, this.onBoardMutated);
+        this.on(GameLoaded, this.onGameLoaded);
     }
 
-    private onBoardChanged = (result: BoardMutationsBatch) => {
-        this._visualOrchestrator.dispatch(result);
+    private onBoardMutated = (result: BoardMutationsBatch) => {
+        console.log("[BOARD VIEW] DISPATCH RECIEVED");
+        if (this._startupGate.started)
+            this._visualOrchestrator.dispatch(result);
+        else
+            this._startupGate.register(result);
     };
 
-    private onLoadingScreenFaded = (event: LoadingScreenFaded) => {
-        this._visualOrchestrator.init(this.context.initialBoard);
-    }
+    private onGameLoaded = (event: GameLoaded) => {
+        console.log("[BOARD VIEW] LOADED RECIEVED");
+        this._startupGate.proceed();
+    };
 }

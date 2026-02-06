@@ -17,17 +17,13 @@ import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { TileViewClicked } from "../../../presentation/board/events/TileViewClicked";
-import { BaseController } from "../../common/controllers/BaseController";
+import { EventController } from "../../common/controllers/BaseController";
 import { BoardKey } from "../BoardKey";
 import { BoardRuntimeModel } from "../models/BoardRuntimeModel";
 
-export class BoardLogicController extends BaseController {
+export class BoardLogicController extends EventController {
 
-    private readonly _subscriptions: SubscriptionGroup = new SubscriptionGroup();
-
-    private readonly _eventBus: EventBus;
     private readonly _boardRuntime: BoardRuntimeModel;
-
     private readonly _boardInfo: BoardInfo;
     private readonly _gameStateModel: GameStateModel;
     private readonly _logicModel: BoardLogicModel;
@@ -39,10 +35,9 @@ export class BoardLogicController extends BaseController {
 
 
     public constructor(eventBus: EventBus, domain: DomainGraph, runtimeModel: BoardRuntimeModel) {
-        super();
-        this._eventBus = eventBus;
-        this._boardRuntime = runtimeModel;
+        super(eventBus);
 
+        this._boardRuntime = runtimeModel;
         this._boardInfo = domain.boardInfo;
         this._gameStateModel = domain.gameStateModel;
         this._logicModel = domain.logicModel;
@@ -54,16 +49,20 @@ export class BoardLogicController extends BaseController {
     }
 
     protected onInit(): void {
-        this._subscriptions.add(
-            this._eventBus.on(TileViewClicked, this.onTileClicked)
-        );
+        console.log(`[BOARD CONTROL] INIT COMMAND`);
+        const spawned = this._spawnService.spawn();
+        const initialBatch = new BoardMutationsBatch([...spawned]);
+        this.blockBoard(spawned);
+        this.emit(initialBatch);
+        console.log(`[BOARD CONTROL] initial mutations: ${spawned.length}`);
+        this.on(TileViewClicked, this.onTileClicked);
     }
 
     private onTileClicked = (event: TileViewClicked): void => {
         console.log(`[BOARD CONTROL] click allowed: ${this.clickAllowed()}, state: ${GameStateType[this._gameStateModel.state]}, board is locked: ${this._boardRuntime.lockedBoard()}`);
         if (!this.clickAllowed()) return;
         const batch = this.build(event.position);
-        this._eventBus.emit(batch);
+        this.emit(batch);
     };
 
     private clickAllowed(): boolean {
@@ -106,7 +105,7 @@ export class BoardLogicController extends BaseController {
         this._moveService.move(dropped);
         const spawned = this._spawnService.spawn();
         console.log(`[BOARD CONTROL] spawned: ${spawned.length}`);
-        this._eventBus.emit(new GameStateSync(destroyed.length));
+        this.emit(new GameStateSync(destroyed.length));
         const mutations = [...destroyed, ...dropped, ...spawned];
         this.lockMutations(mutations);
         return new BoardMutationsBatch(mutations);
@@ -118,13 +117,13 @@ export class BoardLogicController extends BaseController {
         }
     }
 
-    private reject(id: string, reason: TileRejectedReason): BoardMutationsBatch {
-        return new BoardMutationsBatch([
-            TileMutationHelper.rejected(id, reason)
-        ]);
+    private blockBoard(mutations: TileMutation[]): void {
+        for (const mutation of mutations) {
+            this._boardRuntime.addBlocker(mutation.id)
+        }
     }
 
-    public dispose(): void {
-        this._subscriptions.clear();
+    private reject(id: string, reason: TileRejectedReason): BoardMutationsBatch {
+        return new BoardMutationsBatch([TileMutationHelper.rejected(id, reason)]);
     }
 }

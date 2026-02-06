@@ -1,83 +1,32 @@
-import { assertNotNull } from "../../../core/utils/assert";
+import { ILifecycle } from "../../../core/lifecycle/ILifecycle";
 import { PresentationReady } from "../board/events/PresentationReady";
-import { BoardView } from "../board/view/BoardView";
-import { TweenHelper } from "../common/animations/TweenHelper";
-import { EventView } from "../common/view/EventView";
-import { BoosterTextView } from "../state/view/BombBoosterTextView";
-import { LoadingScreen } from "../state/view/LoadingScreen";
-import { MovesTextView } from "../state/view/MovesTextView";
-import { ScoreTextView } from "../state/view/ScoreTextView";
-import { PresentationContext } from "./PresentationContext";
+import { BaseView } from "../common/view/BaseView";
+import { PresentationView } from "../common/view/PresentationView";
+import { PresentationGraph } from "../PresentationGraph";
 
-const { ccclass, property } = cc._decorator;
+const { ccclass } = cc._decorator;
 
 @ccclass
-export class PresentationInstaller extends EventView<PresentationContext> {
-    @property(LoadingScreen)
-    private loadingScreen: LoadingScreen = null!;
+export class PresentationInstaller extends BaseView implements ILifecycle {
+    private _views!: PresentationView<any>[];
+    private _presentation!: PresentationGraph;
 
-    @property(BoardView)
-    private boardView: BoardView = null!;
-
-    @property(MovesTextView)
-    private movesTextView: MovesTextView = null!;
-
-    @property(ScoreTextView)
-    private scoreTextView: ScoreTextView = null!;
-
-    @property(BoosterTextView)
-    private bombBoosterTextView: BoosterTextView = null!;
-
-    @property(BoosterTextView)
-    private swapBoosterTextView: BoosterTextView = null!
-
-    protected onLoad(): void {
-        assertNotNull(this.boardView, this, "BoardView");
-        assertNotNull(this.movesTextView, this, "MovesTextView");
-        assertNotNull(this.scoreTextView, this, "ScoreTextView");
+    public prepare(presentation: PresentationGraph): void {
+        this._presentation = presentation;
     }
 
-    protected override preInit(): void {
-        assertNotNull(this.context, this, "viewContext");
-    }
+    public init(): void {
+        this._views = this.node.getComponentsInChildren(PresentationView);
+        for (const view of this._views) {
+            const constructor = view.contextConstructor();
+            const context = new constructor(this._presentation);
+            view.init(context);
+        }
 
-    protected onInit(): void {
-
-        const tweenHelper = new TweenHelper();
-
-        this.loadingScreen.init({
-            eventBus: this.context.eventBus,
-            tweenHelper: tweenHelper
-        });
-
-        this.boardView.init({
-            eventBus: this.context.eventBus,
-            visualConfig: this.context.visualConfig,
-            tweenHelper: tweenHelper,
-            boardCols: this.context.boardCols,
-            boardRows: this.context.boardRows,
-            initialBoard: this.context.initialBoard
-        });
-
-        this.movesTextView.init({
-            eventBus: this.context.eventBus,
-            initialValue: this.context.movesLeft
-        });
-
-        this.scoreTextView.init({
-            eventBus: this.context.eventBus,
-            initialValue: this.context.currentScore,
-            targetScore: this.context.targetScore
-        });
-    }
-
-    protected postInit(): void {
-        this.emit(new PresentationReady());
+        this._presentation.eventBus.emit(new PresentationReady());
     }
 
     public dispose(): void {
-        this.boardView.dispose();
-        this.movesTextView.dispose();
-        this.scoreTextView.dispose();
+        this._views.forEach((view) => view.destroy());
     }
 }
