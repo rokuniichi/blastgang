@@ -32,13 +32,27 @@ https://rokuniichi.github.io/blastgang
 ## 🏗️ Architecture Overview
 
 ```
-core/           → utilities & infrastructure
+core/
+  eventbus/                  → event system
+  .../          
 game/
-  domain/       → pure game rules and business logic
-  application/  → orchestration, use-cases, runtime
-  presentation/ → Cocos views, animations, UI, input
-  startup/      → composition root
-  entry/        → engine entry point (Cocos adapter)
+  application/               → orchestration, use-cases, runtime
+    ApplicationGraph.ts
+    .../
+  bootstrap/                 → composition root
+    GameContext.ts
+    GameSession.ts
+    .../
+  domain/                    → pure game rules and business logic
+    DomainGraph.ts
+    .../
+  entry/                     → engine entry point
+    GameEntry.ts
+  presentation/              → views, animations, UI
+    PresentationGraph.ts
+    PresentationInstaller.ts
+    .../
+  .../
 ```
 
 ### Dependency direction
@@ -82,18 +96,17 @@ The **TileRepository** is a registry of all tile entities.
 
 #### Runtime model
 The **BoardRuntimeModel** tracks runtime-only state.
-- Implemented as ```Map<TileId, number>```
-- Stores frame-level information regarding the state of tile's runtime
-- ```number``` value represents the lock state reason and is a bitmask value
+- Implemented as two ```Set<TileId>```
+- Stores interactivity status of both tiles and board in runtime
 - Exists only for gameplay execution
-- Is synced in runtime through visual agents
+- Is deterministically managed in domain and reacts to status changes via ```BoardRuntimeController```
 - This model answers:
-  - ***"How is this tile behaving right now?"***
+  - ***"Can I interact with the game and/or it's elements right now?"***
 
 #### Visual agent registry
 - The VisualAgentRegistry lives entirely in the presentation layer.
 - Maps ```TileId → TileVisualAgent```
-- Owns:
+- Each agent owns:
   - animations
   - tweens
   - effects
@@ -139,6 +152,7 @@ The **BoardRuntimeModel** tracks runtime-only state.
 - Dependencies are grouped into explicit Contexts per layer
 - Contexts act as scoped composition roots
 - Startup remains predictable and easily extendable
+- Views are captured and initialized via their respective contexts automatically in ```PresentationInstaller```
 
 ---
 
