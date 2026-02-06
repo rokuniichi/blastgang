@@ -22,15 +22,25 @@ export interface BurstFxInfo {
     dragMax: number;
 
     duration: number;
+    fadeDelay: number;
     shrinkScale: number;
+}
+
+export interface DropFxInfo {
+    delay: number;
+    bounce: number;
+    bounceDuration: number;
+    settleDuration: number;
 }
 
 export interface VisualConfig extends IConfig {
     readonly gravity: number;
-    readonly dropDelayParameter: number;
     readonly initialSpawnLine: number;
     readonly normalSpawnLine: number;
-    readonly nodeWidth: number;
-    readonly nodeHeight: number;
+    readonly tileWidth: number;
+    readonly tileHeight: number;
+    readonly boardWidthPadding: number;
+    readonly boardHeightPadding: number;
     readonly burst: BurstFxInfo;
+    readonly drop: DropFxInfo;
 }

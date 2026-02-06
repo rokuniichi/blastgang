@@ -6,14 +6,14 @@
 		"allowedTypes": [
 			"RED",
 			"GREEN",
-			"YELLOW",
 			"BLUE",
+			"YELLOW",
 			"PURPLE"
 		]
 	},
 	"gameState": {
-		"targetScore": 2500,
-		"maxMoves": 20,
+		"targetScore": 10000000,
+		"maxMoves": 20000,
 		"scoreMultiplier": 5,
 		"boosters": {
 			"SWAP": 3,

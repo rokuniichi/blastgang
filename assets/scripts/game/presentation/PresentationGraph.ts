@@ -2,7 +2,6 @@ import { EventBus } from "../../core/eventbus/EventBus";
 import { GameConfig } from "../config/game/GameConfig";
 import { VisualConfig } from "../config/visual/VisualConfig";
 import { DomainGraph } from "../domain/DomainGraph";
-import { TweenHelper } from "./common/animations/TweenHelper";
 import { TweenSystem } from "./common/animations/tweens/TweenSystem";
 
 export class PresentationGraph {

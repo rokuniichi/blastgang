@@ -5,7 +5,6 @@ import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
-import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
@@ -33,7 +32,6 @@ export class TileVisualOrchestrator implements IDisposable {
     private readonly _boardCols: number;
     private readonly _boardRows: number;
 
-    private readonly _backgroundLayer: cc.Node;
     private readonly _tileLayer: cc.Node;
     private readonly _fxLayer: cc.Node;
 
@@ -54,7 +52,6 @@ export class TileVisualOrchestrator implements IDisposable {
         tweenSystem: TweenSystem,
         boardCols: number,
         boardRows: number,
-        backgroundLayer: cc.Node,
         tileLayer: cc.Node,
         fxLayer: cc.Node,
         tiles: TileAssets,
@@ -66,7 +63,6 @@ export class TileVisualOrchestrator implements IDisposable {
         this._tweenSystem = tweenSystem;
         this._boardCols = boardCols;
         this._boardRows = boardRows;
-        this._backgroundLayer = backgroundLayer;
         this._tileLayer = tileLayer;
         this._fxLayer = fxLayer;
         this._tiles = tiles;
@@ -202,6 +198,6 @@ export class TileVisualOrchestrator implements IDisposable {
     };
 
     private getDropDelay(position: TilePosition) {
-        return (this._boardRows - position.y) * this._visualConfig.dropDelayParameter;
+        return (this._boardRows - position.y) * this._visualConfig.drop.delay;
     }
 }

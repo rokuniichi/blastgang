@@ -1,18 +1,21 @@
 import { IConfigValidator } from "../../../core/config/IConfigValidator";
 import { ensureNumber, ensureObject } from "../../../core/utils/ensure";
-import { BurstFxInfo, VisualConfig } from "./VisualConfig";
+import { BurstFxInfo, DropFxInfo, VisualConfig } from "./VisualConfig";
 
 export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
     validate(raw: any): VisualConfig {
         const data = ensureObject(raw, this, "data");
+
         const gravity = ensureNumber(data.gravity, this, "data.baseDropTime");
-        const dropDelayParameter = ensureNumber(data.dropDelayParameter, this, "data.dropDelayParameter");
         const initialSpawnLine = ensureNumber(data.initialSpawnLine, this, "data.initialSpawnLine");
         const normalSpawnLine = ensureNumber(data.normalSpawnLine, this, "data.normalSpawnLine");
-        const nodeWidth = ensureNumber(data.nodeWidth, this, "data.nodeWidth");
-        const nodeHeight = ensureNumber(data.nodeHeight, this, "data.nodeHeight");
+        const tileWidth = ensureNumber(data.tileWidth, this, "data.nodeWidth");
+        const tileHeight = ensureNumber(data.tileHeight, this, "data.nodeHeight");
+        const boardWidthPadding = ensureNumber(data.boardWidthPadding, this, "data.boardWidthPadding");
+        const boardHeightPadding = ensureNumber(data.boardHeightPadding, this, "data.boardWidthPadding");
 
         const burstData = ensureObject(data.burst, this, "data.burst");
+
         const minCount = ensureNumber(burstData.minCount, this, "burstData.minCount");
         const maxCount = ensureNumber(burstData.maxCount, this, "burstData.maxCount");
         const minUpVelocity = ensureNumber(burstData.minUpVelocity, this, "burstData.minUpVelocity");
@@ -27,7 +30,16 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
         const dragMin = ensureNumber(burstData.dragMin, this, "burstData.dragMin");
         const dragMax = ensureNumber(burstData.dragMax, this, "burstData.dragMax");
         const duration = ensureNumber(burstData.duration, this, "burstData.duration");
+        const fadeDelay = ensureNumber(burstData.fadeDelay, this, "burstData.fadeDelay");
         const shrinkScale = ensureNumber(burstData.shrinkScale, this, "burstData.shrinkScale");
+
+        const dropData = ensureObject(data.drop, this, "data.drop");
+
+        const delay = ensureNumber(dropData.delay, this, "dropData.delay");
+        const bounce = ensureNumber(dropData.bounce, this, "dropData.bounce");
+        const bounceDuration = ensureNumber(dropData.bounceDuration, this, "dropData.bounceDuration");
+        const settleDuration = ensureNumber(dropData.settleDuration, this, "dropData.settleDuration");
+
 
         const burst: BurstFxInfo = {
             minCount,
@@ -44,17 +56,27 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
             dragMin,
             dragMax,
             duration,
+            fadeDelay,
             shrinkScale
+        }
+
+        const drop: DropFxInfo = {
+            delay,
+            bounce,
+            bounceDuration,
+            settleDuration
         }
 
         return {
             gravity,
-            dropDelayParameter,
             initialSpawnLine,
             normalSpawnLine,
-            nodeWidth,
-            nodeHeight,
-            burst
+            tileWidth: tileWidth,
+            tileHeight: tileHeight,
+            boardWidthPadding,
+            boardHeightPadding,
+            burst,
+            drop
         };
     }
 }

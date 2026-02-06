@@ -66,21 +66,19 @@ export class TileDestructionFx implements IDisposable {
                 this._burstInfo.maxUpVelocity
             );
 
-            motion.vx = Math.sin(angle) * speed;
-            motion.vy = Math.cos(angle) * speed;
+            const vx = Math.sin(angle) * speed;
+            const vy = Math.cos(angle) * speed;
 
-            motion.gravity = this._burstInfo.gravity;
-            motion.drag = Random.floatRange(this._burstInfo.dragMin, this._burstInfo.dragMax);
+            const gravity = this._burstInfo.gravity;
+            const drag = Random.floatRange(this._burstInfo.dragMin, this._burstInfo.dragMax);
 
-            motion.av = Random.floatRange(
-                this._burstInfo.minAngular,
-                this._burstInfo.maxAngular
-            );
+            const av = Random.floatRange(this._burstInfo.minAngular, this._burstInfo.maxAngular);
 
-            motion.duration = this._burstInfo.duration;
-            motion.shrinkScale = this._burstInfo.shrinkScale;
+            const duration = this._burstInfo.duration;
+            const fadeDelay = this._burstInfo.fadeDelay;
+            const shrinkScale = this._burstInfo.shrinkScale;
 
-            motion.play();
+            motion.play(vx, vy, gravity, drag, av, duration, fadeDelay, shrinkScale);
 
             this._tweenSystem.play(TweenSettings.burst(shard, this._burstInfo.duration))
                 .call(() => this._shardPool.release(shard));

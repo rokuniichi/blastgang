@@ -1,5 +1,5 @@
 import { BaseConfigProvider } from "../../../core/config/providers/BaseConfigProvider";
-import { BurstFxInfo, VisualConfig } from "./VisualConfig";
+import { BurstFxInfo, DropFxInfo, VisualConfig } from "./VisualConfig";
 
 export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig> {
     async load(): Promise<void> {
@@ -26,17 +26,27 @@ export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig
             dragMax: 0.985,
 
             duration: 0.9,
+            fadeDelay: 0.7,
             shrinkScale: 0.9
+        }
+
+        const drop: DropFxInfo = {
+            delay: 0.10,
+            bounce: 10,
+            bounceDuration: 0.08,
+            settleDuration: 0.08
         }
 
         this.config = {
             gravity: 8,
-            dropDelayParameter: 0.015,
             initialSpawnLine: 8,
             normalSpawnLine: 7,
-            nodeWidth: 100,
-            nodeHeight: 112,
-            burst
+            tileWidth: 100,
+            tileHeight: 112,
+            boardWidthPadding: 42,
+            boardHeightPadding: 58,
+            burst,
+            drop
         };
     }
 }

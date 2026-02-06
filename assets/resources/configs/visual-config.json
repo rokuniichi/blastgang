@@ -1,10 +1,11 @@
 {
 	"gravity": 3000,
-	"dropDelayParameter": 0.010,
 	"initialSpawnLine": 6,
 	"normalSpawnLine": 5,
-	"nodeWidth": 100,
-	"nodeHeight": 112,
+	"tileWidth": 100,
+	"tileHeight": 112,
+	"boardWidthPadding": 42,
+	"boardHeightPadding": 58,
 	"burst": {
 		"minCount": 5,
 		"maxCount": 8,
@@ -20,6 +21,13 @@
 		"dragMin": 0.965,
 		"dragMax": 0.985,
 		"duration": 1.6,
+		"fadeDelay": 0.7,
 		"shrinkScale": 0.4
+	},
+	"drop": {
+		"delay": 0.010,
+		"bounce": 10,
+		"bounceDuration": 0.08,
+		"settleDuration": 0.08
 	}
 }

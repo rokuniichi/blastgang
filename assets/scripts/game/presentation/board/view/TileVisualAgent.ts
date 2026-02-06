@@ -11,6 +11,7 @@ import { getLocal } from "../../utils/calc";
 import { TileViewClicked } from "../events/TileViewClicked";
 import { VisualTileDestroyed } from "../events/TileViewDestroyed";
 import { VisualTileStabilized } from "../events/VisualTileStabilized";
+import { DropMotion } from "../fx/components/DropMotions";
 import { TileDestructionFx } from "../fx/TileDestructionFx";
 import { TileFlashFx } from "../fx/TileFlashFx";
 import { TileView } from "./TileView";
@@ -35,7 +36,6 @@ export class TileVisualAgent {
 
     private _position: TilePosition | null = null;
     private _target: TilePosition | null = null;
-    private _tween: cc.Tween | null = null;
 
     constructor(
         visualConfig: VisualConfig,
@@ -89,65 +89,60 @@ export class TileVisualAgent {
     }
 
     public get busy(): boolean {
-        return this._tween !== null;
+        const drop = this.view.getComponent(DropMotion);
+        return drop.running;
     }
 
     public spawn(type: TileType, from: TilePosition, to: TilePosition, delay: number) {
         this._position = from;
         this._target = to;
-        const source = this.local(from);
+
+
         console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(to)} with offset ${from}`);
+
+        const source = this.local(from);
         const target = this.local(to);
 
         this.prepare(source);
         this.subscribe();
 
-        this._tween = this._tweenSystem
-            .build(TweenSettings.drop(this._view.node, source.y, target.y, this._visualConfig.gravity, delay))
-            .call(() => {
-                this.clear();
-                this._position = to;
-                this._target = null;
-                this._eventBus.emit(new VisualTileStabilized(this._id, this._position));
-                console.log(`[AGENT] ${this.id} SPAWN FINISHED!`);
-            })
-            .start();
+        const drop = this._view.getComponent(DropMotion);
+        drop.onDropped(() => this.landed(to));
+        drop.play(
+            source.y,
+            target.y,
+            this._visualConfig.gravity,
+            delay,
+            this._visualConfig.drop.bounce,
+            this._visualConfig.drop.bounceDuration,
+            this._visualConfig.drop.settleDuration
+        );
     }
-
 
     public drop(to: TilePosition, delay: number): void {
         if (this._position === to) return;
-
-        if (this.busy) {
-            this.clear();
-            this._view.node.setParent(this._parent);
-            this._view.stabilize();
-        }
-
-        this.view.node.setParent(this._parent);
-
-        console.log(`[AGENT] ${this.id} is startng to move`);
         this._target = to;
-        const targetY = this.local(this._target).y;
 
-        this._tween = this._tweenSystem
-            .build(TweenSettings.drop(this._view.node, this._view.node.y, targetY, this._visualConfig.gravity, delay))
-            .call(() => {
-                this.clear();
-                this._position = to;
-                this._target = null;
-                this.view.node.setParent(this._parent);
-                this._eventBus.emit(new VisualTileStabilized(this._id, this._position));
-                console.log(`[AGENT] ${this.id} MOVE FINISHED!`);
-            })
-            .start();
+        const drop = this._view.getComponent(DropMotion);
+        const source = drop.running ? this.view.node.position : this.local(this._position!);
+        const target = this.local(this._target);
+        drop.onDropped(() => this.landed(to));
+        drop.play(
+            source.y,
+            target.y,
+            this._visualConfig.gravity,
+            delay,
+            this._visualConfig.drop.bounce,
+            this._visualConfig.drop.bounceDuration,
+            this._visualConfig.drop.settleDuration
+        );
+        console.log(`[AGENT] ${this.id} is startng to move`);
     }
 
     public destroy(): void {
         const local = this._view.node.position;
         this._destructionFx.play(local, this._type);
         this._flashFx.play(local);
-        this.clear();
         this.hide();
         this.unsubscribe();
         this._eventBus.emit(new VisualTileDestroyed(this._id));
@@ -155,10 +150,9 @@ export class TileVisualAgent {
 
     public shake(): void {
         this._view.node.setParent(this._parent);
-        this._tween = this._tweenSystem
+        this._tweenSystem
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
-                this.clear();
                 this._eventBus.emit(new VisualTileStabilized(this._id, this._position!));
             })
             .start();
@@ -180,16 +174,14 @@ export class TileVisualAgent {
         this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 
-    private clear() {
-        if (this._tween) {
-            this._tween.stop();
-        }
-
-        this._tween = null;
-    }
-
     private hide() {
         this.view.hide();
+    }
+
+    private landed(to: TilePosition) {
+        console.log(`[LANDED] from: ${BoardKey.position(this._position!)} to: ${BoardKey.position(to)}`);
+        this._position = to;
+        this._eventBus.emit(new VisualTileStabilized(this._id, this._position));
     }
 
     private onClick(): void {

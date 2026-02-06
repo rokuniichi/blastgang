@@ -13,10 +13,7 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class BoardView extends EventView<BoardViewContext> {
     @property(cc.Node)
-    private backgroundNode: cc.Node = null!;
-
-    @property(cc.Node)
-    private backgroundLayer: cc.Node = null!
+    private backgroundLayer: cc.Node = null!;
 
     @property(cc.Node)
     private tileLayer: cc.Node = null!;
@@ -47,7 +44,6 @@ export class BoardView extends EventView<BoardViewContext> {
             this.context.tweenSystem,
             this.context.boardCols,
             this.context.boardRows,
-            this.backgroundLayer,
             this.tileLayer,
             this.fxLayer,
             this.tiles,
@@ -57,8 +53,17 @@ export class BoardView extends EventView<BoardViewContext> {
 
         this._startupGate = new InitialBatchGate((batch) => this._visualOrchestrator.init(batch));
 
-        this.backgroundNode.width = this.context.boardCols * this.context.visualConfig.nodeWidth;
-        this.backgroundNode.height = this.context.boardRows * this.context.visualConfig.nodeHeight;
+        const width = this.context.boardCols * this.context.visualConfig.tileWidth;
+        const height = this.context.boardRows * this.context.visualConfig.tileHeight;
+
+        console.log(`[BOARD VIEW] ${this.context.visualConfig.boardWidthPadding}:${this.context.visualConfig.boardHeightPadding}`);
+
+        this.backgroundLayer.setContentSize(width + this.context.visualConfig.boardWidthPadding * 2, height + this.context.visualConfig.boardHeightPadding * 2);
+        this.tileLayer.setContentSize(width, height);
+        this.fxLayer.setContentSize(width, height);
+
+        this.node.width = width;
+        this.node.height = height;
 
         console.log("[BOARD VIEW] SUBSCRIBED");
         this.on(BoardMutationsBatch, this.onBoardMutated);

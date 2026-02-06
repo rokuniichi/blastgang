@@ -11,7 +11,7 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class LoadingScreen extends EventView<LoadingScreenContext> {
     @property(cc.Node)
-    private screen: cc.Node = null!;
+    private background: cc.Node = null!;
 
     @property
     private screenDelay: number = 5;
@@ -71,7 +71,7 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
         }
         this._tween.delay(this.dotPauseBetweenLoops);
 
-        this._tween = cc.tween(this.screen)
+        this._tween = cc.tween(this.background)
             .repeatForever(this._tween)
             .start();
     }
@@ -85,9 +85,9 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
     }
 
     private fadeScreen() {
-        this.context.tweenHelper.build(TweenSettings.fade(this.screen, this.screenDelay, this.screenFadeOutDuration, 0))
+        this.context.tweenHelper.build(TweenSettings.fade(this.background, this.screenDelay, this.screenFadeOutDuration, 0))
             .call(() => {
-                cc.Tween.stopAllByTarget(this.screen);
+                cc.Tween.stopAllByTarget(this.background);
                 this._tween = null;
                 this.emit(new GameLoaded());
             })

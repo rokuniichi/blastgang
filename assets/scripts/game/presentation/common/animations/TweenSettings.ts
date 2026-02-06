@@ -27,24 +27,13 @@ export class TweenSettings {
 
     static drop(
         node: cc.Node,
-        fromY: number,
-        toY: number,
-        gravity: number,
-        delay: number
+        duration: number
     ): DropSettings {
         return {
             type: TweenType.DROP,
             node,
 
-            fromY,
-            toY,
-            gravity,
-            delay,
-
-            easing: "quadIn",
-            bounce: 10,
-            bounceDuration: 0.08,
-            settleDuration: 0.08,
+            duration
         };
     }
 
@@ -87,14 +76,14 @@ export class TweenSettings {
     }
 
     static flash(node: cc.Node): FlashSettings {
-    return {
-        type: TweenType.FLASH,
-        node,
-        durationIn: 0.11,
-        scaleIn: 1.0,
-        durationOut: 0.16,
-        scaleOut: 1.5,
-        peakOpacity: 160
-    };
-}
+        return {
+            type: TweenType.FLASH,
+            node,
+            durationIn: 0.11,
+            scaleIn: 1.0,
+            durationOut: 0.16,
+            scaleOut: 1.5,
+            peakOpacity: 160
+        };
+    }
 }

@@ -31,6 +31,7 @@ export class TweenHelper {
     }
 
     public build<T extends ITweenSettings>(settings: T): cc.Tween {
+        console.log(`[TweenHelper] ${TweenType[settings.type]}`);
         const tween = this._tweens.get(settings.type);
         assertNotNull(tween, this, "tween");
         return tween.build(settings);
