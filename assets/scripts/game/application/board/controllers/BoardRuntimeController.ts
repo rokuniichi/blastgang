@@ -1,4 +1,4 @@
-import { EventBus } from "../../../../core/events/EventBus";
+import { EventBus } from "../../../../core/eventbus/EventBus";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { DomainGraph } from "../../../domain/DomainGraph";
 import { VisualTileDestroyed } from "../../../presentation/board/events/TileViewDestroyed";

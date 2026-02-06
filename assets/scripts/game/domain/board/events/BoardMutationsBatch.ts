@@ -1,4 +1,4 @@
-import { IEvent } from "../../../../core/events/IEvent";
+import { IEvent } from "../../../../core/eventbus/IEvent";
 import { TileDestroyed } from "./mutations/TileDestroyed";
 import { TileMoved } from "./mutations/TileMoved";
 import { TileRejected } from "./mutations/TileRejected";

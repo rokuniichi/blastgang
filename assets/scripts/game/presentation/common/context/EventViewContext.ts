@@ -1,4 +1,4 @@
-import { EventBus } from "../../../../core/events/EventBus";
+import { EventBus } from "../../../../core/eventbus/EventBus";
 import { PresentationGraph } from "../../PresentationGraph";
 import { PresentationViewContext } from "../view/PresentationViewContext";
 

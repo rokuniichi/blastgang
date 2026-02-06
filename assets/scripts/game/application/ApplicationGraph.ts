@@ -1,4 +1,4 @@
-import { EventBus } from "../../core/events/EventBus";
+import { EventBus } from "../../core/eventbus/EventBus";
 import { BoardLogicController } from "./board/controllers/BoardLogicController";
 import { BoardRuntimeController } from "./board/controllers/BoardRuntimeController";
 import { BoardRuntimeModel } from "./board/models/BoardRuntimeModel";

@@ -1,3 +1,3 @@
-import { IEvent } from "../../../../core/events/IEvent";
+import { IEvent } from "../../../../core/eventbus/IEvent";
 
 export class GameLoaded implements IEvent { }

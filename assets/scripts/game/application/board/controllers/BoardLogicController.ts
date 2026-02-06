@@ -1,4 +1,4 @@
-import { EventBus } from "../../../../core/events/EventBus";
+import { EventBus } from "../../../../core/eventbus/EventBus";
 import { BoardInfo } from "../../../config/game/GameConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileMutation } from "../../../domain/board/events/mutations/TileMutation";

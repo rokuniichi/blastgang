@@ -1,3 +1,3 @@
-import { ValueChangedEvent } from "../../../../core/events/ValueChangedEvent";
+import { ValueChangedEvent } from "../../../../core/eventbus/ValueChangedEvent";
 
 export class MovesUpdate extends ValueChangedEvent { }

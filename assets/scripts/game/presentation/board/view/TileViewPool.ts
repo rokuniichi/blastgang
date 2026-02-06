@@ -1,4 +1,4 @@
-import { EventBus } from "../../../../core/events/EventBus";
+import { EventBus } from "../../../../core/eventbus/EventBus";
 import { assertNotNull } from "../../../../core/utils/assert";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TileType } from "../../../domain/board/models/TileType";
@@ -13,7 +13,7 @@ export class TileViewPool {
         private readonly _eventBus: EventBus,
         private readonly _tiles: TileAssets,
         private readonly _parent: cc.Node
-    ) { 
+    ) {
         this._pool = [];
         this._map = new Map();
     }

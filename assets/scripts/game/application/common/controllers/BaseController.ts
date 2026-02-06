@@ -1,6 +1,6 @@
-import { EventBus, EventConstructor, EventHandler } from "../../../../core/events/EventBus";
-import { IEvent } from "../../../../core/events/IEvent";
-import { SubscriptionGroup } from "../../../../core/events/SubscriptionGroup";
+import { EventBus, EventConstructor, EventHandler } from "../../../../core/eventbus/EventBus";
+import { IEvent } from "../../../../core/eventbus/IEvent";
+import { SubscriptionGroup } from "../../../../core/eventbus/SubscriptionGroup";
 import { ILifecycle } from "../../../../core/lifecycle/ILifecycle";
 import { assertNotNull } from "../../../../core/utils/assert";
 

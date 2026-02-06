@@ -1,4 +1,4 @@
-import { ValueChangedEvent } from "../../../../core/events/ValueChangedEvent";
+import { ValueChangedEvent } from "../../../../core/eventbus/ValueChangedEvent";
 import { assertNotNull, assertNumber } from "../../../../core/utils/assert";
 import { DynamicTextViewContext } from "../context/DynamicTextViewContext";
 import { EventPresentationView } from "./EventView";

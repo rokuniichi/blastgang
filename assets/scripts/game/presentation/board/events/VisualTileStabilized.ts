@@ -1,4 +1,4 @@
-import { IEvent } from "../../../../core/events/IEvent";
+import { IEvent } from "../../../../core/eventbus/IEvent";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 

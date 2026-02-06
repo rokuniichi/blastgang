@@ -1,4 +1,4 @@
-import { EventBus } from "../../../../core/events/EventBus";
+import { EventBus } from "../../../../core/eventbus/EventBus";
 import { BoardKey } from "../../../application/board/BoardKey";
 import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";

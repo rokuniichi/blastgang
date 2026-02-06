@@ -1,4 +1,4 @@
-import { EventBus } from "../../../../core/events/EventBus";
+import { EventBus } from "../../../../core/eventbus/EventBus";
 import { GameStateInfo } from "../../../config/game/GameConfig";
 import { DomainGraph } from "../../../domain/DomainGraph";
 import { GameStateSync } from "../../../domain/state/events/GameStateSync";
