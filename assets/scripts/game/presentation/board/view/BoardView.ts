@@ -58,12 +58,13 @@ export class BoardView extends EventView<BoardViewContext> {
 
         console.log(`[BOARD VIEW] ${this.context.visualConfig.boardWidthPadding}:${this.context.visualConfig.boardHeightPadding}`);
 
+        //const oldHeight = this.backgroundLayer.height;
+
         this.backgroundLayer.setContentSize(width + this.context.visualConfig.boardWidthPadding * 2, height + this.context.visualConfig.boardHeightPadding * 2);
         this.tileLayer.setContentSize(width, height);
         this.fxLayer.setContentSize(width, height);
-
-        this.node.width = width;
-        this.node.height = height;
+        /* const diff = ((height + this.context.visualConfig.boardHeightPadding * 2) - oldHeight) / 2;
+        this.node.setPosition(this.node.position.x, this.node.position.y - diff); */
 
         console.log("[BOARD VIEW] SUBSCRIBED");
         this.on(BoardMutationsBatch, this.onBoardMutated);

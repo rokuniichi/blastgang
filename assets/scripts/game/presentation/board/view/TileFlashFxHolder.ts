@@ -24,10 +24,9 @@ export class TileFlashFxHolder implements IDisposable {
     public play(local: cc.Vec3): void {
 
         const flash = this._flashPool.pull();
-
         flash.active = true;
         flash.setPosition(local);
-
+        flash.scale = 1;
         flash.opacity = 0;
 
         this._tweenSystem.build(TweenSettings.flash(flash))
