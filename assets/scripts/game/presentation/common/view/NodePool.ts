@@ -13,18 +13,19 @@ export class NodePool extends BasePool<cc.Node> implements IDisposable {
         for (let i = 0; i < size; i++) {
             const node = this.create();
             node.active = false;
-            this._pool[i] = this.create();
+            this._pool[i] = node;
         }
     }
 
     public dispose(): void {
-        this._pool.forEach((node) => node.destroy());
+        this._pool.forEach(node => node.destroy());
         this._pool = [];
     }
 
     public pull(): cc.Node {
         let node = this._pool.pop();
         if (!node || !cc.isValid(node)) node = this.create();
+        node.setParent(this._parent);
         return node;
     }
 
@@ -38,12 +39,13 @@ export class NodePool extends BasePool<cc.Node> implements IDisposable {
 
     private create(): cc.Node {
         const node = cc.instantiate(this._prefab);
-        node.setParent(this._parent);
+
         node.setPosition(0, 0);
         node.setScale(1, 1);
         node.angle = 0;
         node.opacity = 255;
         node.active = false;
+
         return node;
     }
 }

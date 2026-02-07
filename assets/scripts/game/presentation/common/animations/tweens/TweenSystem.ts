@@ -25,6 +25,7 @@ export class TweenSystem {
     }
 
     private killAll(): void {
+        console.log(`[DISPOSE] tween system: ${this._active.size}`);
         this._active.forEach((t) => t.stop());
         this._active.clear();
     }

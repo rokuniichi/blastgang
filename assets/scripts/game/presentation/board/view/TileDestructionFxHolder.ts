@@ -7,9 +7,9 @@ import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { NodePool } from "../../common/view/NodePool";
-import { BurstMotion } from "./components/BurstMotion";
+import { BurstMotion } from "../../fx/BurstMotion";
 
-export class TileDestructionFx implements IDisposable {
+export class TileDestructionFxHolder implements IDisposable {
     private readonly _burstInfo: BurstFxInfo;
     private readonly _tweenSystem: TweenSystem;
     private readonly _shards: ShardAssets;
@@ -23,6 +23,7 @@ export class TileDestructionFx implements IDisposable {
     }
 
     public dispose(): void {
+        console.log(`[DISPOSE] shards pool:`);
         this._shardPool.dispose();
     }
 

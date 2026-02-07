@@ -1,5 +1,4 @@
 import { GameLoaded } from "../../board/events/GameLoaded";
-import { GameRestartRequset } from "../../board/events/GameRestartRequest";
 import { PresentationReady } from "../../board/events/PresentationReady";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { EventView } from "../../common/view/EventView";
@@ -38,19 +37,16 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
     }
 
     protected onInit(): void {
+        this.node.active = true;
+        this.node.opacity = 255;
         this.resetDots();
         this.startAnimation();
         this.on(PresentationReady, this.onPresentationReady);
-        this.on(GameRestartRequset, this.onGameRestart);
     }
 
     private onPresentationReady = () => {
+        console.log(`[LOADING SCREEN] presentation READY`);
         this.fadeScreen();
-    };
-
-    private onGameRestart() {
-        this.node.active = true;
-        this.node.opacity = 255;
     };
 
     private resetDots() {
@@ -88,6 +84,7 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
         this.context.tweenSystem.build(TweenSettings.fade(this.node, this.screenDelay, this.screenFadeOutDuration, 0))
             .call(() => {
                 this._tween = null;
+                console.log(`[LOADING SCREEN] emit...`);
                 this.emit(new GameLoaded());
             })
             .start();

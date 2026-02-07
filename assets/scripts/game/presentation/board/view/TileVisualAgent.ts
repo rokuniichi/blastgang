@@ -10,9 +10,9 @@ import { getLocal } from "../../utils/calc";
 import { TileViewClicked } from "../events/TileViewClicked";
 import { VisualTileDestroyed } from "../events/TileViewDestroyed";
 import { VisualTileStabilized } from "../events/VisualTileStabilized";
-import { DropMotion } from "../fx/components/DropMotions";
-import { TileDestructionFx } from "../fx/TileDestructionFx";
-import { TileFlashFx } from "../fx/TileFlashFx";
+import { DropMotion } from "../../fx/DropMotions";
+import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
+import { TileFlashFxHolder } from "./TileFlashFxHolder";
 import { TileView } from "./TileView";
 
 export class TileVisualAgent {
@@ -25,8 +25,8 @@ export class TileVisualAgent {
     private readonly _nodeWidth: number;
     private readonly _nodeHeight: number;
 
-    private readonly _destructionFx: TileDestructionFx;
-    private readonly _flashFx: TileFlashFx;
+    private readonly _destructionFx: TileDestructionFxHolder;
+    private readonly _flashFx: TileFlashFxHolder;
 
     private readonly _id: TileId;
     private readonly _view: TileView;
@@ -44,9 +44,8 @@ export class TileVisualAgent {
         type: TileType,
         boardCols: number,
         boardRows: number,
-        parent: cc.Node,
-        destructionFx: TileDestructionFx,
-        flashFx: TileFlashFx
+        destructionFx: TileDestructionFxHolder,
+        flashFx: TileFlashFxHolder
     ) {
         this._visualConfig = visualConfig;
         this._eventBus = eventBus;

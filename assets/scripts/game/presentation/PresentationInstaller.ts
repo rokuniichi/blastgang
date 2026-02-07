@@ -27,7 +27,8 @@ export class PresentationInstaller extends BaseView implements ILifecycle {
     }
 
     public dispose(): void {
-        this._views.forEach((view) => view.dispose());
         this._presentation.tweenSystem.dispose();
+        this._views.forEach((view) => view.dispose());
+        this._views = [];
     }
 }

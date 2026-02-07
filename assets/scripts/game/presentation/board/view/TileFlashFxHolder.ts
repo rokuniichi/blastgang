@@ -3,7 +3,7 @@ import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { NodePool } from "../../common/view/NodePool";
 
-export class TileFlashFx implements IDisposable {
+export class TileFlashFxHolder implements IDisposable {
     private readonly _tweenSystem: TweenSystem;
     private readonly _prefab: cc.Prefab;
 
@@ -17,6 +17,7 @@ export class TileFlashFx implements IDisposable {
     }
 
     public dispose(): void {
+        console.log(`[DISPOSE] flash pool:`);
         this._flashPool.dispose();
     }
 

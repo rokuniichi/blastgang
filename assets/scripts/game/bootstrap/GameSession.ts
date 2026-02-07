@@ -29,7 +29,7 @@ export class GameSession {
             this._gameContext.application.runtimeController
         ];
 
-        this._gameContext.eventBus.on(GameRestartRequset, this.dispose);
+        this._gameContext.eventBus.on(GameRestartRequset, this.restart);
 
         this.init();
     }
@@ -39,9 +39,14 @@ export class GameSession {
     }
 
     public dispose(): void {
-        this._gameContext?.eventBus.clear;
+        this._gameContext?.eventBus.clear();
         this._gameContext = null;
         this._lifecycle.forEach((entity) => entity.dispose());
         this._lifecycle = [];
+    }
+
+    private restart = () => {
+        this.dispose();
+        this.start();
     }
 }

@@ -16,6 +16,5 @@ export class FlashTween implements ITween<FlashSettings> {
                 opacity: 0,
                 scale: settings.node.scale * settings.scaleOut
             })
-            .call(() => settings.node.destroy());
     }
 }

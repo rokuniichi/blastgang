@@ -10,8 +10,8 @@ import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
 import { VisualTileDestroyed } from "../events/TileViewDestroyed";
 import { VisualTileStabilized } from "../events/VisualTileStabilized";
-import { TileDestructionFx } from "../fx/TileDestructionFx";
-import { TileFlashFx } from "../fx/TileFlashFx";
+import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
+import { TileFlashFxHolder } from "./TileFlashFxHolder";
 import { BoardVisualModel } from "./BoardVisualModel";
 import { SafeDropMap } from "./SafeDropMap";
 import { TileViewHolder } from "./TileViewHolder";
@@ -26,7 +26,6 @@ export class TileVisualOrchestrator implements IDisposable {
 
     private readonly _visualAgentFactory: TileVisualAgentFactory;
     private readonly _visualModel: BoardVisualModel;
-    private readonly _tilePool: TileViewHolder;
 
     private readonly _boardCols: number;
     private readonly _boardRows: number;
@@ -40,10 +39,12 @@ export class TileVisualOrchestrator implements IDisposable {
 
     private readonly _safeDropMap: SafeDropMap;
 
-    private readonly _destructionFx: TileDestructionFx;
-    private readonly _flashFx: TileFlashFx;
+    private readonly _tilePool: TileViewHolder;
+    private readonly _destructionFx: TileDestructionFxHolder;
+    private readonly _flashFx: TileFlashFxHolder;
 
     private readonly _disposables: IDisposable[];
+    private readonly _layers: cc.Node[];
 
     public constructor(
         eventBus: EventBus,
@@ -69,11 +70,12 @@ export class TileVisualOrchestrator implements IDisposable {
         this._flash = flash;
 
         this._visualModel = new BoardVisualModel();
+        this._safeDropMap = new SafeDropMap();
 
         const boardSize = this._boardCols * this._boardRows;
         this._tilePool = new TileViewHolder(this._tiles, this._tileLayer, boardSize);
-        this._destructionFx = new TileDestructionFx(this._visualConfig.burst, this._tweenSystem, this._shards, this._fxLayer, boardSize);
-        this._flashFx = new TileFlashFx(this._tweenSystem, this._flash, this._fxLayer, boardSize)
+        this._destructionFx = new TileDestructionFxHolder(this._visualConfig.burst, this._tweenSystem, this._shards, this._fxLayer, boardSize);
+        this._flashFx = new TileFlashFxHolder(this._tweenSystem, this._flash, this._fxLayer, boardSize)
 
         this._visualAgentFactory = new TileVisualAgentFactory(
             this._visualConfig,
@@ -82,12 +84,10 @@ export class TileVisualOrchestrator implements IDisposable {
             this._tilePool,
             this._boardCols,
             this._boardRows,
-            this._tileLayer,
             this._destructionFx,
             this._flashFx
         );
 
-        this._safeDropMap = new SafeDropMap();
 
         this._disposables = [
             this._tilePool,
@@ -95,14 +95,21 @@ export class TileVisualOrchestrator implements IDisposable {
             this._flashFx
         ];
 
+        this._layers = [this._tileLayer, this._fxLayer];
+
         this._eventBus.on(VisualTileStabilized, this.onTileStabilized);
         this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed);
     }
 
     public dispose(): void {
+        console.log("TILE LAYER BEFORE", this._tileLayer.childrenCount);
+        console.log("FX LAYER BEFORE", this._fxLayer.childrenCount);
+
+
         this._eventBus.off(VisualTileStabilized, this.onTileStabilized);
         this._eventBus.off(VisualTileDestroyed, this.onTileDestroyed);
         this._disposables.forEach((entity) => entity.dispose());
+        this._layers.forEach((layer) => layer.destroyAllChildren());
     }
 
     public init(result: BoardMutationsBatch) {

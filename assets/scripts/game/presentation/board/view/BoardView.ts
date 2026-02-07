@@ -85,5 +85,12 @@ export class BoardView extends EventView<BoardViewContext> {
 
     protected onDispose(): void {
         this._visualOrchestrator.dispose();
+
+        this.scheduleOnce(() => {
+            console.log("[DISPOSE] TILE LAYER AFTER", this.tileLayer.childrenCount);
+        });
+        this.scheduleOnce(() => {
+            console.log("[DISPOSE] LAYER AFTER", this.fxLayer.childrenCount);
+        });
     }
 }
