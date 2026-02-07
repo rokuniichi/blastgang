@@ -106,9 +106,9 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        540,
-        960,
-        501.42870879119,
+        0,
+        0,
+        0,
         0,
         0,
         0,
@@ -143,9 +143,9 @@
     "_clearFlags": 7,
     "_backgroundColor": {
       "__type__": "cc.Color",
-      "r": 131,
-      "g": 58,
-      "b": 96,
+      "r": 0,
+      "g": 0,
+      "b": 0,
       "a": 255
     },
     "_depth": -1,
