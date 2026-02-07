@@ -16,19 +16,12 @@ export class TweenSystem {
         return tween;
     }
 
-    public play<T extends ITweenSettings>(settings: T): cc.Tween {
-        const tween = this.build(settings);
-        this.track(tween);
-        tween.start();
-        return tween;
+    public track(tween: cc.Tween): void {
+        this._active.add(tween);
     }
 
     public dispose(): void {
         this.killAll();
-    }
-
-    private track(tween: cc.Tween): void {
-        this._active.add(tween);
     }
 
     private killAll(): void {

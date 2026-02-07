@@ -13,14 +13,12 @@ export class TileDestructionFx implements IDisposable {
     private readonly _burstInfo: BurstFxInfo;
     private readonly _tweenSystem: TweenSystem;
     private readonly _shards: ShardAssets;
-    private readonly _parent: cc.Node;
     private readonly _shardPool: NodePool;
 
     public constructor(burstInfo: BurstFxInfo, tweenSystem: TweenSystem, shards: ShardAssets, parent: cc.Node, boardSize: number) {
         this._burstInfo = burstInfo;
         this._tweenSystem = tweenSystem;
         this._shards = shards;
-        this._parent = parent;
         this._shardPool = new NodePool(shards.getPrefab(), parent, boardSize * burstInfo.maxCount);
     }
 
@@ -44,7 +42,6 @@ export class TileDestructionFx implements IDisposable {
             );
 
             shard.active = true
-            shard.setParent(this._parent);
             shard.setPosition(local.clone().add(offset));
 
             const sprite = shard.getComponent(cc.Sprite);
@@ -80,8 +77,9 @@ export class TileDestructionFx implements IDisposable {
 
             motion.play(vx, vy, gravity, drag, av, duration, fadeDelay, shrinkScale);
 
-            this._tweenSystem.play(TweenSettings.burst(shard, this._burstInfo.duration))
-                .call(() => this._shardPool.release(shard));
+            this._tweenSystem.build(TweenSettings.burst(shard, this._burstInfo.duration))
+                .call(() => this._shardPool.release(shard))
+                .start();
         }
 
     }

@@ -4,7 +4,6 @@ import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
-import { TweenHelper } from "../../common/animations/TweenHelper";
 import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { getLocal } from "../../utils/calc";
@@ -25,7 +24,6 @@ export class TileVisualAgent {
     private readonly _boardRows: number;
     private readonly _nodeWidth: number;
     private readonly _nodeHeight: number;
-    private readonly _parent: cc.Node;
 
     private readonly _destructionFx: TileDestructionFx;
     private readonly _flashFx: TileFlashFx;
@@ -62,7 +60,6 @@ export class TileVisualAgent {
         this._boardRows = boardRows;
         this._nodeWidth = view.node.width;
         this._nodeHeight = view.node.height;
-        this._parent = parent;
 
         this._destructionFx = destructionFx;
         this._flashFx = flashFx;
@@ -149,7 +146,6 @@ export class TileVisualAgent {
     }
 
     public shake(): void {
-        this._view.node.setParent(this._parent);
         this._tweenSystem
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
@@ -160,7 +156,6 @@ export class TileVisualAgent {
 
     private prepare(local: cc.Vec2): void {
         this._view.stabilize();
-        this._view.node.setParent(this._parent);
         this._view.node.setPosition(local);
         this._view.node.setSiblingIndex(this._target!.y * this._boardCols + this._target!.x)
         this._view.show();

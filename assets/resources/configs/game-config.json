@@ -12,7 +12,7 @@
 		]
 	},
 	"gameState": {
-		"targetScore": 2000,
+		"targetScore": 3000,
 		"maxMoves": 30,
 		"scoreMultiplier": 5,
 		"boosters": {

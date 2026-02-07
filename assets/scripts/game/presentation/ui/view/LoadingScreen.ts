@@ -10,9 +10,6 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class LoadingScreen extends EventView<LoadingScreenContext> {
-    @property(cc.Node)
-    private background: cc.Node = null!;
-
     @property
     private screenDelay: number = 5;
 
@@ -52,7 +49,8 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
     };
 
     private onGameRestart() {
-
+        this.node.active = true;
+        this.node.opacity = 255;
     };
 
     private resetDots() {
@@ -71,23 +69,24 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
         }
         this._tween.delay(this.dotPauseBetweenLoops);
 
-        this._tween = cc.tween(this.background)
+        this._tween = cc.tween(this.node)
             .repeatForever(this._tween)
             .start();
+
+        this.context.tweenSystem.track(this._tween);
     }
 
     private fadeDot(dot: cc.Node) {
-        cc.tween(dot)
+        this.context.tweenSystem.track(cc.tween(dot)
             .set({ opacity: 0 })
             .to(this.dotsFadeInDuration, { opacity: 255 })
             .to(this.dotsFadeOutDuration, { opacity: 0 })
-            .start();
+            .start());
     }
 
     private fadeScreen() {
-        this.context.tweenHelper.build(TweenSettings.fade(this.background, this.screenDelay, this.screenFadeOutDuration, 0))
+        this.context.tweenSystem.build(TweenSettings.fade(this.node, this.screenDelay, this.screenFadeOutDuration, 0))
             .call(() => {
-                cc.Tween.stopAllByTarget(this.background);
                 this._tween = null;
                 this.emit(new GameLoaded());
             })

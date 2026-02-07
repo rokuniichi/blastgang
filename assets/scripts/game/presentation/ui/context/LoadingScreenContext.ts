@@ -1,12 +1,12 @@
-import { TweenHelper } from "../../common/animations/TweenHelper";
+import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { EventViewContext } from "../../common/context/EventViewContext";
 import { PresentationGraph } from "../../PresentationGraph";
 
 export class LoadingScreenContext extends EventViewContext {
-    readonly tweenHelper: TweenHelper;
+    readonly tweenSystem: TweenSystem;
 
     public constructor(presentation: PresentationGraph) {
         super(presentation);
-        this.tweenHelper = presentation.tweenSystem;
+        this.tweenSystem = presentation.tweenSystem;
     }
 }
