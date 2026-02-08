@@ -1,16 +1,16 @@
 import { assertNumber } from "../../../../core/utils/assert";
 import { ScoreUpdate } from "../../../domain/state/events/ScoreUpdate";
 import { DynamicTextView } from "../../common/view/DynamicTextView";
-import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
+import { PresentationViewContextFactory } from "../../common/view/PresentationView";
+import { PresentationGraph } from "../../PresentationGraph";
 import { ScoreTextViewContext } from "../context/ScoreTextViewContext";
 
 const { ccclass } = cc._decorator;
 
 @ccclass
 export class ScoreTextView extends DynamicTextView<ScoreTextViewContext> {
-
-    public contextConstructor(): PresentationViewContextConstructor<ScoreTextViewContext> {
-        return ScoreTextViewContext;
+    public contextFactory(): PresentationViewContextFactory<ScoreTextViewContext> {
+        return (presentation: PresentationGraph) => new ScoreTextViewContext(presentation);
     }
 
     protected eventType() {

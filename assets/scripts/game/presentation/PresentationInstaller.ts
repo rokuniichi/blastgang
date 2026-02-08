@@ -18,8 +18,8 @@ export class PresentationInstaller extends BaseView implements ILifecycle {
     public init(): void {
         this._views = this.node.getComponentsInChildren(PresentationView);
         for (const view of this._views) {
-            const constructor = view.contextConstructor();
-            const context = new constructor(this._presentation);
+            const factory = view.contextFactory();
+            const context = factory(this._presentation);
             view.init(context);
         }
 

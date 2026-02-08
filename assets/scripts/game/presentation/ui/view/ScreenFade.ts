@@ -1,5 +1,6 @@
 import { TweenSettings } from "../../common/animations/TweenSettings";
-import { PresentationView, PresentationViewContextConstructor } from "../../common/view/PresentationView";
+import { PresentationView, PresentationViewContextFactory } from "../../common/view/PresentationView";
+import { PresentationGraph } from "../../PresentationGraph";
 import { ScreenFadeContext } from "../context/ScreenFadeContext";
 
 const { ccclass, property } = cc._decorator;
@@ -9,8 +10,8 @@ export class ScreenFade extends PresentationView<ScreenFadeContext> {
     @property
     private targetOpacity: number = 140;
 
-    public contextConstructor(): PresentationViewContextConstructor<ScreenFadeContext> {
-        return ScreenFadeContext;
+    public contextFactory(): PresentationViewContextFactory<ScreenFadeContext> {
+        return (presentation: PresentationGraph) => new ScreenFadeContext(presentation);
     }
 
     protected onInit(): void {

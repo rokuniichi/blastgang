@@ -2,7 +2,8 @@ import { GameLoaded } from "../../board/events/GameLoaded";
 import { PresentationReady } from "../../board/events/PresentationReady";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { EventView } from "../../common/view/EventView";
-import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
+import { PresentationViewContextFactory } from "../../common/view/PresentationView";
+import { PresentationGraph } from "../../PresentationGraph";
 import { LoadingScreenContext } from "../context/LoadingScreenContext";
 
 const { ccclass, property } = cc._decorator;
@@ -32,8 +33,8 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
 
     private _tween?: cc.Tween | null;
 
-    public contextConstructor(): PresentationViewContextConstructor<LoadingScreenContext> {
-        return LoadingScreenContext;
+    public contextFactory(): PresentationViewContextFactory<LoadingScreenContext> {
+        return (presentation: PresentationGraph) => new LoadingScreenContext(presentation);
     }
 
     protected onInit(): void {

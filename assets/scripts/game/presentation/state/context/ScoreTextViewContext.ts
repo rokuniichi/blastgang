@@ -7,9 +7,6 @@ export class ScoreTextViewContext extends DynamicTextViewContext {
     public constructor(presentation: PresentationGraph) {
         super(presentation);
         this.targetScore = presentation.targetScore;
-    }
-
-    protected initialValue(): number {
-        return this.presentation.currentScore;
+        this.setInitial(this.presentation.currentScore);
     }
 }

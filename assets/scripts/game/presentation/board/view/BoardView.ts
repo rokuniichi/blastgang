@@ -2,7 +2,8 @@ import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutations
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
 import { EventView } from "../../common/view/EventView";
-import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
+import { PresentationViewContextFactory } from "../../common/view/PresentationView";
+import { PresentationGraph } from "../../PresentationGraph";
 import { BoardViewContext } from "../context/BoardViewContext";
 import { GameLoaded } from "../events/GameLoaded";
 import { InitialBatchGate } from "./InitialBatchGate";
@@ -33,8 +34,8 @@ export class BoardView extends EventView<BoardViewContext> {
     private _startupGate!: InitialBatchGate;
     private _visualOrchestrator!: TileVisualOrchestrator;
 
-    public contextConstructor(): PresentationViewContextConstructor<BoardViewContext> {
-        return BoardViewContext;
+    public contextFactory(): PresentationViewContextFactory<BoardViewContext> {
+        return (presentation: PresentationGraph) => new BoardViewContext(presentation);
     }
 
     protected onInit(): void {

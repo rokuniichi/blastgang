@@ -3,7 +3,8 @@ import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { GameRestartRequset } from "../../board/events/GameRestartRequest";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { EventView } from "../../common/view/EventView";
-import { PresentationViewContextConstructor } from "../../common/view/PresentationView";
+import { PresentationViewContextFactory } from "../../common/view/PresentationView";
+import { PresentationGraph } from "../../PresentationGraph";
 import { GameOverPopupContext } from "../context/GameOverPopupContext";
 import { ScreenFade } from "./ScreenFade";
 
@@ -22,8 +23,8 @@ export class GameOverPopup extends EventView<GameOverPopupContext> implements IP
 
     private _state: GameStateType = GameStateType.NONE;
 
-    public contextConstructor(): PresentationViewContextConstructor<GameOverPopupContext> {
-        return GameOverPopupContext;
+    public contextFactory(): PresentationViewContextFactory<GameOverPopupContext> {
+        return (presentation: PresentationGraph) => new GameOverPopupContext(presentation);
     }
 
     protected onInit(): void {

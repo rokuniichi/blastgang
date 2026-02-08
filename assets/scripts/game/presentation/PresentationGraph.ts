@@ -2,6 +2,7 @@ import { EventBus } from "../../core/eventbus/EventBus";
 import { GameConfig } from "../config/game/GameConfig";
 import { VisualConfig } from "../config/visual/VisualConfig";
 import { DomainGraph } from "../domain/DomainGraph";
+import { BoosterType } from "../domain/state/models/BoosterType";
 import { TweenSystem } from "./common/animations/tweens/TweenSystem";
 
 export class PresentationGraph {
@@ -13,6 +14,7 @@ export class PresentationGraph {
     public readonly currentScore: number;
     public readonly boardCols: number;
     public readonly boardRows: number;
+    public readonly boosters: ReadonlyMap<BoosterType, number>;
 
     public constructor(eventBus: EventBus, visualConfig: VisualConfig, gameConfig: GameConfig, domain: DomainGraph) {
         this.visualConfig = visualConfig;
@@ -23,5 +25,6 @@ export class PresentationGraph {
         this.currentScore = domain.gameStateModel.currentScore;
         this.boardCols = gameConfig.board.cols;
         this.boardRows = gameConfig.board.rows;
+        this.boosters = gameConfig.gameState.boosters;
     }
 }

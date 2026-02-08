@@ -1,7 +1,9 @@
 import { DynamicTextViewContext } from "../../common/context/DynamicTextViewContext";
+import { PresentationGraph } from "../../PresentationGraph";
 
 export class MovesTextViewContext extends DynamicTextViewContext {
-    protected initialValue(): number {
-        return this.presentation.movesLeft;
+    public constructor(presentation: PresentationGraph) {
+        super(presentation);
+        this.setInitial(this.presentation.movesLeft);
     }
 }
