@@ -41,7 +41,7 @@ export class BoardLogicModel {
         return this._grid.get(at.x, at.y);
     }
 
-    public empty (at: TilePosition): boolean {
+    public empty(at: TilePosition): boolean {
         return this._grid.get(at.x, at.y) === null;
     }
 }

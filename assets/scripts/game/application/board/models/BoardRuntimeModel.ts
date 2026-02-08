@@ -15,7 +15,7 @@ export class BoardRuntimeModel {
     }
 
     public lockedTile(id: TileId): boolean {
-        return !this._unstables.has(id);
+        return this._unstables.has(id);
     }
 
     public addBlocker(id: TileId): void {

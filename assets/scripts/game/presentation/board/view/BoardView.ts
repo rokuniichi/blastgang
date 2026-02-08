@@ -45,6 +45,7 @@ export class BoardView extends EventView<BoardViewContext> {
             this.context.tweenSystem,
             this.context.boardCols,
             this.context.boardRows,
+            this.backgroundLayer,
             this.tileLayer,
             this.fxLayer,
             this.tiles,

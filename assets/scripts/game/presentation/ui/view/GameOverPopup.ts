@@ -6,6 +6,7 @@ import { EventView } from "../../common/view/EventView";
 import { PresentationViewContextFactory } from "../../common/view/PresentationView";
 import { PresentationGraph } from "../../PresentationGraph";
 import { GameOverPopupContext } from "../context/GameOverPopupContext";
+import { IPopup } from "./IPopup";
 import { ScreenFade } from "./ScreenFade";
 
 const { ccclass, property } = cc._decorator;

@@ -15,11 +15,13 @@ export class SafeDropMap {
         console.log(`[DROP MAP] ADD at x:${column}, now ${tiles.size}`)
     }
 
-    public subtract(column: number, id: TileId): void {
-        const tiles = this._map.get(column);
-        if (!tiles) return;
-        tiles.delete(id);
-        console.log(`[DROP MAP] SUBSTRACT at x:${column}, now ${tiles.size}`)
+    public subtract(id: TileId): void {
+        this._map.forEach((set, _) => {
+            if (set.has(id)) {
+                set.delete(id);
+                return;
+            }
+        });
     }
 
     public get(column: number): number {

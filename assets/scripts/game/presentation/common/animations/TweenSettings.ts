@@ -79,10 +79,10 @@ export class TweenSettings {
         return {
             type: TweenType.FLASH,
             node,
-            durationIn: 0.12,
-            scaleIn: 1.1,
-            durationOut: 0.17,
-            scaleOut: 1.6,
+            durationIn: 0.3,
+            scaleIn: 1.4,
+            durationOut: 0.4,
+            scaleOut: 2,
             peakOpacity: 125
         };
     }

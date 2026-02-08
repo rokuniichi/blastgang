@@ -11,7 +11,7 @@ export class DestroyService extends BoardService {
             if (!id) continue;
             this.logicModel.destroy(position);
             console.log(`[DESTROY SERVICE] destroying: ${id}`);
-            this.tileRepository.remove(id);
+            this.typeRepo.remove(id);
 
             const destroyed: TileDestroyed = {
                 kind: "tile.destroy",

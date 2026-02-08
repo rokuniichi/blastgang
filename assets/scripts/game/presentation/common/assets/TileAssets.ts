@@ -31,14 +31,21 @@ export class TileAssets extends cc.Component implements IValidatable {
     @property(cc.SpriteFrame)
     private bomb: cc.SpriteFrame = null!;
 
-    private _map!: Map<TileType, cc.SpriteFrame>;
+    @property(cc.SpriteFrame)
+    private normalHighlight: cc.SpriteFrame = null!
+
+    @property(cc.SpriteFrame)
+    private bombHighlight: cc.SpriteFrame = null!
+
+    private _mainSprites!: Map<TileType, cc.SpriteFrame>;
+    private _highlightSprites!: Map<TileType, cc.SpriteFrame>;
 
     protected onLoad(): void {
         this.validate();
     }
 
     public validate(): void {
-        this._map = new Map<TileType, cc.SpriteFrame>([
+        this._mainSprites = new Map<TileType, cc.SpriteFrame>([
             [TileType.EMPTY, ensureNotNull(this.empty, this, "EMPTY")],
             [TileType.RED, ensureNotNull(this.red, this, "RED")],
             [TileType.GREEN, ensureNotNull(this.green, this, "GREEN")],
@@ -47,14 +54,30 @@ export class TileAssets extends cc.Component implements IValidatable {
             [TileType.YELLOW, ensureNotNull(this.yellow, this, "YELLOW")],
             [TileType.BOMB, ensureNotNull(this.bomb, this, "BOMB")]
         ]);
+
+        this._highlightSprites = new Map<TileType, cc.SpriteFrame>([
+            [TileType.EMPTY, ensureNotNull(this.empty, this, "EMPTY")],
+            [TileType.RED, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
+            [TileType.GREEN, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
+            [TileType.BLUE, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
+            [TileType.PURPLE, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
+            [TileType.YELLOW, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
+            [TileType.BOMB, ensureNotNull(this.bombHighlight, this, "BOMB_HIGHLIGHT")]
+        ]);
     }
 
     public getPrefab() {
         return this.tile;
     }
 
-    public getSprite(type: TileType): cc.SpriteFrame {
-        const sprite = this._map.get(type);
+    public getMainSprite(type: TileType): cc.SpriteFrame {
+        const sprite = this._mainSprites.get(type);
+        assertNotNull(sprite, this, `Sprite for type ${TileType[type]}`);
+        return sprite;
+    }
+
+    public getHighlightSprite(type: TileType): cc.SpriteFrame {
+        const sprite = this._highlightSprites.get(type);
         assertNotNull(sprite, this, `Sprite for type ${TileType[type]}`);
         return sprite;
     }

@@ -1,9 +1,10 @@
 import { TileSpawned } from "../events/mutations/TileSpawned";
 import { BoardLogicModel } from "../models/BoardLogicModel";
 import { TileFactory } from "../models/TileFactory";
-import { TileRepository } from "../models/TileRepository";
+import { TileTypeRepo } from "../models/TileTypeRepo";
 import { TileType } from "../models/TileType";
 import { BoardService } from "./BoardService";
+import { TilePositionRepo } from "../models/TilePositionRepo";
 
 export class SpawnService extends BoardService {
     protected readonly factory: TileFactory;
@@ -11,11 +12,12 @@ export class SpawnService extends BoardService {
 
     public constructor(
         logicModel: BoardLogicModel,
-        repository: TileRepository,
+        typeRepo: TileTypeRepo,
+        positionRepo: TilePositionRepo,
         factory: TileFactory,
         types: TileType[]
     ) {
-        super(logicModel, repository);
+        super(logicModel, typeRepo, positionRepo);
         this.factory = factory;
         this.types = types;
     }
@@ -24,19 +26,20 @@ export class SpawnService extends BoardService {
         const result = [];
         for (let x = 0; x < this.logicModel.width; x++) {
             for (let y = 0; y < this.logicModel.height; y++) {
-                const position = { x, y };
-                const id = this.logicModel.get(position);
+                const at = { x, y };
+                let id = this.logicModel.get(at);
                 if (id) continue;
                 const type = this.randomType();
-                const tile = this.factory.create(type);
-                this.logicModel.register(position, tile.id);
-                this.tileRepository.register(tile.id, type);
+                id = this.factory.create();
+                this.logicModel.register(at, id);
+                this.typeRepo.register(id, type);
+                this.positionRepo.register(id, at);
 
                 const spawned: TileSpawned = {
                     kind: "tile.spawned",
-                    id: tile.id,
-                    at: position,
-                    type: type
+                    id,
+                    at,
+                    type
                 };
 
                 result.push(spawned);

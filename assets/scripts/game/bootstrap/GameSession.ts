@@ -24,9 +24,10 @@ export class GameSession {
 
         this._lifecycle = [
             this._presentationInstaller,
+            this._gameContext.application.inputController,
+            this._gameContext.application.runtimeController,
             this._gameContext.application.stateController,
-            this._gameContext.application.logicController,
-            this._gameContext.application.runtimeController
+            this._gameContext.application.logicController
         ];
 
         this._gameContext.eventBus.on(GameRestartRequset, this.restart);

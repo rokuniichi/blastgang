@@ -8,6 +8,7 @@ export class BoosterViewContext extends DynamicTextViewContext {
     public constructor(presentation: PresentationGraph, type: BoosterType) {
         super(presentation);
         this._type = type;
+
         const value = this.presentation.boosters.get(this._type);
         this.setInitial(value);
     }

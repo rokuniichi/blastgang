@@ -1,13 +1,9 @@
-import { TileModel } from "./TileModel";
-import { TileType } from "./TileType";
+import { TileId } from "./BoardLogicModel";
 
 export class TileFactory {
     private _nextId = 0;
 
-    create(type: TileType): TileModel {
-        return {
-            id: `tile_${this._nextId++}`,
-            type
-        };
+    create(): TileId {
+        return `tile_${this._nextId++}`;
     }
 }

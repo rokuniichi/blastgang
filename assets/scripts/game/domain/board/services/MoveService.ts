@@ -7,6 +7,7 @@ export class MoveService extends BoardService {
             const id = this.logicModel.get(move.from);
             if (!id) continue;
             this.logicModel.move(move.from, move.to);
+            this.positionRepo.register(id, move.to);
         }
     }
 }

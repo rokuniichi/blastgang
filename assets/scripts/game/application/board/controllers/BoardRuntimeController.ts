@@ -1,7 +1,7 @@
 import { EventBus } from "../../../../core/eventbus/EventBus";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { DomainGraph } from "../../../domain/DomainGraph";
-import { VisualTileDestroyed } from "../../../presentation/board/events/TileViewDestroyed";
+import { VisualTileDestroyed } from "../../../presentation/board/events/VisualTileDestroyed";
 import { VisualTileStabilized } from "../../../presentation/board/events/VisualTileStabilized";
 import { EventController } from "../../common/controllers/BaseController";
 import { BoardRuntimeModel } from "../models/BoardRuntimeModel";
