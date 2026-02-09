@@ -5,7 +5,6 @@ import { SwapDeselected } from "../../../application/input/intents/SwapDeselecte
 import { SwapSelected } from "../../../application/input/intents/SwapSelected";
 import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
-import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
@@ -196,16 +195,14 @@ export class TileVisualOrchestrator implements IDisposable {
                 case "tile.transformed": {
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) continue;
-
-                    //agent.transform(mutation.toType);
+                    agent.transform(mutation.after);
                     break;
                 }
-                case "tile.rejected": {
-                    console.log(`[DISPATCH] rejected: ${mutation.reason}`);
+                case "tile.shaked": {
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) continue;
-                    if (mutation.reason == TileRejectedReason.NO_MATCH) agent.shake();
-                    console.log(`[DISPATCH] agent: ${agent.id}; position: ${agent.id}`);
+                    agent.shake();
+                    console.log(`[DISPATCH] shaked: ${mutation.id}`);
                     break;
                 }
 

@@ -3,29 +3,30 @@ import { BoardInfo } from "../../../config/game/GameConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { TileMutation } from "../../../domain/board/events/mutations/TileMutation";
 import { TileMutationHelper } from "../../../domain/board/events/mutations/TileMutationHelper";
-import { TileRejectedReason } from "../../../domain/board/events/mutations/TileRejected";
 import { BoardLogicModel, TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TilePositionRepo } from "../../../domain/board/models/TilePositionRepo";
+import { TileType } from "../../../domain/board/models/TileType";
 import { TileTypeRepo } from "../../../domain/board/models/TileTypeRepo";
 import { DestroyService } from "../../../domain/board/services/DestroyService";
 import { MoveService } from "../../../domain/board/services/MoveService";
 import { SearchService } from "../../../domain/board/services/SearchService";
 import { SpawnService } from "../../../domain/board/services/SpawnService";
+import { TransformService } from "../../../domain/board/services/TransformService";
 import { DomainGraph } from "../../../domain/DomainGraph";
 import { GameStateSync } from "../../../domain/state/events/GameStateSync";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
-import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { EventController } from "../../common/controllers/BaseController";
-import { NormalClickIntent } from "../../input/intents/NormalClickIntent";
-import { SwapClickIntent } from "../../input/intents/SwapClickIntent";
+import { BombEmplaceIntent } from "../../input/intents/BombEmplaceIntent";
+import { NormalIntent } from "../../input/intents/NormalIntent";
+import { SwapIntent } from "../../input/intents/SwapIntent";
 import { BoardRuntimeModel } from "../models/BoardRuntimeModel";
 
 export class BoardLogicController extends EventController {
 
     private readonly _boardInfo: BoardInfo;
-    private readonly _boardRuntime: BoardRuntimeModel;
-    private readonly _gameStateModel: GameStateModel;
+    private readonly _runtimeModel: BoardRuntimeModel;
+    private readonly _stateModel: GameStateModel;
     private readonly _logicModel: BoardLogicModel;
     private readonly _typeRepo: TileTypeRepo;
     private readonly _positionRepo: TilePositionRepo;
@@ -33,14 +34,14 @@ export class BoardLogicController extends EventController {
     private readonly _searchService: SearchService;
     private readonly _destroyService: DestroyService;
     private readonly _moveService: MoveService;
-
+    private readonly _transformService: TransformService;
 
     public constructor(eventBus: EventBus, domain: DomainGraph, runtimeModel: BoardRuntimeModel) {
         super(eventBus);
 
         this._boardInfo = domain.boardInfo;
-        this._boardRuntime = runtimeModel;
-        this._gameStateModel = domain.gameStateModel;
+        this._runtimeModel = runtimeModel;
+        this._stateModel = domain.stateModel;
         this._logicModel = domain.logicModel;
         this._typeRepo = domain.typeRepo;
         this._positionRepo = domain.positionRepo;
@@ -48,6 +49,7 @@ export class BoardLogicController extends EventController {
         this._searchService = domain.searchService;
         this._destroyService = domain.destroyService;
         this._moveService = domain.moveService;
+        this._transformService = domain.transformService;
     }
 
     protected onInit(): void {
@@ -57,38 +59,31 @@ export class BoardLogicController extends EventController {
         this.blockBoard(spawned);
         this.emit(initialBatch);
         console.log(`[BOARD CONTROL] initial mutations: ${spawned.length}`);
-        this.on(NormalClickIntent, this.onNormalClickIntent);
-        this.on(SwapClickIntent, this.onSwapClickIntent);
+        this.on(NormalIntent, this.onNormalIntent);
+        this.on(SwapIntent, this.onSwapIntent);
+        this.on(BombEmplaceIntent, this.onBombEmplaceIntent);
     }
 
-    private onNormalClickIntent = (event: NormalClickIntent): void => {
-        console.log(`[BOARD CONTROL] click allowed: ${this.clickAllowed()}, state: ${GameStateType[this._gameStateModel.state]}, board is locked: ${this._boardRuntime.lockedBoard()}`);
-        if (!this.clickAllowed()) return;
+    private onNormalIntent = (event: NormalIntent): void => {
         const batch = this.buildNormal(event.id);
         this.emit(batch);
     };
 
-    private onSwapClickIntent = (event: SwapClickIntent): void => {
-        if (!this.clickAllowed()) return;
+    private onSwapIntent = (event: SwapIntent): void => {
         const batch = this.buildSwap(event.first, event.second);
         this.emit(batch);
     };
 
-    private clickAllowed(): boolean {
-        return this._gameStateModel.state === GameStateType.PLAYING && !this._boardRuntime.lockedBoard();
+    private onBombEmplaceIntent = (event: BombEmplaceIntent): void => {
+        const batch = this.buildTransform(event.id, TileType.BOMB);
+        this.emit(batch);
     }
 
     private buildNormal(id: TileId): BoardMutationsBatch {
-        console.log(`[BOARD CONTROL] building ${id}...`);
-        if (id === null) return this.reject("_", TileRejectedReason.NON_EXISTANT);
-        if (this._boardRuntime.lockedTile(id)) return this.reject(id, TileRejectedReason.UNSTABLE);
-        console.log(`[BOARD CONTROL] accepted...`);
         const cluster = this.findCluster(id);
-        console.log(`[BOARD CONTROL] cluster of ${cluster.length}`);
         if (!this.validCluster(cluster)) {
-            console.log(`[BOARD CONTROL] cluster NOT valid, rejecting`);
-            this._boardRuntime.addUnstable(id);
-            return this.reject(id, TileRejectedReason.NO_MATCH);
+            this._runtimeModel.addUnstable(id);
+            return new BoardMutationsBatch([TileMutationHelper.shaked(id)]);
         }
 
         console.log(`[BOARD CONTROL] MUTATING`);
@@ -96,10 +91,16 @@ export class BoardLogicController extends EventController {
     }
 
     private buildSwap(first: TileId, second: TileId): BoardMutationsBatch {
-        this._boardRuntime.addUnstable(first);
-        this._boardRuntime.addUnstable(second);
+        this._runtimeModel.addUnstable(first);
+        this._runtimeModel.addUnstable(second);
         const swapped = this._moveService.swap(first, second);
         return new BoardMutationsBatch([...swapped]);
+    }
+
+    private buildTransform(id: TileId, type: TileType): BoardMutationsBatch {
+        this._runtimeModel.addUnstable(id);
+        const transformed = this._transformService.transform(id, type);
+        return new BoardMutationsBatch([transformed]);
     }
 
     private validCluster(cluster: TilePosition[]): boolean {
@@ -107,7 +108,7 @@ export class BoardLogicController extends EventController {
     }
 
     private findCluster(id: TileId): TilePosition[] {
-        return this._searchService.findCluster(id, this._boardRuntime);
+        return this._searchService.findCluster(id, this._runtimeModel);
     }
 
     private mutate(cluster: TilePosition[]): BoardMutationsBatch {
@@ -125,17 +126,13 @@ export class BoardLogicController extends EventController {
 
     private lockMutations(mutations: TileMutation[]): void {
         for (const mutation of mutations) {
-            this._boardRuntime.addUnstable(mutation.id)
+            this._runtimeModel.addUnstable(mutation.id)
         }
     }
 
     private blockBoard(mutations: TileMutation[]): void {
         for (const mutation of mutations) {
-            this._boardRuntime.addBlocker(mutation.id)
+            this._runtimeModel.addBlocker(mutation.id)
         }
-    }
-
-    private reject(id: string, reason: TileRejectedReason): BoardMutationsBatch {
-        return new BoardMutationsBatch([TileMutationHelper.rejected(id, reason)]);
     }
 }

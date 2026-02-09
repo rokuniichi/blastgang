@@ -11,7 +11,9 @@ import { getLocal } from "../../utils/calc";
 import { VisualTileClicked } from "../events/VisualTileClicked";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
 import { VisualTileLanded } from "../events/VisualTileLanded";
+import { VisualTileShaken } from "../events/VisualTileShaken";
 import { VisualTileSwapped } from "../events/VisualTileSwapped";
+import { VisualTileTransformed } from "../events/VisualTileTransformed";
 import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
 import { TileFlashFxHolder } from "./TileFlashFxHolder";
 import { TileView } from "./TileView";
@@ -123,7 +125,17 @@ export class TileVisualAgent implements IClickable {
         this._tweenSystem
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
-                this._eventBus.emit(new VisualTileLanded(this._id));
+                this._eventBus.emit(new VisualTileShaken(this._id));
+            })
+            .start();
+    }
+
+    public transform(type: TileType) {
+        this._view.set(type);
+        this._tweenSystem
+            .build(TweenSettings.pulse(this._view.node))
+            .call(() => {
+                this._eventBus.emit(new VisualTileTransformed(this._id));
             })
             .start();
     }

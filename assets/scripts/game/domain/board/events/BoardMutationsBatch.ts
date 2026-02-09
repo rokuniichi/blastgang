@@ -1,7 +1,7 @@
 import { IEvent } from "../../../../core/eventbus/IEvent";
 import { TileDestroyed } from "./mutations/TileDestroyed";
 import { TileMoved } from "./mutations/TileMoved";
-import { TileRejected } from "./mutations/TileRejected";
+import { TileShaked } from "./mutations/TileRejected";
 import { TileSpawned } from "./mutations/TileSpawned";
 import { TileTransformed } from "./mutations/TileTransformed";
 
@@ -10,7 +10,7 @@ type BoardMutation =
     | TileMoved
     | TileSpawned
     | TileTransformed
-    | TileRejected;
+    | TileShaked;
 
 export class BoardMutationsBatch implements IEvent {
     public constructor(public readonly mutations: BoardMutation[]) { }

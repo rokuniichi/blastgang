@@ -7,6 +7,7 @@ import { DestroyService } from "./board/services/DestroyService";
 import { MoveService } from "./board/services/MoveService";
 import { SearchService } from "./board/services/SearchService";
 import { SpawnService } from "./board/services/SpawnService";
+import { TransformService } from "./board/services/TransformService";
 import { GameStateModel } from "./state/models/GameStateModel";
 import { ScoreService } from "./state/services/ScoreService";
 
@@ -14,8 +15,9 @@ export class DomainGraph {
     public readonly boardInfo: BoardInfo;
     public readonly stateInfo: GameStateInfo;
 
-    public readonly gameStateModel: GameStateModel;
     public readonly logicModel: BoardLogicModel;
+    public readonly stateModel: GameStateModel;
+
     public readonly typeRepo: TileTypeRepo;
     public readonly positionRepo: TilePositionRepo;
     public readonly tileFactory: TileFactory;
@@ -24,20 +26,20 @@ export class DomainGraph {
     public readonly searchService: SearchService;
     public readonly destroyService: DestroyService;
     public readonly moveService: MoveService;
+    public readonly transformService: TransformService;
     public readonly scoreService: ScoreService;
 
     constructor(gameConfig: GameConfig) {
         this.boardInfo = gameConfig.board;
         this.stateInfo = gameConfig.gameState;
 
-        this.gameStateModel = new GameStateModel(this.stateInfo);
-
         this.logicModel = new BoardLogicModel(this.boardInfo.cols, this.boardInfo.rows);
+        this.stateModel = new GameStateModel(this.stateInfo);
+
         this.typeRepo = new TileTypeRepo();
         this.positionRepo = new TilePositionRepo();
         this.tileFactory = new TileFactory();
 
-        this.scoreService = new ScoreService(this.stateInfo.scoreMultiplier);
 
         this.spawnService = new SpawnService(
             this.logicModel,
@@ -50,5 +52,8 @@ export class DomainGraph {
         this.searchService = new SearchService(this.logicModel, this.typeRepo, this.positionRepo);
         this.destroyService = new DestroyService(this.logicModel, this.typeRepo, this.positionRepo);
         this.moveService = new MoveService(this.logicModel, this.typeRepo, this.positionRepo);
+        this.transformService = new TransformService(this.logicModel, this.typeRepo, this.positionRepo);
+
+        this.scoreService = new ScoreService(this.stateInfo.scoreMultiplier);
     }
 }

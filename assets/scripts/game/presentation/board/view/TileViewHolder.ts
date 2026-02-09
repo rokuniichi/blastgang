@@ -29,7 +29,8 @@ export class TileViewHolder implements IDisposable {
         const node = this._pool.pull();
         const view = node.getComponent(TileView);
         assertNotNull(view, this, "pool is broken");
-        view.set(this._tiles.getMainSprite(type), this._tiles.getHighlightSprite(type));
+        view.init(this._tiles);
+        view.set(type);
         this._map.set(id, view);
         return view;
     }

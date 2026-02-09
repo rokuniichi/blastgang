@@ -1,4 +1,5 @@
 import { TileMoved } from "../events/mutations/TileMoved";
+import { TileMutationHelper } from "../events/mutations/TileMutationHelper";
 import { TileId } from "../models/BoardLogicModel";
 import { BoardService } from "./BoardService";
 
@@ -22,21 +23,8 @@ export class MoveService extends BoardService {
             this.positionRepo.register(second, source);
             this.logicModel.swap(source, target);
 
-            const firstMove: TileMoved = {
-                kind: "tile.moved",
-                id: first,
-                from: source,
-                to: target,
-                cause: "swap"
-            };
-
-            const secondMove: TileMoved = {
-                kind: "tile.moved",
-                id: second,
-                from: target,
-                to: source,
-                cause: "swap"
-            }
+            const firstMove = TileMutationHelper.moved(first, source, target, "swap");
+            const secondMove = TileMutationHelper.moved(second, target, source, "swap");
 
             result.push(firstMove, secondMove);
         }
@@ -56,13 +44,7 @@ export class MoveService extends BoardService {
                     const id = this.logicModel.get(source);
                     if (!id) continue;
                     const target = { x: x, y: y + drop };
-                    const moved: TileMoved = {
-                        kind: "tile.moved",
-                        id,
-                        from: source,
-                        to: target,
-                        cause: "drop"
-                    };
+                    const moved = TileMutationHelper.moved(id, source, target, "drop");
                     result.push(moved);
                 }
             }

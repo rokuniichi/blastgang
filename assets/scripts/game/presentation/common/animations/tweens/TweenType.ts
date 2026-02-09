@@ -5,5 +5,6 @@ export enum TweenType {
     SPAWN,
     SHAKE,
     BURST,
-    FLASH
+    FLASH,
+    PULSE
 }   

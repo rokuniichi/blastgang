@@ -19,7 +19,7 @@ export class GameStateController extends EventController {
         super(eventBus);
 
         this._stateInfo = domain.stateInfo;
-        this._gameStateModel = domain.gameStateModel;
+        this._gameStateModel = domain.stateModel;
         this._scoreService = domain.scoreService;
     }
 

@@ -20,9 +20,9 @@ export class PresentationGraph {
         this.visualConfig = visualConfig;
         this.eventBus = eventBus;
         this.tweenSystem = new TweenSystem();
-        this.movesLeft = domain.gameStateModel.movesLeft;
-        this.targetScore = domain.gameStateModel.targetScore;
-        this.currentScore = domain.gameStateModel.currentScore;
+        this.movesLeft = domain.stateModel.movesLeft;
+        this.targetScore = domain.stateModel.targetScore;
+        this.currentScore = domain.stateModel.currentScore;
         this.boardCols = gameConfig.board.cols;
         this.boardRows = gameConfig.board.rows;
         this.boosters = gameConfig.gameState.boosters;

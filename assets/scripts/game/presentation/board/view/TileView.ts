@@ -1,4 +1,7 @@
+import { IInitializable } from "../../../../core/lifecycle/IInitializable";
 import { assertNotNull } from "../../../../core/utils/assert";
+import { TileType } from "../../../domain/board/models/TileType";
+import { TileAssets } from "../../common/assets/TileAssets";
 import { BaseView } from "../../common/view/BaseView";
 import { IHighlightable } from "../../common/view/IHighlightable";
 import { DropMotion } from "../../fx/DropMotions";
@@ -7,7 +10,7 @@ import { SlingMotion } from "../../fx/SlingMotion";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class TileView extends BaseView implements IHighlightable {
+export class TileView extends BaseView implements IInitializable<TileAssets>, IHighlightable {
     @property(cc.Sprite)
     private mainSprite: cc.Sprite = null!;
 
@@ -23,11 +26,17 @@ export class TileView extends BaseView implements IHighlightable {
     @property(SlingMotion)
     public sling: SlingMotion = null!
 
+    private _assets!: TileAssets;
+
     public validate(): void {
         super.validate();
         assertNotNull(this.mainSprite, this, "Sprite");
         assertNotNull(this.drop, this, "DropMotion");
         assertNotNull(this.sling, this, "SlingMotion");
+    }
+
+    init(assets: TileAssets): void {
+        this._assets = assets;
     }
 
     public highlight(state: boolean): void {
@@ -42,9 +51,9 @@ export class TileView extends BaseView implements IHighlightable {
         this.node.active = false;
     }
 
-    public set(mainSpriteFrame: cc.SpriteFrame, highlightSpriteFrame: cc.SpriteFrame): void {
-        this.mainSprite.spriteFrame = mainSpriteFrame;
-        this.highlightSprite.spriteFrame = highlightSpriteFrame;
+    public set(type: TileType): void {
+        this.mainSprite.spriteFrame = this._assets.getMainSprite(type);;
+        this.highlightSprite.spriteFrame = this._assets.getHighlightSprite(type);;
     }
 
     public stabilize(): void {

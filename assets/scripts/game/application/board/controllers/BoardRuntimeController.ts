@@ -3,7 +3,9 @@ import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { DomainGraph } from "../../../domain/DomainGraph";
 import { VisualTileDestroyed } from "../../../presentation/board/events/VisualTileDestroyed";
 import { VisualTileLanded } from "../../../presentation/board/events/VisualTileLanded";
+import { VisualTileShaken } from "../../../presentation/board/events/VisualTileShaken";
 import { VisualTileSwapped } from "../../../presentation/board/events/VisualTileSwapped";
+import { VisualTileTransformed } from "../../../presentation/board/events/VisualTileTransformed";
 import { EventController } from "../../common/controllers/BaseController";
 import { BoardRuntimeModel } from "../models/BoardRuntimeModel";
 
@@ -20,7 +22,9 @@ export class BoardRuntimeController extends EventController {
         [
             VisualTileLanded,
             VisualTileSwapped,
-            VisualTileDestroyed
+            VisualTileDestroyed,
+            VisualTileShaken,
+            VisualTileTransformed
         ].forEach(eventType => {
             this.on(eventType, this.onTileStabilized)
         });

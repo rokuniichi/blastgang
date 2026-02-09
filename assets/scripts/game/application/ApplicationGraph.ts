@@ -15,7 +15,7 @@ export class ApplicationGraph {
 
     constructor(eventBus: EventBus, domain: DomainGraph) {
         this.runtimeModel = new BoardRuntimeModel();
-        this.inputController = new InputController(eventBus, this.runtimeModel);
+        this.inputController = new InputController(eventBus, domain, this.runtimeModel);
         this.runtimeController = new BoardRuntimeController(eventBus, domain, this.runtimeModel);
         this.logicController = new BoardLogicController(eventBus, domain, this.runtimeModel);
         this.stateController = new GameStateController(eventBus, domain);

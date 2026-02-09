@@ -1,6 +1,9 @@
 import { EventBus } from "../../../../core/eventbus/EventBus";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
+import { DomainGraph } from "../../../domain/DomainGraph";
 import { BoosterType } from "../../../domain/state/models/BoosterType";
+import { GameStateModel } from "../../../domain/state/models/GameStateModel";
+import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { BoosterClicked } from "../../../presentation/board/events/BoosterClicked";
 import { VisualTileClicked } from "../../../presentation/board/events/VisualTileClicked";
 import { VisualTileSwapped } from "../../../presentation/board/events/VisualTileSwapped";
@@ -8,9 +11,9 @@ import { BoardRuntimeModel } from "../../board/models/BoardRuntimeModel";
 import { EventController } from "../../common/controllers/BaseController";
 import { BombEmplaceIntent } from "../intents/BombEmplaceIntent";
 import { BoosterSelected } from "../intents/BoosterSelected";
-import { NormalClickIntent } from "../intents/NormalClickIntent";
-import { SwapClickIntent } from "../intents/SwapClickIntent";
+import { NormalIntent } from "../intents/NormalIntent";
 import { SwapDeselected } from "../intents/SwapDeselected";
+import { SwapIntent } from "../intents/SwapIntent";
 import { SwapSelected } from "../intents/SwapSelected";
 
 enum InputMode {
@@ -22,60 +25,16 @@ enum InputMode {
 
 export class InputController extends EventController {
 
-    private readonly _runtime: BoardRuntimeModel;
+    private readonly _runtimeModel: BoardRuntimeModel;
+    private readonly _stateModel: GameStateModel;
 
     private _mode: InputMode = InputMode.NORMAL;
     private _activeBooster: BoosterType = BoosterType.NONE;
     private _firstTile: TileId | null = null;
 
-    constructor(eventBus: EventBus, runtime: BoardRuntimeModel) {
-        super(eventBus);
-        this._runtime = runtime;
-    }
-
-    protected onInit(): void {
-        this.on(VisualTileClicked, this.onTileClicked);
-        this.on(BoosterClicked, this.onBoosterClicked);
-        this.on(VisualTileSwapped, this.onSwapFinished);
-    }
-
-    private onBoosterClicked = (event: BoosterClicked): void => {
-
-        if (this._activeBooster === event.type) {
-            this.reset();
-            return;
-        }
-
-        this.reset();
-
-        switch (event.type) {
-            case BoosterType.SWAP:
-                this._mode = InputMode.SWAP_FIRST;
-                break;
-
-            case BoosterType.BOMB:
-                this._mode = InputMode.BOMB;
-                break;
-
-            default:
-                return;
-        }
-
-        this._activeBooster = event.type;
-        this.emit(new BoosterSelected(event.type));
-    };
-
-    private onTileClicked = (event: VisualTileClicked): void => {
-
-        if (this._runtime.lockedBoard()) return;
-        if (this._runtime.lockedTile(event.id)) return;
-
-        this.tileHandlers[this._mode](event.id);
-    };
-
-    private readonly tileHandlers: Record<InputMode, (id: TileId) => void> = {
+    private readonly _tileHandlers: Record<InputMode, (id: TileId) => void> = {
         [InputMode.NORMAL]: (id) => {
-            this.emit(new NormalClickIntent(id));
+            this.emit(new NormalIntent(id));
         },
 
         [InputMode.SWAP_FIRST]: (id) => {
@@ -97,13 +56,55 @@ export class InputController extends EventController {
             }
 
             this.emit(new SwapSelected(id));
-            this.emit(new SwapClickIntent(this._firstTile, id));
+            this.emit(new SwapIntent(this._firstTile, id));
         },
 
         [InputMode.BOMB]: (id) => {
             this.emit(new BombEmplaceIntent(id));
             this.reset();
         }
+    };
+
+    constructor(eventBus: EventBus, domain: DomainGraph, runtime: BoardRuntimeModel) {
+        super(eventBus);
+        this._runtimeModel = runtime;
+        this._stateModel = domain.stateModel;
+    }
+
+    protected onInit(): void {
+        this.on(VisualTileClicked, this.onTileClicked);
+        this.on(BoosterClicked, this.onBoosterClicked);
+        this.on(VisualTileSwapped, this.onSwapFinished);
+    }
+
+    private onBoosterClicked = (event: BoosterClicked): void => {
+        if (!this.clickAllowed) return;
+
+        this.reset();
+        if (this._activeBooster === event.type) return;
+
+        switch (event.type) {
+            case BoosterType.SWAP:
+                this._mode = InputMode.SWAP_FIRST;
+                break;
+
+            case BoosterType.BOMB:
+                this._mode = InputMode.BOMB;
+                break;
+
+            default:
+                return;
+        }
+
+        this._activeBooster = event.type;
+        this.emit(new BoosterSelected(event.type));
+    };
+
+    private onTileClicked = (event: VisualTileClicked): void => {
+        if (!this.clickAllowed() || event.id === null) return;
+        if (this._runtimeModel.lockedTile(event.id)) return;
+
+        this._tileHandlers[this._mode](event.id);
     };
 
     private onSwapFinished = (_: VisualTileSwapped) => {
@@ -122,5 +123,9 @@ export class InputController extends EventController {
             this.emit(new SwapDeselected(this._firstTile));
             this._firstTile = null;
         }
+    }
+
+    private clickAllowed(): boolean {
+        return this._stateModel.state === GameStateType.PLAYING && !this._runtimeModel.lockedBoard();
     }
 }

@@ -5,6 +5,7 @@ import { TileTypeRepo } from "../models/TileTypeRepo";
 import { TileType } from "../models/TileType";
 import { BoardService } from "./BoardService";
 import { TilePositionRepo } from "../models/TilePositionRepo";
+import { TileMutationHelper } from "../events/mutations/TileMutationHelper";
 
 export class SpawnService extends BoardService {
     protected readonly factory: TileFactory;
@@ -34,14 +35,7 @@ export class SpawnService extends BoardService {
                 this.logicModel.register(at, id);
                 this.typeRepo.register(id, type);
                 this.positionRepo.register(id, at);
-
-                const spawned: TileSpawned = {
-                    kind: "tile.spawned",
-                    id,
-                    at,
-                    type
-                };
-
+                const spawned = TileMutationHelper.spawned(id, at, type);
                 result.push(spawned);
             }
         }

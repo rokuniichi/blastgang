@@ -2,17 +2,16 @@ import { TilePosition } from "../../models/TilePosition";
 import { TileType } from "../../models/TileType";
 import { DestroyCause, TileDestroyed } from "./TileDestroyed";
 import { MoveCause, TileMoved } from "./TileMoved";
-import { TileRejected, TileRejectedReason } from "./TileRejected";
+import { TileShaked } from "./TileRejected";
 import { TileSpawned } from "./TileSpawned";
 import { TileTransformed } from "./TileTransformed";
 
 export class TileMutationHelper {
 
-    static rejected(id: string, reason: TileRejectedReason): TileRejected {
+    static shaked(id: string): TileShaked {
         return {
-            kind: "tile.rejected",
-            id,
-            reason
+            kind: "tile.shaked",
+            id
         };
     }
 
@@ -46,14 +45,14 @@ export class TileMutationHelper {
 
     static spawned(
         id: string,
-        type: TileType,
-        at: TilePosition
+        at: TilePosition,
+        type: TileType
     ): TileSpawned {
         return {
             kind: "tile.spawned",
             id,
-            type,
-            at
+            at,
+            type
         };
     }
 

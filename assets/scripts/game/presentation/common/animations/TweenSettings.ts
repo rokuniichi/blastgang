@@ -5,6 +5,7 @@ import { ShakeSettings } from "./settings/ShakeSettings";
 import { DestroySettings } from "./settings/DestructionSettings";
 import { BurstSettings } from "./settings/BurstSettings";
 import { FlashSettings } from "./settings/FlashSettings";
+import { PulseSettings } from "./settings/PulseSettings";
 
 
 export class TweenSettings {
@@ -84,6 +85,17 @@ export class TweenSettings {
             durationOut: 0.4,
             scaleOut: 2,
             peakOpacity: 125
+        };
+    }
+
+    static pulse(node: cc.Node): PulseSettings {
+        return {
+            type: TweenType.PULSE,
+            node,
+            durationIn: 0.125,
+            scaleIn: 1.2,
+            durationOut: 0.125,
+            scaleOut: 1.0
         };
     }
 }
