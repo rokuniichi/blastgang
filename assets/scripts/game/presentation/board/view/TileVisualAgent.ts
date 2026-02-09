@@ -10,7 +10,8 @@ import { IClickable } from "../../common/view/IClickable";
 import { getLocal } from "../../utils/calc";
 import { VisualTileClicked } from "../events/VisualTileClicked";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
-import { VisualTileStabilized } from "../events/VisualTileStabilized";
+import { VisualTileLanded } from "../events/VisualTileLanded";
+import { VisualTileSwapped } from "../events/VisualTileSwapped";
 import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
 import { TileFlashFxHolder } from "./TileFlashFxHolder";
 import { TileView } from "./TileView";
@@ -47,7 +48,7 @@ export class TileVisualAgent implements IClickable {
         tilesLayer: cc.Node,
         fxLayer: cc.Node,
         destructionFx: TileDestructionFxHolder,
-        flashFx: TileFlashFxHolder
+        flashFx: TileFlashFxHolder,
     ) {
         this._visualConfig = visualConfig;
         this._eventBus = eventBus;
@@ -86,32 +87,27 @@ export class TileVisualAgent implements IClickable {
         this.prepare(source, to);
         this.subscribe();
         this._view.drop.onDropped(() => this.landed(to));
-        this._view.drop.play(
-            source.y,
-            target.y,
-            this._visualConfig.gravity,
-            delay,
-            this._visualConfig.drop.bounce,
-            this._visualConfig.drop.bounceDuration,
-            this._visualConfig.drop.settleDuration
-        );
+        this._view.drop.play(source.y, target.y, delay, this._visualConfig.drop);
     }
 
     public drop(to: TilePosition, delay: number): void {
-
         const source = this._view.node.position;
         const target = this.local(to);
         this._view.drop.onDropped(() => this.landed(to));
         this._view.drop.play(
             source.y,
             target.y,
-            this._visualConfig.gravity,
             delay,
-            this._visualConfig.drop.bounce,
-            this._visualConfig.drop.bounceDuration,
-            this._visualConfig.drop.settleDuration
+            this._visualConfig.drop
         );
         console.log(`[AGENT] ${this.id} is startng to move`);
+    }
+
+    public swap(to: TilePosition): void {
+        const source = cc.v2(this._view.node.position);
+        const target = this.local(to);
+        this._view.sling.onSlinged(() => this.swapped(to));
+        this._view.sling.play(source, target, this._visualConfig.sling);
     }
 
     public destroy(): void {
@@ -127,7 +123,7 @@ export class TileVisualAgent implements IClickable {
         this._tweenSystem
             .build(TweenSettings.shake(this._view.node))
             .call(() => {
-                this._eventBus.emit(new VisualTileStabilized(this._id));
+                this._eventBus.emit(new VisualTileLanded(this._id));
             })
             .start();
     }
@@ -161,8 +157,14 @@ export class TileVisualAgent implements IClickable {
     }
 
     private landed(to: TilePosition) {
-        console.log(`[LANDED] from: ${this.id} to: ${BoardKey.position(to)}`);
-        this._eventBus.emit(new VisualTileStabilized(this._id));
+        console.log(`[LANDED] ${this.id} to: ${BoardKey.position(to)}`);
+        this._eventBus.emit(new VisualTileLanded(this._id));
+    }
+
+    private swapped(to: TilePosition) {
+        console.log(`[SWAPPED] ${this.id} to: ${BoardKey.position(to)}`);
+        this.highlight(false);
+        this._eventBus.emit(new VisualTileSwapped(this._id));
     }
 
     private local(position: TilePosition): cc.Vec2 {

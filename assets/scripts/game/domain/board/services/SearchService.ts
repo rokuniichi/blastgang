@@ -58,32 +58,4 @@ export class SearchService extends BoardService {
 
         return result;
     }
-
-    public findDrops(): TileMoved[] {
-        const result: TileMoved[] = [];
-        for (let x = this.logicModel.width - 1; x >= 0; x--) {
-            let drop = 0;
-            for (let y = this.logicModel.height - 1; y >= 0; y--) {
-                const source = { x, y };
-                if (this.logicModel.empty(source)) {
-                    drop++;
-                } else if (drop > 0) {
-                    const id = this.logicModel.get(source);
-                    if (!id) continue;
-                    const target = { x: x, y: y + drop };
-                    const moved: TileMoved = {
-                        kind: "tile.moved",
-                        id,
-                        from: source,
-                        to: target,
-                        cause: "drop"
-                    };
-                    result.push(moved);
-                }
-            }
-        }
-
-        return result;
-    }
-
 }

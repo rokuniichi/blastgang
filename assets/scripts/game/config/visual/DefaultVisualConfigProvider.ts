@@ -1,5 +1,5 @@
 import { BaseConfigProvider } from "../../../core/config/providers/BaseConfigProvider";
-import { BurstFxInfo, DropFxInfo, VisualConfig } from "./VisualConfig";
+import { BurstFxInfo, DropFxInfo, SlingFxInfo, VisualConfig } from "./VisualConfig";
 
 export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig> {
     async load(): Promise<void> {
@@ -31,14 +31,24 @@ export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig
         }
 
         const drop: DropFxInfo = {
-            delay: 0.10,
+            gravity: 3000,
+            delay: 0.010,
             bounce: 10,
             bounceDuration: 0.08,
             settleDuration: 0.08
         }
 
+        const sling: SlingFxInfo = {
+            pullDistance: 18,
+            overshootDistance: 6,
+            pullDuration: 0.09,
+            launchSpeed: 1600,
+            minLaunchDuration: 0.12,
+            maxLaunchDuration: 0.28,
+            settleDuration: 0.07
+        }
+
         this.config = {
-            gravity: 8,
             initialSpawnLine: 8,
             normalSpawnLine: 7,
             tileWidth: 100,
@@ -46,7 +56,8 @@ export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig
             boardWidthPadding: 42,
             boardHeightPadding: 58,
             burst,
-            drop
+            drop,
+            sling
         };
     }
 }

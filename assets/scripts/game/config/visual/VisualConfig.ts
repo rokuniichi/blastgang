@@ -27,14 +27,24 @@ export interface BurstFxInfo {
 }
 
 export interface DropFxInfo {
+    gravity: number;
     delay: number;
     bounce: number;
     bounceDuration: number;
     settleDuration: number;
 }
 
+export interface SlingFxInfo {
+    pullDistance: number;
+    overshootDistance: number;
+    pullDuration: number;
+    launchSpeed: number;
+    minLaunchDuration: number;
+    maxLaunchDuration: number;
+    settleDuration: number;
+}
+
 export interface VisualConfig extends IConfig {
-    readonly gravity: number;
     readonly initialSpawnLine: number;
     readonly normalSpawnLine: number;
     readonly tileWidth: number;
@@ -43,4 +53,5 @@ export interface VisualConfig extends IConfig {
     readonly boardHeightPadding: number;
     readonly burst: BurstFxInfo;
     readonly drop: DropFxInfo;
+    readonly sling: SlingFxInfo;
 }

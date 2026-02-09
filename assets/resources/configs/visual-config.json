@@ -1,5 +1,4 @@
 {
-	"gravity": 3000,
 	"initialSpawnLine": 6,
 	"normalSpawnLine": 5,
 	"tileWidth": 100,
@@ -25,9 +24,19 @@
 		"shrinkScale": 0.4
 	},
 	"drop": {
+		"gravity": 3000,
 		"delay": 0.010,
 		"bounce": 10,
 		"bounceDuration": 0.08,
 		"settleDuration": 0.08
+	},
+	"sling": {
+		"pullDistance": 18,
+		"overshootDistance": 6,
+		"pullDuration": 0.09,
+		"launchSpeed": 1600,
+		"minLaunchDuration": 0.2,
+		"maxLaunchDuration": 0.5,
+		"settleDuration": 0.07
 	}
 }

@@ -18,6 +18,7 @@ import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { EventController } from "../../common/controllers/BaseController";
 import { NormalClickIntent } from "../../input/intents/NormalClickIntent";
+import { SwapClickIntent } from "../../input/intents/SwapClickIntent";
 import { BoardRuntimeModel } from "../models/BoardRuntimeModel";
 
 export class BoardLogicController extends EventController {
@@ -57,12 +58,19 @@ export class BoardLogicController extends EventController {
         this.emit(initialBatch);
         console.log(`[BOARD CONTROL] initial mutations: ${spawned.length}`);
         this.on(NormalClickIntent, this.onNormalClickIntent);
+        this.on(SwapClickIntent, this.onSwapClickIntent);
     }
 
     private onNormalClickIntent = (event: NormalClickIntent): void => {
         console.log(`[BOARD CONTROL] click allowed: ${this.clickAllowed()}, state: ${GameStateType[this._gameStateModel.state]}, board is locked: ${this._boardRuntime.lockedBoard()}`);
         if (!this.clickAllowed()) return;
         const batch = this.buildNormal(event.id);
+        this.emit(batch);
+    };
+
+    private onSwapClickIntent = (event: SwapClickIntent): void => {
+        if (!this.clickAllowed()) return;
+        const batch = this.buildSwap(event.first, event.second);
         this.emit(batch);
     };
 
@@ -87,6 +95,13 @@ export class BoardLogicController extends EventController {
         return this.mutate(cluster);
     }
 
+    private buildSwap(first: TileId, second: TileId): BoardMutationsBatch {
+        this._boardRuntime.addUnstable(first);
+        this._boardRuntime.addUnstable(second);
+        const swapped = this._moveService.swap(first, second);
+        return new BoardMutationsBatch([...swapped]);
+    }
+
     private validCluster(cluster: TilePosition[]): boolean {
         return cluster.length >= this._boardInfo.clusterSize;
     }
@@ -98,9 +113,8 @@ export class BoardLogicController extends EventController {
     private mutate(cluster: TilePosition[]): BoardMutationsBatch {
         const destroyed = this._destroyService.destroy(cluster);
         console.log(`[BOARD CONTROL] destroyed: ${destroyed.length}`);
-        const dropped = this._searchService.findDrops();
+        const dropped = this._moveService.drop();
         console.log(`[BOARD CONTROL] dropped: ${dropped.length}`);
-        this._moveService.move(dropped);
         const spawned = this._spawnService.spawn();
         console.log(`[BOARD CONTROL] spawned: ${spawned.length}`);
         this.emit(new GameStateSync(destroyed.length));

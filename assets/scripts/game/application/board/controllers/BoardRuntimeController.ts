@@ -2,7 +2,8 @@ import { EventBus } from "../../../../core/eventbus/EventBus";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { DomainGraph } from "../../../domain/DomainGraph";
 import { VisualTileDestroyed } from "../../../presentation/board/events/VisualTileDestroyed";
-import { VisualTileStabilized } from "../../../presentation/board/events/VisualTileStabilized";
+import { VisualTileLanded } from "../../../presentation/board/events/VisualTileLanded";
+import { VisualTileSwapped } from "../../../presentation/board/events/VisualTileSwapped";
 import { EventController } from "../../common/controllers/BaseController";
 import { BoardRuntimeModel } from "../models/BoardRuntimeModel";
 
@@ -17,7 +18,8 @@ export class BoardRuntimeController extends EventController {
 
     protected onInit(): void {
         [
-            VisualTileStabilized,
+            VisualTileLanded,
+            VisualTileSwapped,
             VisualTileDestroyed
         ].forEach(eventType => {
             this.on(eventType, this.onTileStabilized)

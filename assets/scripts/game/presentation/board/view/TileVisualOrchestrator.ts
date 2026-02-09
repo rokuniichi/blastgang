@@ -12,7 +12,7 @@ import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
-import { VisualTileStabilized } from "../events/VisualTileStabilized";
+import { VisualTileLanded } from "../events/VisualTileLanded";
 import { BoardVisualModel } from "./BoardVisualModel";
 import { SafeDropMap } from "./SafeDropMap";
 import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
@@ -104,7 +104,7 @@ export class TileVisualOrchestrator implements IDisposable {
 
         this._layers = [this._tileLayer, this._fxLayer];
 
-        this._eventBus.on(VisualTileStabilized, this.onTileStabilized);
+        this._eventBus.on(VisualTileLanded, this.onTileStabilized);
         this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed);
         this._eventBus.on(SwapSelected, this.onSwapSelected);
         this._eventBus.on(SwapDeselected, this.onSwapDeselected);
@@ -115,7 +115,7 @@ export class TileVisualOrchestrator implements IDisposable {
         console.log("FX LAYER BEFORE", this._fxLayer.childrenCount);
 
 
-        this._eventBus.off(VisualTileStabilized, this.onTileStabilized);
+        this._eventBus.off(VisualTileLanded, this.onTileStabilized);
         this._eventBus.off(VisualTileDestroyed, this.onTileDestroyed);
         this._eventBus.off(SwapSelected, this.onSwapSelected);
         this._eventBus.off(SwapDeselected, this.onSwapDeselected);
@@ -168,8 +168,19 @@ export class TileVisualOrchestrator implements IDisposable {
                     console.log(`[DISPATCH] dispatching move from: ${BoardKey.position(mutation.from)}; to: ${BoardKey.position(mutation.to)}; id: ${mutation.id}`);
                     const agent = this._visualModel.get(mutation.id);
                     if (!agent) continue;
-                    console.log(`[DISPATCH] MOVE DISPATCHED`);
-                    agent.drop(mutation.to, this.getDropDelay(mutation.from));
+                    switch (mutation.cause) {
+                        case "drop": {
+                            console.log(`[DISPATCH] DROP DISPATCHED`);
+                            agent.drop(mutation.to, this.getDropDelay(mutation.from));
+                            break;
+                        }
+
+                        case "swap": {
+                            console.log(`[DISPATCH] SWAP DISPATCHED`);
+                            agent.swap(mutation.to);
+                            break;
+                        }
+                    }
                     break;
                 }
 
@@ -205,7 +216,7 @@ export class TileVisualOrchestrator implements IDisposable {
 
     }
 
-    private onTileStabilized = (event: VisualTileStabilized) => {
+    private onTileStabilized = (event: VisualTileLanded) => {
         this._safeDropMap.subtract(event.id);
     };
 

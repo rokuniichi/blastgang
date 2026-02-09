@@ -1,12 +1,11 @@
 import { IConfigValidator } from "../../../core/config/IConfigValidator";
 import { ensureNumber, ensureObject } from "../../../core/utils/ensure";
-import { BurstFxInfo, DropFxInfo, VisualConfig } from "./VisualConfig";
+import { BurstFxInfo, DropFxInfo, SlingFxInfo, VisualConfig } from "./VisualConfig";
 
 export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
     validate(raw: any): VisualConfig {
         const data = ensureObject(raw, this, "data");
 
-        const gravity = ensureNumber(data.gravity, this, "data.baseDropTime");
         const initialSpawnLine = ensureNumber(data.initialSpawnLine, this, "data.initialSpawnLine");
         const normalSpawnLine = ensureNumber(data.normalSpawnLine, this, "data.normalSpawnLine");
         const tileWidth = ensureNumber(data.tileWidth, this, "data.nodeWidth");
@@ -14,7 +13,7 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
         const boardWidthPadding = ensureNumber(data.boardWidthPadding, this, "data.boardWidthPadding");
         const boardHeightPadding = ensureNumber(data.boardHeightPadding, this, "data.boardWidthPadding");
 
-        const burstData = ensureObject(data.burst, this, "data.burst");
+        const burstData = ensureObject(data.burst, this, "data.burstData");
 
         const minCount = ensureNumber(burstData.minCount, this, "burstData.minCount");
         const maxCount = ensureNumber(burstData.maxCount, this, "burstData.maxCount");
@@ -33,13 +32,23 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
         const fadeDelay = ensureNumber(burstData.fadeDelay, this, "burstData.fadeDelay");
         const shrinkScale = ensureNumber(burstData.shrinkScale, this, "burstData.shrinkScale");
 
-        const dropData = ensureObject(data.drop, this, "data.drop");
+        const dropData = ensureObject(data.drop, this, "data.dropData");
 
+        const dropGravity = ensureNumber(dropData.gravity, this, "data.gravity");
         const delay = ensureNumber(dropData.delay, this, "dropData.delay");
         const bounce = ensureNumber(dropData.bounce, this, "dropData.bounce");
         const bounceDuration = ensureNumber(dropData.bounceDuration, this, "dropData.bounceDuration");
-        const settleDuration = ensureNumber(dropData.settleDuration, this, "dropData.settleDuration");
+        const dropSettleDuration = ensureNumber(dropData.settleDuration, this, "dropData.settleDuration");
 
+        const slingData = ensureObject(data.sling, this, "data.slingData");
+
+        const pullDistance = ensureNumber(slingData.pullDistance, this, "slingData.pullDistance");
+        const overshootDistance = ensureNumber(slingData.overshootDistance, this, "slingData.overshootDistance");
+        const pullDuration = ensureNumber(slingData.pullDuration, this, "slingData.pullDuration");
+        const launchSpeed = ensureNumber(slingData.launchSpeed, this, "slingData.launchSpeed");
+        const minLaunchDuration = ensureNumber(slingData.minLaunchDuration, this, "slingData.minLaunchDuration");
+        const maxLaunchDuration = ensureNumber(slingData.maxLaunchDuration, this, "slingData.maxLaunchDuration");
+        const slingSettleDuration = ensureNumber(slingData.settleDuration, this, "slingData.settleDuration");
 
         const burst: BurstFxInfo = {
             minCount,
@@ -61,22 +70,33 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
         }
 
         const drop: DropFxInfo = {
+            gravity: dropGravity,
             delay,
             bounce,
             bounceDuration,
-            settleDuration
+            settleDuration: dropSettleDuration
+        }
+
+        const sling: SlingFxInfo = {
+            pullDistance,
+            overshootDistance,
+            pullDuration,
+            launchSpeed,
+            minLaunchDuration,
+            maxLaunchDuration,
+            settleDuration: slingSettleDuration
         }
 
         return {
-            gravity,
             initialSpawnLine,
             normalSpawnLine,
-            tileWidth: tileWidth,
-            tileHeight: tileHeight,
+            tileWidth,
+            tileHeight,
             boardWidthPadding,
             boardHeightPadding,
             burst,
-            drop
+            drop,
+            sling
         };
     }
 }
