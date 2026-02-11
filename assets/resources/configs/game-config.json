@@ -18,12 +18,12 @@
 		}
 	},
 	"gameState": {
-		"targetScore": 10000,
+		"targetScore": 7500,
 		"maxMoves": 30,
 		"scoreMultiplier": 5,
 		"boosters": {
-			"SWAP": 3,
-			"BOMB": 3
+			"SWAP": 10,
+			"BOMB": 5
 		}
 	}
 }
