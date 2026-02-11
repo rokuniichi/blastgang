@@ -32,10 +32,28 @@ export class TileAssets extends cc.Component implements IValidatable {
     private bomb: cc.SpriteFrame = null!;
 
     @property(cc.SpriteFrame)
+    private horizontalRocket: cc.SpriteFrame = null!;
+
+    @property(cc.SpriteFrame)
+    private verticalRocket: cc.SpriteFrame = null!;
+
+    @property(cc.SpriteFrame)
+    private superBomb: cc.SpriteFrame = null!;
+
+    @property(cc.SpriteFrame)
     private normalHighlight: cc.SpriteFrame = null!
 
     @property(cc.SpriteFrame)
     private bombHighlight: cc.SpriteFrame = null!
+
+    @property(cc.SpriteFrame)
+    private horizontalRocketHighlight: cc.SpriteFrame = null!
+
+    @property(cc.SpriteFrame)
+    private verticalRocketHighlight: cc.SpriteFrame = null!
+
+    @property(cc.SpriteFrame)
+    private superBombHighlight: cc.SpriteFrame = null!
 
     private _mainSprites!: Map<TileType, cc.SpriteFrame>;
     private _highlightSprites!: Map<TileType, cc.SpriteFrame>;
@@ -52,7 +70,10 @@ export class TileAssets extends cc.Component implements IValidatable {
             [TileType.BLUE, ensureNotNull(this.blue, this, "BLUE")],
             [TileType.PURPLE, ensureNotNull(this.purple, this, "PURPLE")],
             [TileType.YELLOW, ensureNotNull(this.yellow, this, "YELLOW")],
-            [TileType.BOMB, ensureNotNull(this.bomb, this, "BOMB")]
+            [TileType.BOMB, ensureNotNull(this.bomb, this, "BOMB")],
+            [TileType.HORIZONTAL_ROCKET, ensureNotNull(this.horizontalRocket, this, "HORIZONTAL_ROCKET")],
+            [TileType.VERTICAL_ROCKET, ensureNotNull(this.verticalRocket, this, "VERTICAL_ROCKET")],
+            [TileType.SUPER_BOMB, ensureNotNull(this.superBomb, this, "SUPER_BOMB")]
         ]);
 
         this._highlightSprites = new Map<TileType, cc.SpriteFrame>([
@@ -62,7 +83,10 @@ export class TileAssets extends cc.Component implements IValidatable {
             [TileType.BLUE, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
             [TileType.PURPLE, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
             [TileType.YELLOW, ensureNotNull(this.normalHighlight, this, "NORMAL_HIGHLIGHT")],
-            [TileType.BOMB, ensureNotNull(this.bombHighlight, this, "BOMB_HIGHLIGHT")]
+            [TileType.BOMB, ensureNotNull(this.bombHighlight, this, "BOMB_HIGHLIGHT")],
+            [TileType.HORIZONTAL_ROCKET, ensureNotNull(this.horizontalRocketHighlight, this, "HORIZONTAL_ROCKET_HIGHLIGHT")],
+            [TileType.VERTICAL_ROCKET, ensureNotNull(this.verticalRocketHighlight, this, "VERTICAL_ROCKET_HIGHLIGHT")],
+            [TileType.SUPER_BOMB, ensureNotNull(this.superBombHighlight, this, "SUPER_BOMB_HIGHLIGHT")],
         ]);
     }
 

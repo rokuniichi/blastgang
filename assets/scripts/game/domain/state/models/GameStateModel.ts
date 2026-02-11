@@ -5,7 +5,7 @@ import { GameStateType } from "./GameStateType";
 export class GameStateModel {
     public readonly targetScore: number;
     public readonly maxMoves: number;
-    
+
     private readonly _boosters: Map<BoosterType, number>;
 
     private _movesLeft: number;
@@ -47,9 +47,14 @@ export class GameStateModel {
         this._stateType = state;
     }
 
-    public useBooster(booster: BoosterType) {
-        const value = this._boosters.get(booster);
+    public useBooster(booster: BoosterType): void {
+        let value = this._boosters.get(booster);
         if (!value || value === 0) return;
-        this._boosters.set(booster, value - 1)
+        this._boosters.set(booster, --value)
+    }
+
+    public getBooster(booster: BoosterType): number {
+        const value = this._boosters.get(booster);
+        return value ?? 0;
     }
 }

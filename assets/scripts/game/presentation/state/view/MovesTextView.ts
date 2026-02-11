@@ -1,4 +1,4 @@
-import { MovesUpdate } from "../../../domain/state/events/MovesUpdate";
+import { MovesUpdate } from "../../../application/state/events/MovesUpdate";
 import { DynamicTextView } from "../../common/view/DynamicTextView";
 import { PresentationViewContextFactory } from "../../common/view/PresentationView";
 import { PresentationGraph } from "../../PresentationGraph";

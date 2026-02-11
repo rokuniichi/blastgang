@@ -1,23 +1,34 @@
 import { EventBus } from "../../../../core/eventbus/EventBus";
+import { SubscriptionGroup } from "../../../../core/eventbus/SubscriptionGroup";
 import { IDisposable } from "../../../../core/lifecycle/IDisposable";
-import { BoardKey } from "../../../application/board/BoardKey";
-import { SwapDeselected } from "../../../application/input/intents/SwapDeselected";
 import { SwapSelected } from "../../../application/input/intents/SwapSelected";
 import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
+import { DestroyMutation } from "../../../domain/board/events/mutations/DestroyMutation";
+import { MoveMutation } from "../../../domain/board/events/mutations/MoveMutation";
+import { ShakeMutation } from "../../../domain/board/events/mutations/ShakeMutation";
+import { SpawnMutation } from "../../../domain/board/events/mutations/SpawnMutation";
+import { TransformMutation } from "../../../domain/board/events/mutations/TransformationMutation";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
+import { RocketAssets } from "../../common/assets/RocketAssets";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { TileAssets } from "../../common/assets/TileAssets";
+import { RocketCrossed } from "../events/RocketCrossed";
+import { RocketOutOfBounds } from "../events/RocketOutOfBounds";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
+import { VisualTileFlown } from "../events/VisualTileFlown";
 import { VisualTileLanded } from "../events/VisualTileLanded";
+import { BoardPositionalModel } from "./BoardPositionalModel";
 import { BoardVisualModel } from "./BoardVisualModel";
+import { RocketFxHolder } from "./RocketFxHolder";
 import { SafeDropMap } from "./SafeDropMap";
 import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
 import { TileFlashFxHolder } from "./TileFlashFxHolder";
 import { TileViewHolder } from "./TileViewHolder";
 import { TileVisualAgentFactory } from "./TileVisualAgentFactory";
+import { VisualPhases } from "./VisualPhases";
 
 export class TileVisualOrchestrator implements IDisposable {
 
@@ -28,6 +39,7 @@ export class TileVisualOrchestrator implements IDisposable {
 
     private readonly _visualAgentFactory: TileVisualAgentFactory;
     private readonly _visualModel: BoardVisualModel;
+    private readonly _positionalModel: BoardPositionalModel;
 
     private readonly _boardCols: number;
     private readonly _boardRows: number;
@@ -38,14 +50,17 @@ export class TileVisualOrchestrator implements IDisposable {
 
     private readonly _tiles: TileAssets;
     private readonly _shards: ShardAssets;
+    private readonly _rockets: RocketAssets;
     private readonly _flash: cc.Prefab;
 
     private readonly _safeDropMap: SafeDropMap;
 
     private readonly _tilePool: TileViewHolder;
     private readonly _destructionFx: TileDestructionFxHolder;
+    private readonly _rocketFx: RocketFxHolder;
     private readonly _flashFx: TileFlashFxHolder;
 
+    private readonly _subscriptions: SubscriptionGroup;
     private readonly _disposables: IDisposable[];
     private readonly _layers: cc.Node[];
 
@@ -60,6 +75,7 @@ export class TileVisualOrchestrator implements IDisposable {
         fxLayer: cc.Node,
         tiles: TileAssets,
         shards: ShardAssets,
+        rockets: RocketAssets,
         flash: cc.Prefab
     ) {
         this._eventBus = eventBus;
@@ -72,15 +88,40 @@ export class TileVisualOrchestrator implements IDisposable {
         this._fxLayer = fxLayer;
         this._tiles = tiles;
         this._shards = shards;
+        this._rockets = rockets;
         this._flash = flash;
 
         this._visualModel = new BoardVisualModel();
+        this._positionalModel = new BoardPositionalModel();
         this._safeDropMap = new SafeDropMap();
 
-        const boardSize = this._boardCols * this._boardRows;
-        this._tilePool = new TileViewHolder(this._tiles, this._tileLayer, boardSize);
-        this._destructionFx = new TileDestructionFxHolder(this._visualConfig.burst, this._tweenSystem, this._shards, this._fxLayer, boardSize);
-        this._flashFx = new TileFlashFxHolder(this._tweenSystem, this._flash, this._backgroundLayer, boardSize)
+        this._tilePool = new TileViewHolder(
+            this._tiles,
+            this._tileLayer,
+            this._boardCols * this._boardRows
+        );
+        this._destructionFx = new TileDestructionFxHolder(
+            this._eventBus,
+            this._visualConfig.burst,
+            this._shards,
+            this._fxLayer,
+            this._boardCols * this._boardRows
+        );
+        this._flashFx = new TileFlashFxHolder(
+            this._tweenSystem,
+            this._flash,
+            this._backgroundLayer,
+            this._boardCols * this._boardRows
+        );
+        this._rocketFx = new RocketFxHolder(
+            this._eventBus,
+            this._visualConfig.rocket,
+            this._rockets, this._fxLayer,
+            this._boardCols,
+            this._boardRows,
+            this._visualConfig.tileWidth,
+            this._visualConfig.tileHeight
+        );
 
         this._visualAgentFactory = new TileVisualAgentFactory(
             this._visualConfig,
@@ -92,6 +133,7 @@ export class TileVisualOrchestrator implements IDisposable {
             this._tileLayer,
             this._fxLayer,
             this._destructionFx,
+            this._rocketFx,
             this._flashFx
         );
 
@@ -103,131 +145,177 @@ export class TileVisualOrchestrator implements IDisposable {
 
         this._layers = [this._tileLayer, this._fxLayer];
 
-        this._eventBus.on(VisualTileLanded, this.onTileStabilized);
-        this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed);
-        this._eventBus.on(SwapSelected, this.onSwapSelected);
-        this._eventBus.on(SwapDeselected, this.onSwapDeselected);
+        this._subscriptions = new SubscriptionGroup();
+
+        this._subscriptions.add(this._eventBus.on(VisualTileLanded, this.onTileLanded));
+        this._subscriptions.add(this._eventBus.on(VisualTileDestroyed, this.onTileDestroyed));
+        this._subscriptions.add(this._eventBus.on(SwapSelected, this.onSwapSelected));
+        this._subscriptions.add(this._eventBus.on(RocketCrossed, this.onRocketCrossed));
     }
 
     public dispose(): void {
-        console.log("TILE LAYER BEFORE", this._tileLayer.childrenCount);
-        console.log("FX LAYER BEFORE", this._fxLayer.childrenCount);
-
-
-        this._eventBus.off(VisualTileLanded, this.onTileStabilized);
-        this._eventBus.off(VisualTileDestroyed, this.onTileDestroyed);
-        this._eventBus.off(SwapSelected, this.onSwapSelected);
-        this._eventBus.off(SwapDeselected, this.onSwapDeselected);
+        this._subscriptions.clear();
         this._disposables.forEach((entity) => entity.dispose());
         this._layers.forEach((layer) => layer.destroyAllChildren());
     }
 
     public init(result: BoardMutationsBatch) {
-        console.log(`[DISPATCH] INIT COMMAND: ${result.mutations.length}`);
-
         result.mutations.forEach((mutation) => {
             if (mutation.kind === "tile.spawned") {
                 const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
                 this._visualModel.register(agent);
                 const from = { x: mutation.at.x, y: -mutation.at.y - this._visualConfig.initialSpawnLine };
+                this._positionalModel.register(mutation.at, agent);
                 agent.spawn(mutation.type, from, mutation.at, this.getDropDelay(from));
             }
         });
     }
 
-    public dispatch(result: BoardMutationsBatch): void {
-        console.log(`[DISPATCH] DISPATCH COMMAND: ${result.mutations.length}`);
+    public async dispatch(batch: BoardMutationsBatch): Promise<void> {
 
-        for (const mutation of result.mutations) {
-            if (mutation.kind === "tile.spawned") {
-                const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
-                this._visualModel.register(agent);
-                this._safeDropMap.add(mutation.at.x, agent.id);
-            }
-        }
+        const phases = this.splitPhases(batch);
 
-        this._safeDropMap.forEach((v, k) => console.log(`[DISPATCH] spawning ${v.size} nodes in ${k} column`));
+        this.playShakes(phases.shakes);
 
-        console.log(`[DISPATCH] mutations: ${result.mutations.length}`);
-        for (const mutation of result.mutations) {
-            switch (mutation.kind) {
-                case "tile.spawned": {
-                    console.log(`[DISPATCH] dispatching spawn at: ${BoardKey.position(mutation.at)}; id: ${mutation.id}`);
-                    const agent = this._visualModel.get(mutation.id);
-                    const offset = this._safeDropMap.get(mutation.at.x);
-                    console.log(`[OFFSET CALCULCATED] ${offset} for ${mutation.at.x}`)
-                    if (!agent) continue;
-                    console.log(`[DISPATCH] SPAWN DISPATCHED`);
-                    const from = { x: mutation.at.x, y: mutation.at.y - offset - this._visualConfig.normalSpawnLine };
-                    agent.spawn(mutation.type, from, mutation.at, this.getDropDelay(from));
-                    break;
-                }
+        await this.playTransforms(phases.transforms);
+        await this.playDestroys(phases.destroys);
 
-                case "tile.moved": {
-                    console.log(`[DISPATCH] dispatching move from: ${BoardKey.position(mutation.from)}; to: ${BoardKey.position(mutation.to)}; id: ${mutation.id}`);
-                    const agent = this._visualModel.get(mutation.id);
-                    if (!agent) continue;
-                    switch (mutation.cause) {
-                        case "drop": {
-                            console.log(`[DISPATCH] DROP DISPATCHED`);
-                            agent.drop(mutation.to, this.getDropDelay(mutation.from));
-                            break;
-                        }
-
-                        case "swap": {
-                            console.log(`[DISPATCH] SWAP DISPATCHED`);
-                            agent.swap(mutation.to);
-                            break;
-                        }
-                    }
-                    break;
-                }
-
-                case "tile.destroy": {
-                    console.log(`[DISPATCH] dispatching destroy at: ${BoardKey.position(mutation.at)}; id: ${mutation.id}`);
-                    const agent = this._visualModel.get(mutation.id);
-                    if (!agent) continue;
-                    console.log(`[DISPATCH] DESTROY DISPATCHED`);
-                    agent.destroy();
-                    break;
-                }
-
-                case "tile.transformed": {
-                    const agent = this._visualModel.get(mutation.id);
-                    if (!agent) continue;
-                    agent.transform(mutation.after);
-                    break;
-                }
-                case "tile.shaked": {
-                    const agent = this._visualModel.get(mutation.id);
-                    if (!agent) continue;
-                    agent.shake();
-                    console.log(`[DISPATCH] shaked: ${mutation.id}`);
-                    break;
-                }
-
-                default:
-                    throw new Error(`Unsupported mutation kind: ${(mutation as any).kind}`);
-            }
-        }
-
+        this.playMoves(phases.moves);
+        this.playSpawns(phases.spawns);
     }
 
-    private onTileStabilized = (event: VisualTileLanded) => {
+    private splitPhases(batch: BoardMutationsBatch): VisualPhases {
+        const shakes = [];
+        const transforms = [];
+        const destroys = [];
+        const moves = [];
+        const spawns = [];
+
+        for (const m of batch.mutations) {
+            switch (m.kind) {
+                case "tile.shaked": shakes.push(m); break;
+                case "tile.transformed": transforms.push(m); break;
+                case "tile.destroy": destroys.push(m); break;
+                case "tile.moved": moves.push(m); break;
+                case "tile.spawned": spawns.push(m); break;
+            }
+        }
+
+        return { shakes, transforms, destroys, moves, spawns };
+    }
+
+    private playShakes(shakes: ShakeMutation[]) {
+        for (const mutation of shakes) {
+            const agent = this._visualModel.get(mutation.id);
+            if (!agent) continue;
+            agent.shake();
+            break;
+        }
+    }
+
+    private async playTransforms(transforms: TransformMutation[]): Promise<void> {
+        for (const mutation of transforms) {
+            mutation.transformed.forEach((transform) => {
+                const agent = this._visualModel.get(transform);
+                if (!agent) return;
+                agent.fly(mutation.center);
+            });
+            const agent = this._visualModel.get(mutation.id);
+            if (!agent) continue;
+            agent.highlight(true);
+            if (mutation.transformed.length > 0)
+                await this._eventBus.waitForRemaining(VisualTileFlown, mutation.transformed.length);
+
+            agent.highlight(false);
+            agent.transform(mutation.type);
+        }
+    }
+
+    private async playDestroys(destroys: DestroyMutation[]): Promise<void> {
+        for (const mutation of destroys) {
+            switch (mutation.cause) {
+                case "bomb":
+                case "match":
+                case "superbomb": {
+                    mutation.destroyed.forEach((tile) => {
+                        const agent = this._visualModel.get(tile);
+                        if (!agent) return;
+                        agent.destroy();
+                    });
+                    break;
+                }
+
+                case "horizontal_rocket":
+                case "vertical_rocket":
+                    const agent = this._visualModel.get(mutation.id);
+                    if (!agent) continue;
+                    agent.launch(mutation.cause);
+                    await this._eventBus.waitForRemaining(RocketOutOfBounds, 2);
+            }
+        }
+    }
+
+    private playMoves(moves: MoveMutation[]) {
+        for (const mutation of moves) {
+            const agent = this._visualModel.get(mutation.id);
+            if (!agent) continue;
+            switch (mutation.cause) {
+                case "drop": {
+                    agent.drop(mutation.to, this.getDropDelay(mutation.from));
+                    this._positionalModel.register(mutation.to, agent);
+                    break;
+                }
+
+                case "swap": {
+                    agent.swap(mutation.to);
+                    this._positionalModel.register(mutation.to, agent);
+                    break;
+                }
+            }
+        }
+    }
+
+    private playSpawns(spawns: SpawnMutation[]) {
+        for (const mutation of spawns) {
+            const agent = this._visualAgentFactory.create(mutation.id, mutation.type);
+            this._visualModel.register(agent);
+            this._positionalModel.register(mutation.at, agent);
+            this._safeDropMap.add(mutation.at.x, agent.id);
+        }
+
+        for (const mutation of spawns) {
+            const agent = this._visualModel.get(mutation.id);
+            const offset = this._safeDropMap.get(mutation.at.x);
+            if (!agent) continue;
+            const from = { x: mutation.at.x, y: mutation.at.y - offset - this._visualConfig.normalSpawnLine };
+            agent.spawn(mutation.type, from, mutation.at, this.getDropDelay(from));
+        }
+    }
+
+    private onTileLanded = (event: VisualTileLanded) => {
         this._safeDropMap.subtract(event.id);
+        const agent = this._visualModel.get(event.id);
+        if (!agent) return;
+        this._positionalModel.register(event.position, agent)
     };
 
     private onTileDestroyed = (event: VisualTileDestroyed) => {
-        this._tilePool.release(event.id);
-        this._visualModel.remove(event.id);
+        this._safeDropMap.subtract(event.id);
+        const agent = this._visualModel.get(event.id);
+        if (!agent) return;
+        this._positionalModel.remove(agent.position);
+        this._visualModel.remove(agent.id);
+        this._tilePool.release(agent.id);
     };
 
     private onSwapSelected = (event: SwapSelected) => {
-        this.highlightTile(event.id, true);
+        this.highlightTile(event.id, event.state);
     };
 
-    private onSwapDeselected = (event: SwapDeselected) => {
-        this.highlightTile(event.id, false);
+    private onRocketCrossed = (event: RocketCrossed) => {
+        const agent = this._positionalModel.get(event.position);
+        if (!agent) return;
+        agent.destroy();
     }
 
     private highlightTile(id: TileId, state: boolean) {

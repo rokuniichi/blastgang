@@ -1,5 +1,5 @@
 import { BaseConfigProvider } from "../../../core/config/providers/BaseConfigProvider";
-import { BurstFxInfo, DropFxInfo, SlingFxInfo, VisualConfig } from "./VisualConfig";
+import { BurstFxInfo, DropFxInfo, RocketFxInfo, SlingFxInfo, VisualConfig } from "./VisualConfig";
 
 export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig> {
     async load(): Promise<void> {
@@ -45,7 +45,12 @@ export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig
             launchSpeed: 1600,
             minLaunchDuration: 0.12,
             maxLaunchDuration: 0.28,
-            settleDuration: 0.07
+            settleDuration: 0.07,
+            disappearDistance: 25
+        }
+
+        const rocket: RocketFxInfo = {
+            speed: 5
         }
 
         this.config = {
@@ -57,7 +62,8 @@ export class DefaultVisualConfigProvider extends BaseConfigProvider<VisualConfig
             boardHeightPadding: 58,
             burst,
             drop,
-            sling
+            sling,
+            rocket
         };
     }
 }

@@ -1,11 +1,20 @@
 import { BaseConfigProvider } from "../../../core/config/providers/BaseConfigProvider";
 import { TileType } from "../../domain/board/models/TileType";
 import { BoosterType } from "../../domain/state/models/BoosterType";
-import { GameConfig } from "./GameConfig";
+import { GameConfig, ThresholdInfo } from "./GameConfig";
+import { ThresholdType } from "./ThresholdType";
 
 
 export class DefaultGameConfigProvider extends BaseConfigProvider<GameConfig> {
     async load(): Promise<void> {
+        const specials: ThresholdInfo[] = [
+            { type: ThresholdType.ROCKET, amount: 4 },
+            { type: ThresholdType.BOMB, amount: 6 },
+            { type: ThresholdType.SUPER_BOMB, amount: 10 }
+        ];
+
+        specials.sort((a, b) => b.amount - a.amount);
+
         const boosters = new Map<BoosterType, number>([
             [BoosterType.SWAP, 3],
             [BoosterType.BOMB, 3]
@@ -23,6 +32,8 @@ export class DefaultGameConfigProvider extends BaseConfigProvider<GameConfig> {
                     TileType.YELLOW
                 ],
                 clusterSize: 3,
+                bombRadius: 1,
+                specials
             },
 
             gameState: {

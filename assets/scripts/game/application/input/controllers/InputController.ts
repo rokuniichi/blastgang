@@ -6,13 +6,11 @@ import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { BoosterClicked } from "../../../presentation/board/events/BoosterClicked";
 import { VisualTileClicked } from "../../../presentation/board/events/VisualTileClicked";
-import { VisualTileSwapped } from "../../../presentation/board/events/VisualTileSwapped";
-import { BoardRuntimeModel } from "../../board/models/BoardRuntimeModel";
+import { BoardInteractivityModel } from "../../board/runtime/models/BoardInteractivityModel";
 import { EventController } from "../../common/controllers/BaseController";
 import { BombEmplaceIntent } from "../intents/BombEmplaceIntent";
 import { BoosterSelected } from "../intents/BoosterSelected";
 import { NormalIntent } from "../intents/NormalIntent";
-import { SwapDeselected } from "../intents/SwapDeselected";
 import { SwapIntent } from "../intents/SwapIntent";
 import { SwapSelected } from "../intents/SwapSelected";
 
@@ -25,7 +23,7 @@ enum InputMode {
 
 export class InputController extends EventController {
 
-    private readonly _runtimeModel: BoardRuntimeModel;
+    private readonly _interactivityModel: BoardInteractivityModel;
     private readonly _stateModel: GameStateModel;
 
     private _mode: InputMode = InputMode.NORMAL;
@@ -40,7 +38,7 @@ export class InputController extends EventController {
         [InputMode.SWAP_FIRST]: (id) => {
             this._firstTile = id;
             this._mode = InputMode.SWAP_SECOND;
-            this.emit(new SwapSelected(id));
+            this.emit(new SwapSelected(id, true));
         },
 
         [InputMode.SWAP_SECOND]: (id) => {
@@ -55,8 +53,9 @@ export class InputController extends EventController {
                 return;
             }
 
-            this.emit(new SwapSelected(id));
+            this.emit(new SwapSelected(id, true));
             this.emit(new SwapIntent(this._firstTile, id));
+            this.reset();
         },
 
         [InputMode.BOMB]: (id) => {
@@ -65,23 +64,25 @@ export class InputController extends EventController {
         }
     };
 
-    constructor(eventBus: EventBus, domain: DomainGraph, runtime: BoardRuntimeModel) {
+    constructor(eventBus: EventBus, domain: DomainGraph, interactivity: BoardInteractivityModel) {
         super(eventBus);
-        this._runtimeModel = runtime;
+        this._interactivityModel = interactivity;
         this._stateModel = domain.stateModel;
     }
 
     protected onInit(): void {
         this.on(VisualTileClicked, this.onTileClicked);
         this.on(BoosterClicked, this.onBoosterClicked);
-        this.on(VisualTileSwapped, this.onSwapFinished);
     }
 
     private onBoosterClicked = (event: BoosterClicked): void => {
         if (!this.clickAllowed) return;
+        if (this._activeBooster === event.type || this._stateModel.getBooster(event.type) === 0) {
+            this.reset();
+            return;
+        }
 
         this.reset();
-        if (this._activeBooster === event.type) return;
 
         switch (event.type) {
             case BoosterType.SWAP:
@@ -102,30 +103,22 @@ export class InputController extends EventController {
 
     private onTileClicked = (event: VisualTileClicked): void => {
         if (!this.clickAllowed() || event.id === null) return;
-        if (this._runtimeModel.lockedTile(event.id)) return;
+        if (this._interactivityModel.lockedTile(event.id)) return;
 
         this._tileHandlers[this._mode](event.id);
     };
 
-    private onSwapFinished = (_: VisualTileSwapped) => {
-        this.reset();
-    };
-
     private reset(): void {
-        this.deselectTiles();
+        if (this._firstTile !== null)
+            this.emit(new SwapSelected(this._firstTile, false));
+        this._firstTile = null;
         this._mode = InputMode.NORMAL;
         this._activeBooster = BoosterType.NONE;
         this.emit(new BoosterSelected(BoosterType.NONE));
     }
 
-    private deselectTiles(): void {
-        if (this._firstTile !== null) {
-            this.emit(new SwapDeselected(this._firstTile));
-            this._firstTile = null;
-        }
-    }
 
     private clickAllowed(): boolean {
-        return this._stateModel.state === GameStateType.PLAYING && !this._runtimeModel.lockedBoard();
+        return this._stateModel.state === GameStateType.PLAYING && !this._interactivityModel.lockedBoard();
     }
 }

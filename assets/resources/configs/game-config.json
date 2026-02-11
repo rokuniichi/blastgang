@@ -9,10 +9,16 @@
 			"BLUE",
 			"YELLOW",
 			"PURPLE"
-		]
+		],
+		"bombRadius": 1,
+		"specials": {
+			"ROCKET": 4,
+			"BOMB": 6,
+			"SUPER_BOMB": 10
+		}
 	},
 	"gameState": {
-		"targetScore": 3000,
+		"targetScore": 10000,
 		"maxMoves": 30,
 		"scoreMultiplier": 5,
 		"boosters": {

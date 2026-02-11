@@ -8,7 +8,6 @@ export class BoardLogicModel {
     public readonly width: number;
     public readonly height: number;
 
-    // game map
     private readonly _grid: Matrix<TileId | null>;
 
     public constructor(width: number, height: number) {
@@ -37,15 +36,15 @@ export class BoardLogicModel {
         this._grid.set(at.x, at.y, null);
     }
 
-    public get(at: TilePosition): TileId | null {
-        return this._grid.get(at.x, at.y);
-    }
-
     public swap(first: TilePosition, second: TilePosition): void {
         this._grid.swap(first.x, first.y, second.x, second.y);
     }
 
-    public empty(at: TilePosition): boolean {
-        return this._grid.get(at.x, at.y) === null;
+    public get(x: number, y: number): TileId | null {
+        return this._grid.get(x, y);
+    }
+
+    public empty(x: number, y: number): boolean {
+        return this._grid.get(x, y) === null;
     }
 }

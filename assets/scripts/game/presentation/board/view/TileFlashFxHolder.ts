@@ -17,7 +17,6 @@ export class TileFlashFxHolder implements IDisposable {
     }
 
     public dispose(): void {
-        console.log(`[DISPOSE] flash pool:`);
         this._flashPool.dispose();
     }
 

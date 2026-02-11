@@ -1,4 +1,4 @@
-import { StateUpdate } from "../../../domain/state/events/StateUpdate";
+import { StateUpdate } from "../../../application/state/events/StateUpdate";
 import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { GameRestartRequset } from "../../board/events/GameRestartRequest";
 import { TweenSettings } from "../../common/animations/TweenSettings";

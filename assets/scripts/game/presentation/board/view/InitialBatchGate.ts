@@ -16,16 +16,13 @@ export class InitialBatchGate {
     }
 
     public register(batch: BoardMutationsBatch) {
-        console.log(`REGISTER started: ${this._started}, loaded: ${this._loaded}, ${this._initialBatch}`);
         if (this._started) return;
         if (this._initialBatch) return;
         this._initialBatch = batch;
-        console.log(`DONE REGISTER started: ${this._started}, loaded: ${this._loaded}, ${this._initialBatch}`);
         this.tryStart();
     }
 
     private tryStart() {
-        console.log(`tryStart started: ${this._started}, loaded: ${this._loaded}, ${this._initialBatch}`);
         if (this._started) return;
         if (!this._loaded) return;
         if (!this._initialBatch) return;

@@ -24,7 +24,6 @@ export class FlashTween implements ITween<FlashSettings> {
                         scale: settings.node.scale * settings.scaleOut
                     }),
 
-                // мягкий дрейф угла
                 cc.tween().to(settings.durationIn + settings.durationOut, {
                     angle: startAngle + driftAngle
                 })

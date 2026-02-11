@@ -36,7 +36,7 @@ core/
   eventbus/                  → event system
   .../          
 game/
-  application/               → orchestration, use-cases, runtime
+  application/               → orchestration, use-cases, interactivity
     ApplicationGraph.ts
     .../
   bootstrap/                 → composition root
@@ -77,13 +77,24 @@ The **BoardLogicalModel** represents the pure logical structure of the board.
 - Internally based on a generic 2D Matrix<TileId>
 - Provides **O(1)** access by position
 - Acts as a spatial index registry
-- Contains no runtime or visual state
+- Contains no interactivity or visual state
 - Used exclusively by domain algorithms
 - This model answers the question:
-  - ***"Who is where?"***
+  - ***"Who is present on board and where?"***
 
-#### Tile repository
-The **TileRepository** is a registry of all tile entities.
+
+#### Tile position repository
+The **TilePositionRepo** is a reverse spatial index of tiles.
+- Maps ```TileId → TilePosition```
+- Provides **O(1)** access by tile id
+- Acts as a reverse lookup for BoardLogicalModel
+- Synced on tile create/move/remove
+- Used by domain services and gameplay algorithms
+- This repository answers:
+  - ***"Where is this specific tile located?"***
+
+#### Tile type repository
+The **TileTypeRepo** is a registry of all tile entities and their corresponding types.
 - Maps ```TileId → TileType```
 - Stores stable, identity-bound data
 - Decouples tile identity from board placement
@@ -92,16 +103,16 @@ The **TileRepository** is a registry of all tile entities.
   - temporarily disappear
   - be transformed
 - This repository answers:
-  - ***"What is this tile?"***
+  - ***"What type is this tile?"***
 
-#### Runtime model
-The **BoardRuntimeModel** tracks runtime-only state.
+#### Interactivity model
+The **BoardInteractivityModel** tracks interactivity-only state.
 - Implemented as two ```Set<TileId>```
-- Stores interactivity status of both tiles and board in runtime
+- Stores interactivity status of both tiles and board in interactivity
 - Exists only for gameplay execution
 - Is deterministically managed in domain and reacts to status changes via ```BoardRuntimeController```
 - This model answers:
-  - ***"Can I interact with the game and/or it's elements right now?"***
+  - ***"Can I interact with the game board and/or it's tiles right now?"***
 
 #### Visual agent registry
 - The VisualAgentRegistry lives entirely in the presentation layer.
@@ -129,7 +140,7 @@ The **BoardRuntimeModel** tracks runtime-only state.
 
 - Domain produces ```BoardMutationsBatch``` containing ```mutations```
   - a comprehensive history of "events" happened with the board in order
-  - ```TileDestroyed```, ```TileMoved```, ```TileRejected``` etc.
+  - ```DestroyMutation```, ```MoveMutation```, ```SpawnMutation``` etc.
 - Mutations are then processed inside the ```VisualOrchestrator``` that dispatches commands accross agents
 
 ---

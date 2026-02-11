@@ -1,4 +1,4 @@
-import { TileSpawned } from "../events/mutations/TileSpawned";
+import { SpawnMutation } from "../events/mutations/SpawnMutation";
 import { BoardLogicModel } from "../models/BoardLogicModel";
 import { TileFactory } from "../models/TileFactory";
 import { TileTypeRepo } from "../models/TileTypeRepo";
@@ -23,18 +23,18 @@ export class SpawnService extends BoardService {
         this.types = types;
     }
 
-    public spawn(): TileSpawned[] {
+    public spawn(): SpawnMutation[] {
         const result = [];
         for (let x = 0; x < this.logicModel.width; x++) {
             for (let y = 0; y < this.logicModel.height; y++) {
-                const at = { x, y };
-                let id = this.logicModel.get(at);
+                let id = this.logicModel.get(x, y);
                 if (id) continue;
+                const at = { x, y };
                 const type = this.randomType();
                 id = this.factory.create();
-                this.logicModel.register(at, id);
+                this.logicModel.register({ x, y }, id);
                 this.typeRepo.register(id, type);
-                this.positionRepo.register(id, at);
+                this.positionRepo.move(id, at);
                 const spawned = TileMutationHelper.spawned(id, at, type);
                 result.push(spawned);
             }

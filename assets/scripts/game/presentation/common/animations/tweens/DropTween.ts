@@ -6,7 +6,6 @@ export class DropTween implements ITween<DropSettings> {
     public readonly type = TweenType.DROP;
 
     public build(settings: DropSettings): cc.Tween {
-        console.log(`nigga i build`);
         return cc.tween(settings.node)
             .delay(settings.duration);
     }

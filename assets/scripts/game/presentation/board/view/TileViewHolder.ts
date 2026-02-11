@@ -20,8 +20,6 @@ export class TileViewHolder implements IDisposable {
     }
 
     public dispose(): void {
-        console.log(`[DISPOSE] tile views: ${this._map.size}`);
-        console.log(`[DISzPOSE] tiles pool:`);
         this._pool.dispose();
     }
 

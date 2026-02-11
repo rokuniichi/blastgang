@@ -23,11 +23,14 @@
         "__id__": 2
       },
       {
+        "__id__": 4
+      },
+      {
         "__id__": 3
       }
     ],
     "_prefab": {
-      "__id__": 4
+      "__id__": 5
     },
     "_opacity": 255,
     "_color": {
@@ -77,13 +80,19 @@
     "_id": ""
   },
   {
-    "__type__": "f5f75KYHdhDNaczZhkojcUc",
+    "__type__": "d7d2doF0utPpJ2y6Za7sCb9",
     "_name": "",
     "_objFlags": 0,
     "node": {
       "__id__": 1
     },
     "_enabled": true,
+    "mainSprite": {
+      "__id__": 3
+    },
+    "burst": {
+      "__id__": 4
+    },
     "_id": ""
   },
   {
@@ -103,7 +112,7 @@
     "_dstBlendFactor": 771,
     "_spriteFrame": null,
     "_type": 0,
-    "_sizeMode": 1,
+    "_sizeMode": 2,
     "_fillType": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",
@@ -112,8 +121,18 @@
     },
     "_fillStart": 0,
     "_fillRange": 0,
-    "_isTrimmedMode": true,
+    "_isTrimmedMode": false,
     "_atlas": null,
+    "_id": ""
+  },
+  {
+    "__type__": "f5f75KYHdhDNaczZhkojcUc",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
     "_id": ""
   },
   {

@@ -5,7 +5,11 @@ export class ScoreService {
         this._scoreMultiplier = scoreMultiplier;
     }
 
-    public calculate(destroyed: number) {
+    public calculateCluster(destroyed: number) {
         return destroyed * destroyed * this._scoreMultiplier;
+    }
+
+    public calculateCollateral(destroyed: number) {
+        return destroyed * this._scoreMultiplier * this._scoreMultiplier;
     }
 }

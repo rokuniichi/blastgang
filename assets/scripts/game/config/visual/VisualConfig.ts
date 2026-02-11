@@ -42,6 +42,11 @@ export interface SlingFxInfo {
     minLaunchDuration: number;
     maxLaunchDuration: number;
     settleDuration: number;
+    disappearDistance: number;
+}
+
+export interface RocketFxInfo {
+    speed: number;
 }
 
 export interface VisualConfig extends IConfig {
@@ -54,4 +59,5 @@ export interface VisualConfig extends IConfig {
     readonly burst: BurstFxInfo;
     readonly drop: DropFxInfo;
     readonly sling: SlingFxInfo;
+    readonly rocket: RocketFxInfo;
 }

@@ -32,11 +32,15 @@
 	},
 	"sling": {
 		"pullDistance": 18,
-		"overshootDistance": 6,
+		"overshootDistance": 0,
 		"pullDuration": 0.09,
 		"launchSpeed": 1600,
-		"minLaunchDuration": 0.2,
-		"maxLaunchDuration": 0.5,
-		"settleDuration": 0.07
+		"minLaunchDuration": 0.25,
+		"maxLaunchDuration": 0.3,
+		"settleDuration": 0.07,
+		"disappearDistance": 25
+	},
+	"rocket": {
+		"speed": 1100
 	}
 }

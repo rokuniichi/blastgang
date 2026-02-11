@@ -1,19 +1,23 @@
 import { EventBus } from "../../../../core/eventbus/EventBus";
 import { BoardKey } from "../../../application/board/BoardKey";
 import { VisualConfig } from "../../../config/visual/VisualConfig";
+import { DestroyCause } from "../../../domain/board/events/mutations/DestroyMutation";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TilePosition } from "../../../domain/board/models/TilePosition";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
 import { TweenSettings } from "../../common/animations/TweenSettings";
 import { IClickable } from "../../common/view/IClickable";
+import { RocketDirection } from "../../fx/RocketType";
 import { getLocal } from "../../utils/calc";
 import { VisualTileClicked } from "../events/VisualTileClicked";
 import { VisualTileDestroyed } from "../events/VisualTileDestroyed";
+import { VisualTileFlown } from "../events/VisualTileFlown";
 import { VisualTileLanded } from "../events/VisualTileLanded";
 import { VisualTileShaken } from "../events/VisualTileShaken";
 import { VisualTileSwapped } from "../events/VisualTileSwapped";
 import { VisualTileTransformed } from "../events/VisualTileTransformed";
+import { RocketFxHolder } from "./RocketFxHolder";
 import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
 import { TileFlashFxHolder } from "./TileFlashFxHolder";
 import { TileView } from "./TileView";
@@ -32,11 +36,14 @@ export class TileVisualAgent implements IClickable {
     private readonly _fxLayer: cc.Node;
 
     private readonly _destructionFx: TileDestructionFxHolder;
+    private readonly _rocketFx: RocketFxHolder;
     private readonly _flashFx: TileFlashFxHolder;
 
     private readonly _id: TileId;
     private readonly _view: TileView;
-    private readonly _type: TileType;
+
+    private _type: TileType;
+    private _position!: TilePosition;
 
     public constructor(
         visualConfig: VisualConfig,
@@ -50,7 +57,8 @@ export class TileVisualAgent implements IClickable {
         tilesLayer: cc.Node,
         fxLayer: cc.Node,
         destructionFx: TileDestructionFxHolder,
-        flashFx: TileFlashFxHolder,
+        rocketFx: RocketFxHolder,
+        flashFx: TileFlashFxHolder
     ) {
         this._visualConfig = visualConfig;
         this._eventBus = eventBus;
@@ -69,6 +77,7 @@ export class TileVisualAgent implements IClickable {
         this._fxLayer = fxLayer;
 
         this._destructionFx = destructionFx;
+        this._rocketFx = rocketFx;
         this._flashFx = flashFx;
     }
 
@@ -76,12 +85,16 @@ export class TileVisualAgent implements IClickable {
         return this._id;
     }
 
+    public get position(): TilePosition {
+        return this._position;
+    }
+
     public get busy(): boolean {
         return this._view.drop.running || this._view.sling.running;
     }
 
     public spawn(type: TileType, from: TilePosition, to: TilePosition, delay: number) {
-        console.log(`[SPAWN] ${BoardKey.type(type)} at ${BoardKey.position(to)} with offset ${from}`);
+        this._position = from;
 
         const source = this.local(from);
         const target = this.local(to);
@@ -102,13 +115,21 @@ export class TileVisualAgent implements IClickable {
             delay,
             this._visualConfig.drop
         );
-        console.log(`[AGENT] ${this.id} is startng to move`);
     }
 
     public swap(to: TilePosition): void {
+        this.sling(to, (to) => this.swapped(to));
+    }
+
+    public fly(to: TilePosition): void {
+        this.highlight(true);
+        this.sling(to, (_) => this.flown());
+    }
+
+    public sling(to: TilePosition, callback: (to: TilePosition) => void): void {
         const source = cc.v2(this._view.node.position);
         const target = this.local(to);
-        this._view.sling.onSlinged(() => this.swapped(to));
+        this._view.sling.onSlinged(() => callback(to));
         this._view.sling.play(source, target, this._visualConfig.sling);
     }
 
@@ -116,9 +137,7 @@ export class TileVisualAgent implements IClickable {
         const local = this._view.node.position;
         this._destructionFx.play(local, this._type);
         this._flashFx.play(local);
-        this.hide();
-        this.unsubscribe();
-        this._eventBus.emit(new VisualTileDestroyed(this._id));
+        this.destroyed();
     }
 
     public shake(): void {
@@ -131,13 +150,36 @@ export class TileVisualAgent implements IClickable {
     }
 
     public transform(type: TileType) {
+        this._type = type;
         this._view.set(type);
+
         this._tweenSystem
             .build(TweenSettings.pulse(this._view.node))
             .call(() => {
                 this._eventBus.emit(new VisualTileTransformed(this._id));
             })
             .start();
+    }
+
+    public launch(cause: DestroyCause) {
+        switch (cause) {
+            case "horizontal_rocket": {
+                this._rocketFx.play(this.position, RocketDirection.LEFT);
+                this._rocketFx.play(this.position, RocketDirection.RIGHT);
+                break;
+            }
+
+            case "vertical_rocket": {
+                this._rocketFx.play(this.position, RocketDirection.UP);
+                this._rocketFx.play(this.position, RocketDirection.DOWN);
+                break;
+            }
+
+            default:
+                break;
+        }
+
+        this.destroyed();
     }
 
     public highlight(state: boolean): void {
@@ -156,6 +198,10 @@ export class TileVisualAgent implements IClickable {
         this._view.show();
     }
 
+    private hide() {
+        this._view.hide();
+    }
+
     private subscribe() {
         this._view.node.on(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
@@ -164,20 +210,29 @@ export class TileVisualAgent implements IClickable {
         this._view.node.off(cc.Node.EventType.TOUCH_END, this.onClick, this);
     }
 
-    private hide() {
-        this._view.hide();
-    }
-
     private landed(to: TilePosition) {
-        console.log(`[LANDED] ${this.id} to: ${BoardKey.position(to)}`);
-        this._eventBus.emit(new VisualTileLanded(this._id));
+        this._position = to;
+        this._eventBus.emit(new VisualTileLanded(this._id, to));
     }
 
     private swapped(to: TilePosition) {
-        console.log(`[SWAPPED] ${this.id} to: ${BoardKey.position(to)}`);
+        this._position = to;
         this.highlight(false);
         this._eventBus.emit(new VisualTileSwapped(this._id));
     }
+
+    private flown() {
+        this.destroyed();
+        this._eventBus.emit(new VisualTileFlown(this._id));
+    }
+
+    private destroyed() {
+        this.highlight(false);
+        this.hide();
+        this.unsubscribe();
+        this._eventBus.emit(new VisualTileDestroyed(this._id));
+    }
+
 
     private local(position: TilePosition): cc.Vec2 {
         return getLocal(position, this._boardCols, this._boardRows, this._nodeWidth, this._nodeHeight);

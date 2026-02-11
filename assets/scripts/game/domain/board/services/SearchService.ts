@@ -1,13 +1,12 @@
 import { Matrix } from "../../../../core/collections/Matrix";
-import { BoardRuntimeModel } from "../../../application/board/models/BoardRuntimeModel";
-import { TileMoved } from "../events/mutations/TileMoved";
+import { BoardInteractivityModel } from "../../../application/board/runtime/models/BoardInteractivityModel";
 import { TileId } from "../models/BoardLogicModel";
 import { TilePosition } from "../models/TilePosition";
 import { TileType } from "../models/TileType";
 import { BoardService } from "./BoardService";
 
 export class SearchService extends BoardService {
-    public findCluster(id: TileId, runtime: BoardRuntimeModel): TilePosition[] {
+    public findCluster(id: TileId, interactivity: BoardInteractivityModel): TileId[] {
         const startType = this.typeRepo.get(id);
         const startPosition = this.positionRepo.get(id);
         if (startType === null || startPosition === null) return [];
@@ -24,14 +23,14 @@ export class SearchService extends BoardService {
 
             visited.set(currentPosition.x, currentPosition.y, true);
 
-            const targetId = this.logicModel.get(currentPosition);
+            const targetId = this.logicModel.get(currentPosition.x, currentPosition.y);
             if (!targetId) continue;
 
-            if (runtime.lockedTile(targetId) || this.typeRepo.get(targetId) !== startType) {
+            if (interactivity.lockedTile(targetId) || this.typeRepo.get(targetId) !== startType) {
                 continue;
             }
 
-            result.push(currentPosition);
+            result.push(targetId);
 
             stack.push(...this.findNeighbors(currentPosition));
         }

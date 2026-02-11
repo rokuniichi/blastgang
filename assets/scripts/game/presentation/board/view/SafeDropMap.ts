@@ -12,7 +12,6 @@ export class SafeDropMap {
         const tiles = this._map.get(column) ?? new Set<TileId>();
         tiles.add(id);
         this._map.set(column, tiles);
-        console.log(`[DROP MAP] ADD at x:${column}, now ${tiles.size}`)
     }
 
     public subtract(id: TileId): void {

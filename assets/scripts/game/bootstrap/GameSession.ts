@@ -25,7 +25,7 @@ export class GameSession {
         this._lifecycle = [
             this._presentationInstaller,
             this._gameContext.application.inputController,
-            this._gameContext.application.runtimeController,
+            this._gameContext.application.interactivityController,
             this._gameContext.application.stateController,
             this._gameContext.application.logicController
         ];

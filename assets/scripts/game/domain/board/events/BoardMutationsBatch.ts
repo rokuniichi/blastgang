@@ -1,17 +1,25 @@
 import { IEvent } from "../../../../core/eventbus/IEvent";
-import { TileDestroyed } from "./mutations/TileDestroyed";
-import { TileMoved } from "./mutations/TileMoved";
-import { TileShaked } from "./mutations/TileRejected";
-import { TileSpawned } from "./mutations/TileSpawned";
-import { TileTransformed } from "./mutations/TileTransformed";
+import { DestroyMutation } from "./mutations/DestroyMutation";
+import { MoveMutation } from "./mutations/MoveMutation";
+import { ShakeMutation } from "./mutations/ShakeMutation";
+import { SpawnMutation } from "./mutations/SpawnMutation";
+import { TransformMutation } from "./mutations/TransformationMutation";
 
 type BoardMutation =
-    | TileDestroyed
-    | TileMoved
-    | TileSpawned
-    | TileTransformed
-    | TileShaked;
+    | DestroyMutation
+    | MoveMutation
+    | ShakeMutation
+    | TransformMutation
+    | SpawnMutation
 
 export class BoardMutationsBatch implements IEvent {
-    public constructor(public readonly mutations: BoardMutation[]) { }
+    public readonly mutations: BoardMutation[];
+
+    public constructor() {
+        this.mutations = [];
+    }
+
+    public push(mutation: BoardMutation): void {
+        this.mutations.push(mutation);
+    }
 }

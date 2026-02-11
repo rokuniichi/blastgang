@@ -1,14 +1,17 @@
 import { EventBus } from "../../../../core/eventbus/EventBus";
 import { GameStateInfo } from "../../../config/game/GameConfig";
+import { BoardMutationsBatch } from "../../../domain/board/events/BoardMutationsBatch";
 import { DomainGraph } from "../../../domain/DomainGraph";
-import { GameStateSync } from "../../../domain/state/events/GameStateSync";
-import { MovesUpdate } from "../../../domain/state/events/MovesUpdate";
-import { ScoreUpdate } from "../../../domain/state/events/ScoreUpdate";
-import { StateUpdate } from "../../../domain/state/events/StateUpdate";
+import { NormalIntentComplete } from "../events/NormalIntentComplete";
+import { MovesUpdate } from "../events/MovesUpdate";
+import { ScoreUpdate } from "../events/ScoreUpdate";
+import { StateUpdate } from "../events/StateUpdate";
 import { GameStateModel } from "../../../domain/state/models/GameStateModel";
 import { GameStateType } from "../../../domain/state/models/GameStateType";
 import { ScoreService } from "../../../domain/state/services/ScoreService";
 import { EventController } from "../../common/controllers/BaseController";
+import { BoosterIntentComplete } from "../events/BoosterIntentComplete";
+import { BoosterUsed } from "../events/BoosterUsed";
 
 export class GameStateController extends EventController {
     private readonly _stateInfo: GameStateInfo;
@@ -25,21 +28,17 @@ export class GameStateController extends EventController {
 
     protected onInit(): void {
         this._gameStateModel.setState(GameStateType.PLAYING);
-        this.on(GameStateSync, this.onSync);
+        this.on(NormalIntentComplete, this.onNormalComplete);
+        this.on(BoosterIntentComplete, this.onBoosterComplete);
     }
 
-    private onSync = (event: GameStateSync): void => {
-        if (event.destroyed < 1) {
-            return;
-        }
-
+    private onNormalComplete = (event: NormalIntentComplete): void => {
         const state = this._gameStateModel.state;
         const score = this._gameStateModel.currentScore;
         const moves = this._gameStateModel.movesLeft;
 
-        console.log(`[GAME STATE] BEFORE ${GameStateType[state]}, ${score}, ${moves}`)
+        this.calculateScore(event);
 
-        this._gameStateModel.addScore(this._scoreService.calculate(event.destroyed));
         if (this._gameStateModel.currentScore >= this._gameStateModel.targetScore)
             this._gameStateModel.setState(GameStateType.WON);
 
@@ -56,6 +55,17 @@ export class GameStateController extends EventController {
         if (state !== this._gameStateModel.state)
             this.emit(new StateUpdate(this._gameStateModel.state));
 
-        console.log(`[GAME STATE] AFTER ${GameStateType[this._gameStateModel.state]}, ${this._gameStateModel.currentScore}, ${this._gameStateModel.movesLeft}`)
     };
+
+    private onBoosterComplete = (event: BoosterIntentComplete): void => {
+        this._gameStateModel.useBooster(event.type);
+        const booster = this._gameStateModel.getBooster(event.type);
+        this.emit(new BoosterUsed(event.type, booster));
+    };
+
+
+    private calculateScore(sync: NormalIntentComplete) {
+        this._gameStateModel.addScore(this._scoreService.calculateCluster(sync.clusterDestroys));
+        this._gameStateModel.addScore(this._scoreService.calculateCollateral(sync.collateralDestroys));
+    }
 }

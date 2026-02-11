@@ -1,6 +1,6 @@
 import { assert, assertNotNull } from "../../../../core/utils/assert";
 import { BoosterSelected } from "../../../application/input/intents/BoosterSelected";
-import { BoosterUsed } from "../../../domain/state/events/BoosterUsed";
+import { BoosterUsed } from "../../../application/state/events/BoosterUsed";
 import { BoosterType } from "../../../domain/state/models/BoosterType";
 import { BoosterClicked } from "../../board/events/BoosterClicked";
 import { BoosterAssets } from "../../common/assets/BoosterAssets";
@@ -34,11 +34,13 @@ export class BoosterView extends DynamicTextView<BoosterViewContext> implements 
     }
 
     protected onInit(): void {
+        super.onInit();
         this.on(BoosterSelected, this.onBoosterSelected);
         this.highlight(false);
     }
 
     public validate(): void {
+        super.validate();
         assertNotNull(this.targetSprite, this, "target");
         assertNotNull(this.assets, this, "assets");
         assert(this.type !== BoosterType.NONE, this, "booster type can't be NONE");

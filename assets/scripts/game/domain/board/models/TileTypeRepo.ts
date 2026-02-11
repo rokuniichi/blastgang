@@ -2,7 +2,7 @@ import { TileId } from "./BoardLogicModel";
 import { TileType } from "./TileType";
 
 export class TileTypeRepo {
-    private readonly _repo = new Map<string, TileType>();
+    private readonly _repo = new Map<TileId, TileType>();
 
     public register(id: TileId, type: TileType): void {
         this._repo.set(id, type);

@@ -4,7 +4,7 @@ import { TileType } from "../../../domain/board/models/TileType";
 import { TileAssets } from "../../common/assets/TileAssets";
 import { BaseView } from "../../common/view/BaseView";
 import { IHighlightable } from "../../common/view/IHighlightable";
-import { DropMotion } from "../../fx/DropMotions";
+import { DropMotion } from "../../fx/DropMotion";
 import { SlingMotion } from "../../fx/SlingMotion";
 
 const { ccclass, property } = cc._decorator;
@@ -35,7 +35,7 @@ export class TileView extends BaseView implements IInitializable<TileAssets>, IH
         assertNotNull(this.sling, this, "SlingMotion");
     }
 
-    init(assets: TileAssets): void {
+    public init(assets: TileAssets): void {
         this._assets = assets;
     }
 

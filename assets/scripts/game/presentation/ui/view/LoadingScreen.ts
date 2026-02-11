@@ -46,7 +46,6 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
     }
 
     private onPresentationReady = () => {
-        console.log(`[LOADING SCREEN] presentation READY`);
         this.fadeScreen();
     };
 
@@ -85,7 +84,6 @@ export class LoadingScreen extends EventView<LoadingScreenContext> {
         this.context.tweenSystem.build(TweenSettings.fade(this.node, this.screenDelay, this.screenFadeOutDuration, 0))
             .call(() => {
                 this._tween = null;
-                console.log(`[LOADING SCREEN] emit...`);
                 this.emit(new GameLoaded());
             })
             .start();

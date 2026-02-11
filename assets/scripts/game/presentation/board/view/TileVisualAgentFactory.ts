@@ -3,6 +3,7 @@ import { VisualConfig } from "../../../config/visual/VisualConfig";
 import { TileId } from "../../../domain/board/models/BoardLogicModel";
 import { TileType } from "../../../domain/board/models/TileType";
 import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
+import { RocketFxHolder } from "./RocketFxHolder";
 import { TileDestructionFxHolder } from "./TileDestructionFxHolder";
 import { TileFlashFxHolder } from "./TileFlashFxHolder";
 import { TileViewHolder } from "./TileViewHolder";
@@ -20,6 +21,7 @@ export class TileVisualAgentFactory {
         private readonly _tilesLayer: cc.Node,
         private readonly _fxLayer: cc.Node,
         private readonly _destructionFx: TileDestructionFxHolder,
+        private readonly _rocketFx: RocketFxHolder,
         private readonly _flashFx: TileFlashFxHolder
     ) { }
 
@@ -37,6 +39,7 @@ export class TileVisualAgentFactory {
             this._tilesLayer,
             this._fxLayer,
             this._destructionFx,
+            this._rocketFx,
             this._flashFx
         );
     }

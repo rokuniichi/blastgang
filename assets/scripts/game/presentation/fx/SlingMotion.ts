@@ -1,4 +1,3 @@
-import { clamp } from "../../../core/utils/maths";
 import { SlingFxInfo } from "../../config/visual/VisualConfig";
 
 const { ccclass } = cc._decorator;
@@ -19,14 +18,11 @@ export class SlingMotion extends cc.Component {
     private _from!: cc.Vec2;
     private _to!: cc.Vec2;
     private _pull!: cc.Vec2;
-    private _overshoot!: cc.Vec2;
 
     private _pullDuration = 0;
     private _launchDuration = 0;
-    private _settleDuration = 0;
 
-    private _pullDistance = 0;
-    private _overshootDistance = 0;
+    private _disappearDistance = 0;
 
     private _phaseTime = 0;
     private _running = false;
@@ -34,10 +30,6 @@ export class SlingMotion extends cc.Component {
     private _baseScale = 1;
 
     private _onSlinged: (() => void) | null = null;
-
-    // ======================
-    // easing
-    // ======================
 
     private smooth(t: number) {
         return t * t * (3 - 2 * t);
@@ -62,20 +54,15 @@ export class SlingMotion extends cc.Component {
         this._from = from.clone();
         this._to = to.clone();
 
-        this._pullDistance = slingInfo.pullDistance;
-        this._overshootDistance = slingInfo.overshootDistance;
-
         this._pullDuration = slingInfo.pullDuration;
-        const distance = from.sub(to).mag();
-        this._launchDuration = clamp(distance / slingInfo.launchSpeed, slingInfo.minLaunchDuration, slingInfo.maxLaunchDuration);
-        this._settleDuration = slingInfo.settleDuration;
+        this._launchDuration = slingInfo.minLaunchDuration;
 
-        this._baseScale = this.node.scale;
+        this._disappearDistance = slingInfo.disappearDistance;
+
 
         const dir = to.sub(from).normalize();
 
         this._pull = from.sub(dir.mul(slingInfo.pullDistance));
-        this._overshoot = to.add(dir.mul(slingInfo.overshootDistance));
 
         this.node.setPosition(from);
 
@@ -90,7 +77,7 @@ export class SlingMotion extends cc.Component {
         this._onSlinged = callback;
     }
 
-    update(dt: number) {
+    protected update(dt: number) {
 
         if (!this._running) return;
 
@@ -120,10 +107,10 @@ export class SlingMotion extends cc.Component {
                 const t = Math.min(this._phaseTime / this._launchDuration, 1);
                 const e = this.cubicInOut(t);
 
-                const position = this._pull.lerp(this._overshoot, e);
+                const position = this._pull.lerp(this._to, e);
                 this.node.setPosition(position);
-
-                if (t >= 1) {
+                const distance = this.node.position.sub(cc.v3(this._to)).mag();
+                if (t >= 1 || distance < this._disappearDistance) {
                     this._phase = SlingPhase.SETTLE;
                     this._phaseTime = 0;
                 }
@@ -133,33 +120,14 @@ export class SlingMotion extends cc.Component {
 
             case SlingPhase.SETTLE: {
 
-                const t = Math.min(this._phaseTime / this._settleDuration, 1);
-                const e = this.cubicOut(t);
+                this.node.setPosition(this._to);
+                this.node.scale = this._baseScale;
 
-                const pos = this._overshoot.lerp(this._to, e);
-                this.node.setPosition(pos);
+                this._phase = SlingPhase.DONE;
+                this._running = false;
 
-                const restore = 1 - e;
-
-                this.node.scaleX =
-                    this._baseScale +
-                    (this.node.scaleX - this._baseScale) * restore;
-
-                this.node.scaleY =
-                    this._baseScale +
-                    (this.node.scaleY - this._baseScale) * restore;
-
-                if (t >= 1) {
-
-                    this.node.setPosition(this._to);
-                    this.node.scale = this._baseScale;
-
-                    this._phase = SlingPhase.DONE;
-                    this._running = false;
-
-                    this._onSlinged?.();
-                    this._onSlinged = null;
-                }
+                this._onSlinged?.();
+                this._onSlinged = null;
 
                 break;
             }

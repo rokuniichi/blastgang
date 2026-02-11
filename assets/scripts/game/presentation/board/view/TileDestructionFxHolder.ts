@@ -1,40 +1,40 @@
+import { EventBus } from "../../../../core/eventbus/EventBus";
 import { IDisposable } from "../../../../core/lifecycle/IDisposable";
-import { assertNotNull } from "../../../../core/utils/assert";
 import { Random } from "../../../../core/utils/random";
 import { BurstFxInfo } from "../../../config/visual/VisualConfig";
 import { TileType } from "../../../domain/board/models/TileType";
-import { TweenSystem } from "../../common/animations/tweens/TweenSystem";
-import { TweenSettings } from "../../common/animations/TweenSettings";
 import { ShardAssets } from "../../common/assets/ShardAssets";
 import { NodePool } from "../../common/view/NodePool";
-import { BurstMotion } from "../../fx/BurstMotion";
+import { ShardFaded } from "../events/ShardFaded";
+import { ShardView } from "./ShardView";
 
 export class TileDestructionFxHolder implements IDisposable {
+    private readonly _eventBus: EventBus;
     private readonly _burstInfo: BurstFxInfo;
-    private readonly _tweenSystem: TweenSystem;
     private readonly _shards: ShardAssets;
     private readonly _shardPool: NodePool;
 
-    public constructor(burstInfo: BurstFxInfo, tweenSystem: TweenSystem, shards: ShardAssets, parent: cc.Node, boardSize: number) {
+    public constructor(eventBus: EventBus, burstInfo: BurstFxInfo, shards: ShardAssets, parent: cc.Node, boardSize: number) {
+        this._eventBus = eventBus;
         this._burstInfo = burstInfo;
-        this._tweenSystem = tweenSystem;
         this._shards = shards;
         this._shardPool = new NodePool(shards.getPrefab(), parent, boardSize * burstInfo.maxCount);
+
+        this._eventBus.on(ShardFaded, this.onShardFaded);
     }
 
     public dispose(): void {
-        console.log(`[DISPOSE] shards pool:`);
         this._shardPool.dispose();
+        this._eventBus.off(ShardFaded, this.onShardFaded)
     }
 
     public play(local: cc.Vec3, type: TileType): void {
-
         const count = Random.intRange(this._burstInfo.minCount, this._burstInfo.maxCount);
 
         for (let i = 0; i < count; i++) {
-            const shard = this._shardPool.pull();
-            const variant = this._shards.getSprite();
-            const color = this._shards.getColor(type);
+            const node = this._shardPool.pull();
+            const shard = node.getComponent(ShardView);
+            shard.init(this._shards);
 
             const offset = cc.v3(
                 Random.floatRange(-this._burstInfo.spawnRadius, this._burstInfo.spawnRadius),
@@ -42,17 +42,10 @@ export class TileDestructionFxHolder implements IDisposable {
                 0
             );
 
-            shard.active = true
-            shard.setPosition(local.clone().add(offset));
-
-            const sprite = shard.getComponent(cc.Sprite);
-            assertNotNull(sprite, this, "shard pool broken");
-            sprite.spriteFrame = variant;
-
-            shard.color = color;
-            shard.scale = Random.floatRange(this._burstInfo.minScale, this._burstInfo.maxScale);
-
-            const motion = shard.addComponent(BurstMotion);
+            shard.set(type);
+            shard.show();
+            shard.node.setPosition(local.clone().add(offset));
+            shard.node.scale = Random.floatRange(this._burstInfo.minScale, this._burstInfo.maxScale);
 
             const angle = Random.floatRange(
                 -this._burstInfo.horizontalSpread,
@@ -76,12 +69,11 @@ export class TileDestructionFxHolder implements IDisposable {
             const fadeDelay = this._burstInfo.fadeDelay;
             const shrinkScale = this._burstInfo.shrinkScale;
 
-            motion.play(vx, vy, gravity, drag, av, duration, fadeDelay, shrinkScale);
-
-            this._tweenSystem.build(TweenSettings.burst(shard, this._burstInfo.duration))
-                .call(() => this._shardPool.release(shard))
-                .start();
+            shard.burst.play(this._eventBus, vx, vy, gravity, drag, av, duration, fadeDelay, shrinkScale);
         }
-
     }
+
+    private onShardFaded = (event: ShardFaded) => {
+        this._shardPool.release(event.node);
+    };
 }

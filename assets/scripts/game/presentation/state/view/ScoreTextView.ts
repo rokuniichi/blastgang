@@ -1,5 +1,5 @@
 import { assertNumber } from "../../../../core/utils/assert";
-import { ScoreUpdate } from "../../../domain/state/events/ScoreUpdate";
+import { ScoreUpdate } from "../../../application/state/events/ScoreUpdate";
 import { DynamicTextView } from "../../common/view/DynamicTextView";
 import { PresentationViewContextFactory } from "../../common/view/PresentationView";
 import { PresentationGraph } from "../../PresentationGraph";

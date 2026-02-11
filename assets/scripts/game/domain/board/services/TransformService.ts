@@ -1,13 +1,15 @@
 import { TileMutationHelper } from "../events/mutations/TileMutationHelper";
-import { TileTransformed } from "../events/mutations/TileTransformed";
+import { TransformMutation } from "../events/mutations/TransformationMutation";
 import { TileId } from "../models/BoardLogicModel";
 import { TileType } from "../models/TileType";
 import { BoardService } from "./BoardService";
 
 export class TransformService extends BoardService {
-    public transform(id: TileId, type: TileType): TileTransformed {
-        const before = this.typeRepo.get(id) ?? TileType.EMPTY;
-        this.typeRepo.register(id, type);
-        return TileMutationHelper.transformed(id, before, type);
+    public tryTransform(centerId: TileId, cluster: TileId[], type: TileType): TransformMutation | null {
+        const center = this.positionRepo.get(centerId);
+        if (!center) return null;
+        this.typeRepo.register(centerId, type);
+        const filtered = cluster.filter(id => id !== centerId);
+        return TileMutationHelper.transformed(centerId, center, filtered, type);
     }
 }

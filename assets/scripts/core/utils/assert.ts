@@ -56,7 +56,7 @@ export function assertObject(
     identifier: string
 ): asserts value is Record<string, unknown> {
     assert(typeof value === "object", source, `${identifier} must be object`);
-    //assertNotNull(value, source, identifier);
+    assertNotNull(value, source, identifier);
 }
 
 export function assertNumber(

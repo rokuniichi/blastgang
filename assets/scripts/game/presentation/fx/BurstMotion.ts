@@ -1,8 +1,12 @@
+import { EventBus } from "../../../core/eventbus/EventBus";
+import { ShardFaded } from "../board/events/ShardFaded";
+
 const { ccclass } = cc._decorator;
 
 @ccclass
 export class BurstMotion extends cc.Component {
 
+    private _eventBus: EventBus | null = null;
     private _vx = 0;
     private _vy = 0;
     private _gravity = 0;
@@ -16,7 +20,18 @@ export class BurstMotion extends cc.Component {
     private _fadeStartTime = 0;
     private _running = false;
 
-    public play(vx: number, vy: number, gravity: number, drag: number, av: number, duration: number, fadeDelay: number, shrinkScale: number): void {
+    public play(
+        eventBus: EventBus,
+        vx: number,
+        vy: number,
+        gravity: number,
+        drag: number,
+        av: number,
+        duration: number,
+        fadeDelay: number,
+        shrinkScale: number
+    ): void {
+        this._eventBus = eventBus;
         this._elapsed = 0;
         this._running = true;
         this._initialScale = this.node.scale;
@@ -33,13 +48,14 @@ export class BurstMotion extends cc.Component {
         this.node.opacity = 255;
     }
 
-    update(dt: number): void {
+    protected update(dt: number): void {
 
         if (!this._running) return;
 
         this._elapsed += dt;
 
         if (this._elapsed >= this._duration) {
+            this._eventBus?.emit(new ShardFaded(this.node));
             this._running = false;
             return;
         }

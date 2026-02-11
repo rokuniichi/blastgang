@@ -1,14 +1,15 @@
+import { TileId } from "../../models/BoardLogicModel";
 import { TilePosition } from "../../models/TilePosition";
 import { TileType } from "../../models/TileType";
-import { DestroyCause, TileDestroyed } from "./TileDestroyed";
-import { MoveCause, TileMoved } from "./TileMoved";
-import { TileShaked } from "./TileRejected";
-import { TileSpawned } from "./TileSpawned";
-import { TileTransformed } from "./TileTransformed";
+import { DestroyCause, DestroyMutation } from "./DestroyMutation";
+import { MoveCause, MoveMutation } from "./MoveMutation";
+import { ShakeMutation } from "./ShakeMutation";
+import { SpawnMutation } from "./SpawnMutation";
+import { TransformMutation } from "./TransformationMutation";
 
 export class TileMutationHelper {
 
-    static shaked(id: string): TileShaked {
+    static shaked(id: string): ShakeMutation {
         return {
             kind: "tile.shaked",
             id
@@ -16,14 +17,14 @@ export class TileMutationHelper {
     }
 
     static destroyed(
-        id: string,
-        at: TilePosition,
+        id: TileId,
+        destroyed: TileId[],
         cause: DestroyCause
-    ): TileDestroyed {
+    ): DestroyMutation {
         return {
             kind: "tile.destroy",
             id,
-            at,
+            destroyed,
             cause
         };
     }
@@ -33,7 +34,7 @@ export class TileMutationHelper {
         from: TilePosition,
         to: TilePosition,
         cause: MoveCause
-    ): TileMoved {
+    ): MoveMutation {
         return {
             kind: "tile.moved",
             id,
@@ -47,7 +48,7 @@ export class TileMutationHelper {
         id: string,
         at: TilePosition,
         type: TileType
-    ): TileSpawned {
+    ): SpawnMutation {
         return {
             kind: "tile.spawned",
             id,
@@ -58,14 +59,16 @@ export class TileMutationHelper {
 
     static transformed(
         id: string,
-        before: TileType,
-        after: TileType
-    ): TileTransformed {
+        center: TilePosition,
+        transformed: TileId[],
+        type: TileType
+    ): TransformMutation {
         return {
             kind: "tile.transformed",
             id,
-            before,
-            after
+            center,
+            transformed,
+            type
         };
     }
 }

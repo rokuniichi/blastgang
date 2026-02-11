@@ -45,4 +45,26 @@ export class EventBus {
     public clear(): void {
         this._listeners.clear();
     }
+
+    public waitForRemaining<T extends IEvent>(eventType: EventConstructor<T>, count: number): Promise<void> {
+        return new Promise(resolve => {
+            let remaining = count;
+            const sub = this.on(eventType, () => {
+                remaining--;
+                if (remaining <= 0) {
+                    sub.unsubscribe();
+                    resolve();
+                }
+            });
+        });
+    }
+
+    public waitForSpecific<T extends IEvent>(eventType: EventConstructor<T>): Promise<T> {
+        return new Promise((resolve) => {
+            const sub = this.on(eventType, (event) => {
+                sub.unsubscribe();
+                resolve(event);
+            });
+        });
+    }
 }

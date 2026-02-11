@@ -1,6 +1,6 @@
 import { IConfigValidator } from "../../../core/config/IConfigValidator";
 import { ensureNumber, ensureObject } from "../../../core/utils/ensure";
-import { BurstFxInfo, DropFxInfo, SlingFxInfo, VisualConfig } from "./VisualConfig";
+import { BurstFxInfo, DropFxInfo, RocketFxInfo, SlingFxInfo, VisualConfig } from "./VisualConfig";
 
 export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
     validate(raw: any): VisualConfig {
@@ -49,6 +49,11 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
         const minLaunchDuration = ensureNumber(slingData.minLaunchDuration, this, "slingData.minLaunchDuration");
         const maxLaunchDuration = ensureNumber(slingData.maxLaunchDuration, this, "slingData.maxLaunchDuration");
         const slingSettleDuration = ensureNumber(slingData.settleDuration, this, "slingData.settleDuration");
+        const disappearDistance = ensureNumber(slingData.disappearDistance, this, "slingData.disappearDistance");
+
+        const rocketData = ensureObject(data.rocket, this, "data.rocket");
+
+        const speed = ensureNumber(rocketData.speed, this, "rocketData.speed");
 
         const burst: BurstFxInfo = {
             minCount,
@@ -84,7 +89,12 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
             launchSpeed,
             minLaunchDuration,
             maxLaunchDuration,
-            settleDuration: slingSettleDuration
+            settleDuration: slingSettleDuration,
+            disappearDistance
+        }
+
+        const rocket: RocketFxInfo = {
+            speed
         }
 
         return {
@@ -96,7 +106,8 @@ export class VisualConfigValidator implements IConfigValidator<VisualConfig> {
             boardHeightPadding,
             burst,
             drop,
-            sling
+            sling,
+            rocket
         };
     }
 }
