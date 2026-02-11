@@ -93,8 +93,8 @@ export class BoardLogicController extends EventController {
     private onBombEmplaceIntent = (event: BombEmplaceIntent): void => {
         const batch = new BoardMutationsBatch();
         const transform = this.emplace(event.id, TileType.BOMB);
-        if (transform !== null)
-            batch.push(transform);
+        if (transform === null) return;
+        batch.push(transform);
         this.emit(new BoosterIntentComplete(BoosterType.BOMB));
         this.emit(batch);
     }
@@ -106,8 +106,10 @@ export class BoardLogicController extends EventController {
     }
 
     private emplace(id: TileId, type: TileType): TransformMutation | null {
+        const transform = this._transformService.tryTransform(id, [], type);
+        if (transform === null) return null;
         this._interactivityModel.addUnstable(id);
-        return this._transformService.tryTransform(id, [], type);
+        return transform;
     }
 
     private sync(batch: BoardMutationsBatch) {
@@ -129,6 +131,7 @@ export class BoardLogicController extends EventController {
             }
         });
 
-        this.emit(new NormalIntentComplete(clusterDestroys, collateralDestroys));
+        if (clusterDestroys > 0 || collateralDestroys > 0)
+            this.emit(new NormalIntentComplete(clusterDestroys, collateralDestroys));
     }
 }
