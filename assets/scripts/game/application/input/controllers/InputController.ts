@@ -55,6 +55,7 @@ export class InputController extends EventController {
 
             this.emit(new SwapSelected(id, true));
             this.emit(new SwapIntent(this._firstTile, id));
+            this._firstTile = null;
             this.reset();
         },
 
