@@ -1,0 +1,1 @@
+{"__type__":"cc.JsonAsset","_name":"game-config","json":{"board":{"cols":8,"rows":8,"clusterSize":2,"allowedTypes":["RED","GREEN","BLUE","YELLOW","PURPLE"],"bombRadius":1,"specials":{"ROCKET":6,"BOMB":4,"SUPER_BOMB":10}},"gameState":{"targetScore":7500,"maxMoves":30,"scoreMultiplier":5,"boosters":{"SWAP":10,"BOMB":5}}}}
