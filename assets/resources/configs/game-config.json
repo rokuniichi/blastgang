@@ -12,8 +12,8 @@
 		],
 		"bombRadius": 1,
 		"specials": {
-			"ROCKET": 4,
-			"BOMB": 6,
+			"ROCKET": 6,
+			"BOMB": 4,
 			"SUPER_BOMB": 10
 		}
 	},
